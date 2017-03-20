@@ -13,6 +13,15 @@ config :porter, Porter.Endpoint,
   pubsub: [name: Porter.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
+# Environment config (precompiled OR from env variables)
+# MUST release with RELX_REPLACE_OS_VARS=true
+config :porter, :env_config,
+  bq_client_email: System.get_env("BQ_CLIENT_EMAIL") || "${BQ_CLIENT_EMAIL}",
+  bq_private_key: System.get_env("BQ_PRIVATE_KEY") || "${BQ_PRIVATE_KEY}",
+  bq_project_id: System.get_env("BQ_PROJECT_ID") || "${BQ_PROJECT_ID}",
+  bq_dataset: System.get_env("BQ_DATASET") || "${BQ_DATASET}",
+  bq_dovetail_table: System.get_env("BQ_DOVETAIL_TABLE") || "${BQ_DOVETAIL_TABLE}"
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
