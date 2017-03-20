@@ -9,8 +9,12 @@ defmodule Env do
     |> Atom.to_string
     |> String.upcase
     |> System.get_env
-    |> String.replace("\\n", "\n")
+    |> fix_dotenv_newlines
   end
+
+  # multiline .env values will have double encoded newlines
+  defp fix_dotenv_newlines("" <> val), do: String.replace(val, "\\n", "\n")
+  defp fix_dotenv_newlines(val), do: val
 
   defp get_env_config(key) do
     Application.get_env(:porter, :env_config)[key] |> defined_value
