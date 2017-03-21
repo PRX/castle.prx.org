@@ -19,6 +19,12 @@ defmodule Porter.Router do
     get "/", PageController, :index
   end
 
+  scope "api/v1", Porter do
+    pipe_through :api
+
+    get "/", DemoController, :index
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", Porter do
   #   pipe_through :api

@@ -2,6 +2,6 @@ defmodule Porter.PageController do
   use Porter.Web, :controller
 
   def index(conn, _params) do
-    render conn, "index.html"
+    redirect conn, to: "/api/v1"
   end
 end
