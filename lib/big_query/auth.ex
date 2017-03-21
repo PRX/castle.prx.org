@@ -7,21 +7,20 @@ defmodule BigQuery.Auth do
   @token_uri "https://www.googleapis.com/oauth2/v3/token"
 
   def get_token(timeout \\ 3600) do
+    now = :os.system_time(:seconds)
     Env.get(:bq_client_email)
-    |> assemble_claims(timeout)
+    |> assemble_claims(now, timeout)
     |> sign_claims(Env.get(:bq_private_key))
-    |> send_request
+    |> send_request(now + timeout)
   end
 
-  defp assemble_claims(client_email, timeout) do
-    iat = :os.system_time(:seconds)
-    exp = iat + timeout
+  defp assemble_claims(client_email, now, timeout) do
     %{
       "iss" => client_email,
       "scope" => @auth_scopes |> Enum.join(" "),
       "aud" => @token_uri,
-      "exp" => exp,
-      "iat" => iat
+      "exp" => now + timeout,
+      "iat" => now
     }
   end
 
@@ -35,12 +34,12 @@ defmodule BigQuery.Auth do
     |> elem(1)
   end
 
-  defp send_request(claims) do
+  defp send_request(claims, expires) do
     headers = %{"Content-type" => "application/x-www-form-urlencoded"}
     form = {:form, [assertion: claims, grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer"]}
     case HTTPoison.post(@token_uri, form, headers) do
       {:ok, %HTTPoison.Response{status_code: 200, body: json}} ->
-        {:ok, JOSE.decode(json)["access_token"]}
+        {:ok, JOSE.decode(json)["access_token"], expires}
       {:ok, %HTTPoison.Response{status_code: _code, body: json}} ->
         {:error, JOSE.decode(json)["error"] || "Unknown error"}
       {:error, error} ->
