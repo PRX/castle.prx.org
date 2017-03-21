@@ -1,5 +1,3 @@
-require IEx
-
 defmodule BigQuery.Base do
 
   @timeout 30000
