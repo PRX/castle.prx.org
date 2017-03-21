@@ -2,8 +2,9 @@ require IEx
 
 defmodule BigQuery.Base do
 
+  @timeout 30000
   @bq_base "https://www.googleapis.com/bigquery/v2"
-  @options [{:timeout, 30000}, {:recv_timeout, 30000}]
+  @options [{:timeout, @timeout}, {:recv_timeout, @timeout}]
 
   def get(path) do
     case get_token() do
@@ -17,7 +18,7 @@ defmodule BigQuery.Base do
   def post(path, body) do
     case get_token() do
       {:ok, token} ->
-        request(:post, url_for(path), token, body)
+        request(:post, url_for(path), token, body |> Map.put("timeoutMs", @timeout))
       {:error, error} ->
         raise error
     end
@@ -48,7 +49,8 @@ defmodule BigQuery.Base do
                                {"Accept", "application/json"}]
 
   defp parse_response({:ok, %HTTPoison.Response{status_code: 200, body: json}}) do
-    JOSE.decode(json) |> Map.get("rows") |> parse_rows()
+    data = JOSE.decode(json)
+    parse_rows(data["rows"], data["schema"]["fields"])
   end
   defp parse_response({:ok, %HTTPoison.Response{status_code: code, body: json}}) do
     raise JOSE.decode(json)["error"] || "Error: got #{code}"
@@ -57,14 +59,35 @@ defmodule BigQuery.Base do
     raise HTTPoison.Error.message(error)
   end
 
-  defp parse_rows([row | rest]) do
-    parse_columns(row["f"]) ++ parse_rows(rest)
+  defp parse_rows([row | rest], schema) do
+    [
+      row["f"] |> parse_columns(schema) |> Enum.into(%{})
+    ] ++ parse_rows(rest, schema)
   end
-  defp parse_rows([]), do: []
+  defp parse_rows([], _schema), do: []
 
-  def parse_columns([column | rest]) do
-    [Map.get(column, "v")] ++ parse_columns(rest)
+  def parse_columns([column | rest], [%{"name" => name, "type" => type} | schema]) do
+    [{
+      String.to_atom(name),
+      Map.get(column, "v") |> parse_value(type)
+    }] ++ parse_columns(rest, schema)
   end
-  def parse_columns([]), do: []
+  def parse_columns([], []), do: []
+
+  def parse_value(value, type) do
+    case {type, value} do
+      {"STRING", _} ->
+        value
+      {"BOOLEAN", "true"} ->
+        true
+      {"BOOLEAN", _} ->
+        false
+      {"INTEGER", _} ->
+        String.to_integer(value)
+      {"TIMESTAMP", _} ->
+        {:ok, dtim} = String.to_float(value) |> round |> div(1000) |> DateTime.from_unix
+        dtim
+    end
+  end
 
 end
