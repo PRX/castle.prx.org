@@ -1,8 +1,10 @@
 defmodule Porter.PageControllerTest do
-  use Porter.ConnCase
+  use Porter.ConnCase, async: true
 
-  test "GET /", %{conn: conn} do
-    conn = get conn, "/"
-    assert html_response(conn, 200) =~ "Welcome to Phoenix!"
+  describe "index/2" do
+    test "redirects to the api", %{conn: conn} do
+      location = conn |> get("/") |> redirected_to(302)
+      assert location == "/api/v1"
+    end
   end
 end

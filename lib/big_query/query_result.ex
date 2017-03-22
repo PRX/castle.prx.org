@@ -32,7 +32,10 @@ defmodule BigQuery.QueryResult do
       {"INTEGER", _} ->
         String.to_integer(value)
       {"TIMESTAMP", _} ->
-        {:ok, dtim} = String.to_float(value) |> round |> div(1000) |> DateTime.from_unix
+        num = if String.contains?(value, "E"),
+          do: String.to_float(value) |> round,
+          else: String.to_integer(value)
+        {:ok, dtim} = num |> div(1000) |> DateTime.from_unix
         dtim
     end
   end

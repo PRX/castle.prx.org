@@ -20,6 +20,7 @@ defmodule Porter.Mixfile do
      applications: apps(Mix.env)]
   end
   defp apps(:dev), do: [:dotenv | apps()]
+  defp apps(:test), do: [:dotenv | apps()]
   defp apps(_), do: apps()
   defp apps, do: [
     :phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
@@ -42,6 +43,6 @@ defmodule Porter.Mixfile do
      {:cowboy, "~> 1.0"},
      {:jose, "~> 1.8"},
      {:httpoison, "~> 0.11"},
-     {:dotenv, "~> 2.1", only: :dev}]
+     {:dotenv, "~> 2.1", only: [:dev, :test]}]
   end
 end

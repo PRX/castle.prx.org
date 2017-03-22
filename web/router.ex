@@ -19,7 +19,7 @@ defmodule Porter.Router do
     get "/", PageController, :index
   end
 
-  scope "api/v1", Porter do
+  scope "/api/v1", Porter do
     pipe_through :api
 
     get "/", DemoController, :index
