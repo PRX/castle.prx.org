@@ -13,20 +13,29 @@ defmodule Porter.Router do
     plug :accepts, ["json"]
   end
 
+  # scope "/", Porter do
+  #   pipe_through :browser # Use the default browser stack
+  #
+  #   get "/", RedirectController, :index
+  # end
+
   scope "/", Porter do
-    pipe_through :browser # Use the default browser stack
-
-    get "/", PageController, :index
-  end
-
-  scope "/api/v1", Porter do
     pipe_through :api
 
-    get "/", DemoController, :index
+    get "/", RedirectController, :index
+    get "/api", RedirectController, :index
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", Porter do
-  #   pipe_through :api
-  # end
+  scope "/api/v1", Porter.API, as: :api do
+    pipe_through :api
+
+    get "/", RootController, :index
+    resources "/podcasts", PodcastController, only: [:index, :show]
+    resources "/episodes", EpisodeController, only: [:index, :show]
+    get "/podcasts/:id/downloads", PodcastController, :downloads
+    get "/podcasts/:id/impressions", PodcastController, :impressions
+    get "/episodes/:id/downloads", EpisodeController, :downloads
+    get "/episodes/:id/impressions", EpisodeController, :impressions
+  end
+
 end
