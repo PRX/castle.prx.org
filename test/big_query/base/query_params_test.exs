@@ -1,0 +1,39 @@
+defmodule Porter.BigQueryBaseQueryParamsTest do
+  use Porter.BigQueryCase, async: true
+
+  import BigQuery.Base.QueryParams
+
+  test "sets parameter names" do
+    params = parameterize(%{bar: 1, foo: 2, stuff: 3})
+    assert is_list params
+    assert length(params) == 3
+    [one, two, three] = Enum.map(params, &(&1[:name]))
+    assert one == :bar
+    assert two == :foo
+    assert three == :stuff
+  end
+
+  test "sets parameter values" do
+    params = parameterize(%{bar: 1, foo: 2, stuff: 3})
+    assert is_list params
+    assert length(params) == 3
+    [one, two, three] = Enum.map(params, &(&1[:parameterValue][:value]))
+    assert one == 1
+    assert two == 2
+    assert three == 3
+  end
+
+  test "guesses parameter types" do
+    {:ok, time, _} = DateTime.from_iso8601("2017-03-22T21:54:52Z")
+    params = parameterize(%{a: time, b: 12, c: 12.2, d: false, e: "foo", f: nil})
+    assert is_list params
+    assert length(params) == 6
+    [a, b, c, d, e, f] = Enum.map(params, &(&1[:parameterType][:type]))
+    assert a == "TIMESTAMP"
+    assert b == "INT64"
+    assert c == "FLOAT64"
+    assert d == "BOOL"
+    assert e == "STRING"
+    assert f == "STRING"
+  end
+end

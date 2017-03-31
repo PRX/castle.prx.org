@@ -1,4 +1,4 @@
-defmodule BigQuery.QueryResult do
+defmodule BigQuery.Base.QueryResult do
 
   def from_response(data) do
     parse_rows(data["rows"], data["schema"]["fields"])
@@ -10,7 +10,7 @@ defmodule BigQuery.QueryResult do
     ] ++ parse_rows(rest, schema)
   end
 
-  defp parse_rows([], _schema), do: []
+  defp parse_rows(_, _schema), do: []
 
   defp parse_columns([column | rest], [%{"name" => name, "type" => type} | schema]) do
     [{
@@ -23,6 +23,8 @@ defmodule BigQuery.QueryResult do
 
   defp parse_value(value, type) do
     case {type, value} do
+      {_type, nil} ->
+        nil
       {"STRING", _} ->
         value
       {"BOOLEAN", "true"} ->
@@ -35,7 +37,7 @@ defmodule BigQuery.QueryResult do
         num = if String.contains?(value, "E"),
           do: String.to_float(value) |> round,
           else: String.to_integer(value)
-        {:ok, dtim} = num |> div(1000) |> DateTime.from_unix
+        {:ok, dtim} = DateTime.from_unix(num)
         dtim
     end
   end
