@@ -22,15 +22,6 @@ mix deps.get
 # Configure your environment (you'll need a bigquery table and service account)
 cp env-example .env
 vi .env
-
-# Start the phoenix server
-mix phoenix.server
-
-# Or run interactively
-iex -S mix phoenix.server
-
-# Or just get a console
-iex -S mix
 ```
 
 ### Docker
@@ -43,7 +34,29 @@ TODO: probably feeder?  Bigquery?
 
 ## Usage
 
-TODO: localhost:4000
+```
+# Start the phoenix server
+mix phoenix.server
+
+# Or run interactively
+iex -S mix phoenix.server
+
+# Or just get a console
+iex -S mix
+```
+
+## Testing
+
+```
+# Run all the tests
+mix test
+
+# Run a specific test
+mix test test/big_query/base/http_test.exs
+
+# Include external dependency tests (requires a valid .env)
+mix test --include external
+```
 
 ## License
 

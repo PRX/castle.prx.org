@@ -43,6 +43,8 @@ defmodule Porter.Mixfile do
      {:cowboy, "~> 1.0"},
      {:jose, "~> 1.8"},
      {:httpoison, "~> 0.11"},
-     {:dotenv, "~> 2.1", only: [:dev, :test]}]
+     {:uuid, "~> 1.1"},
+     {:dotenv, "~> 2.1", only: [:dev, :test]},
+     {:mock, "~> 0.2.0", only: :test}]
   end
 end

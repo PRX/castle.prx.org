@@ -1,4 +1,4 @@
-defmodule BigQuery.Base do
+defmodule BigQuery.Base.HTTP do
 
   @timeout 30000
   @bq_base "https://www.googleapis.com/bigquery/v2"
@@ -32,7 +32,7 @@ defmodule BigQuery.Base do
         {:ok, token}
       _ ->
         :ets.delete(__MODULE__, :auth_token)
-        case BigQuery.Auth.get_token do
+        case BigQuery.Base.Auth.get_token do
           {:ok, token, exp} ->
             :ets.insert(__MODULE__, {:auth_token, token, exp})
             {:ok, token}
@@ -66,7 +66,12 @@ defmodule BigQuery.Base do
   end
 
   defp decode_response({:ok, %HTTPoison.Response{status_code: code, body: json}}) do
-    raise JOSE.decode(json)["error"] || "Error: got #{code}"
+    msg = JOSE.decode(json)["error"]["message"]
+    if msg do
+      raise "BigQuery #{code} - #{msg}"
+    else
+      raise "BiqQuery #{code}"
+    end
   end
 
   defp decode_response({:error, error}) do
