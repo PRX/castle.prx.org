@@ -10,7 +10,7 @@ defmodule BigQuery.Base.QueryParams do
     [
       %{
         name: key,
-        parameterValue: %{value: value},
+        parameterValue: %{value: "#{value}"},
         parameterType: %{type: guess_type(value)},
       }
     ] ++ parse_param(rest)
@@ -18,6 +18,7 @@ defmodule BigQuery.Base.QueryParams do
   defp parse_param(_), do: []
 
   defp guess_type(%DateTime{}), do: "TIMESTAMP"
+  defp guess_type(%Date{}), do: "DATE"
   defp guess_type(val) when is_integer(val), do: "INT64"
   defp guess_type(val) when is_float(val), do: "FLOAT64"
   defp guess_type(val) when is_boolean(val), do: "BOOL"
