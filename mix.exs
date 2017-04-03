@@ -24,7 +24,7 @@ defmodule Porter.Mixfile do
   defp apps(_), do: apps()
   defp apps, do: [
     :phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-    :jose, :httpoison
+    :jose, :httpoison, :timex
   ]
 
   # Specifies which paths to compile per environment.
@@ -44,6 +44,7 @@ defmodule Porter.Mixfile do
      {:jose, "~> 1.8"},
      {:httpoison, "~> 0.11"},
      {:uuid, "~> 1.1"},
+     {:timex, "~> 3.0"},
      {:dotenv, "~> 2.1", only: [:dev, :test]},
      {:mock, "~> 0.2.0", only: :test}]
   end
