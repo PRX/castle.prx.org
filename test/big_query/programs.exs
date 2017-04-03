@@ -1,10 +1,10 @@
-defmodule Porter.BigQueryImpressionsTest do
+defmodule Porter.BigQueryProgramsTest do
   use Porter.BigQueryCase, async: true
 
-  import BigQuery.Impressions
+  import BigQuery.Programs
 
   @tag :external
-  test "lists impressions" do
+  test "lists programs" do
     result = list(Timex.to_datetime(~D[2017-04-01]))
     assert is_list result
     assert length(result) > 10

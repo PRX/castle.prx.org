@@ -1,4 +1,4 @@
-defmodule BigQuery.Impressions do
+defmodule BigQuery.Programs do
   import BigQuery.Base.Query
 
   def list(now \\ Timex.now) do
