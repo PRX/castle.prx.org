@@ -20,7 +20,8 @@ config :porter, :env_config,
   bq_private_key: System.get_env("BQ_PRIVATE_KEY") || "${BQ_PRIVATE_KEY}",
   bq_project_id: System.get_env("BQ_PROJECT_ID") || "${BQ_PROJECT_ID}",
   bq_dataset: System.get_env("BQ_DATASET") || "${BQ_DATASET}",
-  bq_dovetail_table: System.get_env("BQ_DOVETAIL_TABLE") || "${BQ_DOVETAIL_TABLE}"
+  bq_downloads_table: System.get_env("BQ_DOWNLOADS_TABLE") || "${BQ_DOWNLOADS_TABLE}",
+  bq_impressions_table: System.get_env("BQ_IMPRESSIONS_TABLE") || "${BQ_IMPRESSIONS_TABLE}"
 
 # Configures Elixir's Logger
 config :logger, :console,

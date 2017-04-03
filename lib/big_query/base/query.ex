@@ -21,24 +21,3 @@ defmodule BigQuery.Base.Query do
   end
 
 end
-
-# [
-#   %{
-#     "parameterType": %{
-#       "type": "STRING"
-#     },
-#     "parameterValue": %{
-#       "value": queryParams.id
-#     },
-#     "name": "id"
-#   },
-#   %{
-#     "parameterType": %{
-#       "type": "STRING"
-#     },
-#     "parameterValue": %{
-#       "value": queryParams.table
-#     },
-#     "name": "table"
-#   },
-# ],

@@ -6,7 +6,7 @@ defmodule Porter.BigQueryBaseQueryTest do
   @tag :external
   test "queries with a plain string" do
     result = query("""
-      SELECT * FROM #{Env.get(:bq_dovetail_table)}
+      SELECT * FROM #{Env.get(:bq_impressions_table)}
       WHERE is_duplicate = true
       LIMIT 2
     """)
@@ -19,7 +19,7 @@ defmodule Porter.BigQueryBaseQueryTest do
   @tag :external
   test "queries with parameters" do
     result = query("""
-      SELECT * FROM #{Env.get(:bq_dovetail_table)}
+      SELECT * FROM #{Env.get(:bq_impressions_table)}
       WHERE is_duplicate = @is_dup
       LIMIT @lim
     """, %{is_dup: true, lim: 2})
