@@ -32,10 +32,16 @@ defmodule Porter.Router do
     get "/", RootController, :index
     resources "/podcasts", PodcastController, only: [:index, :show]
     resources "/episodes", EpisodeController, only: [:index, :show]
-    get "/podcasts/:id/downloads", PodcastController, :downloads
-    get "/podcasts/:id/impressions", PodcastController, :impressions
-    get "/episodes/:id/downloads", EpisodeController, :downloads
-    get "/episodes/:id/impressions", EpisodeController, :impressions
+
+    scope "/podcasts", as: :podcast do
+      get "/:podcast_id/downloads", DownloadController, :index
+      get "/:podcast_id/impressions", ImpressionController, :index
+    end
+
+    scope "/episodes", as: :episode do
+      get "/:episode_guid/downloads", DownloadController, :index
+      get "/:episode_guid/impressions", ImpressionController, :index
+    end
   end
 
 end

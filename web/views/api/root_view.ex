@@ -21,7 +21,7 @@ defmodule Porter.API.RootView do
         "prx:podcast": [%{
           title: "Get metrics for a single podcast",
           profile: "http://meta.prx.org/model/metrics/podcast",
-          href: api_podcast_path(conn, :show, "") <> "{id}",
+          href: fix_path(api_podcast_path(conn, :show, "{id}")),
           templated: true,
         }],
         "prx:episodes": [%{
@@ -33,30 +33,30 @@ defmodule Porter.API.RootView do
         "prx:episode": [%{
           title: "Get metrics for a single podcast episode",
           profile: "http://meta.prx.org/model/metrics/episode",
-          href: api_episode_path(conn, :show, "") <> "{guid}",
+          href: fix_path(api_episode_path(conn, :show, "{guid}")),
           templated: true,
         }],
         "prx:downloads": [
           %{
             rel: "podcast",
-            href: api_podcast_path(conn, :downloads, "") <> "{id}{?interval,start,end}",
+            href: fix_path(api_podcast_download_path(conn, :index, "{id}") <> "{?interval,start,end}"),
             templated: true,
           },
           %{
             rel: "episode",
-            href: api_episode_path(conn, :downloads, "") <> "{guid}{?interval,start,end}",
+            href: fix_path(api_episode_download_path(conn, :index, "{guid}") <> "{?interval,start,end}"),
             templated: true,
           },
         ],
         "prx:impressions": [
           %{
             rel: "podcast",
-            href: api_podcast_path(conn, :impressions, "") <> "{id}{?interval,start,end}",
+            href: fix_path(api_podcast_impression_path(conn, :index, "{id}") <> "{?interval,start,end}"),
             templated: true,
           },
           %{
             rel: "episode",
-            href: api_episode_path(conn, :impressions, "") <> "{guid}{?interval,start,end}",
+            href: fix_path(api_episode_impression_path(conn, :index, "{guid}") <> "{?interval,start,end}"),
             templated: true,
           },
         ],
@@ -64,4 +64,7 @@ defmodule Porter.API.RootView do
     }
   end
 
+  defp fix_path(path) do
+    path |> String.replace("%7B", "{") |> String.replace("%7D", "}")
+  end
 end
