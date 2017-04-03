@@ -15,31 +15,29 @@ defmodule Porter.API.PodcastView do
     program_json(program, conn)
   end
 
-  def render("downloads.json", %{conn: conn}) do
-    %{
-      count: 10,
-      interval: "HOUR",
-      timeframe: %{
-        start: "2017-03-13T10:00:00.000Z",
-        end: "2017-03-13T20:00:00.000Z",
-      },
-      downloads: [452, 454, 682, 299, 588, 682, 1045, 58, 48, 68],
-    }
-  end
-
   defp program_json(program, conn) do
     %{
-      id: 1234,
+      id: program.program,
       name: program.program,
-      downloads: 987654,
-      impressions: program.count,
+      downloads: %{
+        past1: 0,
+        past12: 0,
+        past24: 0,
+        past48: 0,
+      },
+      impressions: %{
+        past1: program.past1,
+        past12: program.past12,
+        past24: program.past24,
+        past48: program.past48,
+      },
       _links: %{
         self: %{
           href: api_podcast_path(conn, :show, program.program),
           templated: true,
         },
         alternate: %{
-          href: "http://feeder.prx.org/api/v1/podcasts/1234"
+          href: "http://feeder.prx.org/api/v1/podcasts/#{program.program}"
         },
         "prx:downloads": %{
           href: api_podcast_path(conn, :downloads, program.program) <> "{?interval,timeframe}",

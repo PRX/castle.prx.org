@@ -1,6 +1,6 @@
 defmodule BigQuery do
 
-  defdelegate query(str), to: BigQuery.Query
-  defdelegate query(str, params), to: BigQuery.Query
+  defdelegate programs(), to: BigQuery.Programs, as: :list
+  defdelegate program(id), to: BigQuery.Programs, as: :show
 
 end
