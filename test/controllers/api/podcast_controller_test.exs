@@ -26,12 +26,14 @@ defmodule Porter.API.PodcastControllerTest do
 
   defp fake_programs do
     [
-      programs: fn() -> Enum.map(["foo", "bar"], fn(p) -> program(p) end) end,
-      program: fn(id) -> program(id) end,
+      programs: fn() -> Enum.map(["foo", "bar"], &program/1) end,
+      program: &program/1,
     ]
   end
 
   defp program(name) do
-    %{program: name, past1: 10, past12: 20, past24: 30, past48: 40}
+    %{program: name,
+      downloads_past1: 10, downloads_past12: 20, downloads_past24: 30, downloads_past48: 40,
+      impressions_past1: 1, impressions_past12: 2, impressions_past24: 3, impressions_past48: 4}
   end
 end

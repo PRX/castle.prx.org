@@ -15,7 +15,7 @@ defmodule Porter.API.RootView do
         "prx:podcasts": [%{
           title: "Get a paged collection of podcasts",
           profile: "http://meta.prx.org/model/metrics/podcast",
-          href: api_podcast_path(conn, :index) <> "{?page,per,filters,sorts}",
+          href: api_podcast_path(conn, :index) <> "{?page,per}",
           templated: true,
         }],
         "prx:podcast": [%{
@@ -27,7 +27,7 @@ defmodule Porter.API.RootView do
         "prx:episodes": [%{
           title: "Get a paged collection of podcast episodes",
           profile: "http://meta.prx.org/model/metrics/episode",
-          href: api_episode_path(conn, :index) <> "{?page,per,filters,sorts}",
+          href: api_episode_path(conn, :index) <> "{?page,per}",
           templated: true,
         }],
         "prx:episode": [%{
@@ -39,24 +39,24 @@ defmodule Porter.API.RootView do
         "prx:downloads": [
           %{
             rel: "podcast",
-            href: api_podcast_path(conn, :downloads, "") <> "{id}{?interval,timeframe}",
+            href: api_podcast_path(conn, :downloads, "") <> "{id}{?interval,start,end}",
             templated: true,
           },
           %{
             rel: "episode",
-            href: api_episode_path(conn, :downloads, "") <> "{guid}{?interval,timeframe}",
+            href: api_episode_path(conn, :downloads, "") <> "{guid}{?interval,start,end}",
             templated: true,
           },
         ],
         "prx:impressions": [
           %{
             rel: "podcast",
-            href: api_podcast_path(conn, :impressions, "") <> "{id}{?interval,timeframe}",
+            href: api_podcast_path(conn, :impressions, "") <> "{id}{?interval,start,end}",
             templated: true,
           },
           %{
             rel: "episode",
-            href: api_episode_path(conn, :impressions, "") <> "{guid}{?interval,timeframe}",
+            href: api_episode_path(conn, :impressions, "") <> "{guid}{?interval,start,end}",
             templated: true,
           },
         ],
