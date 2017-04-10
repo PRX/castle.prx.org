@@ -5,10 +5,16 @@ defmodule Porter.BigQueryProgramsTest do
 
   @tag :external
   test "lists programs" do
-    result = list(Timex.to_datetime(~D[2017-04-01]))
+    {result, _meta} = list(Timex.to_datetime(~D[2017-04-09]))
     assert is_list result
     assert length(result) > 10
-    assert hd(result).program
+    assert hd(result).feeder_podcast
+
+    assert hd(result).downloads_past1 > 1
+    assert hd(result).downloads_past12 > hd(result).downloads_past1
+    assert hd(result).downloads_past24 > hd(result).downloads_past12
+    assert hd(result).downloads_past48 > hd(result).downloads_past24
+
     assert hd(result).impressions_past1 > 1
     assert hd(result).impressions_past12 > hd(result).impressions_past1
     assert hd(result).impressions_past24 > hd(result).impressions_past12
@@ -17,13 +23,15 @@ defmodule Porter.BigQueryProgramsTest do
 
   @tag :external
   test "shows program" do
-    result = show("99pi", Timex.to_datetime(~D[2017-04-01]))
+    {result, _meta} = show(45, Timex.to_datetime(~D[2017-04-09]))
     assert is_map result
-    assert result.program == "99pi"
-    assert result.downloads_past1 >= 0
-    assert result.downloads_past12 >= result.downloads_past1
-    assert result.downloads_past24 >= result.downloads_past12
-    assert result.downloads_past48 >= result.downloads_past24
+    assert result.feeder_podcast == 45
+
+    assert result.downloads_past1 > 1
+    assert result.downloads_past12 > result.downloads_past1
+    assert result.downloads_past24 > result.downloads_past12
+    assert result.downloads_past48 > result.downloads_past24
+
     assert result.impressions_past1 > 1
     assert result.impressions_past12 > result.impressions_past1
     assert result.impressions_past24 > result.impressions_past12

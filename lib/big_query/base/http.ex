@@ -22,16 +22,19 @@ defmodule BigQuery.Base.HTTP do
     end
   end
 
+  # TODO: shared genserver to safely handle ets getting/setting
   def get_token do
     now = :os.system_time(:seconds)
     if :ets.info(__MODULE__) == :undefined do
-      :ets.new(__MODULE__, [:named_table])
+      :ets.new(__MODULE__, [:set, :public, :named_table])
     end
     case :ets.lookup(__MODULE__, :auth_token) do
       [{_key, token, exp}] when now + 60 < exp ->
         {:ok, token}
-      _ ->
+      [{_key, _token, _exp}] ->
         :ets.delete(__MODULE__, :auth_token)
+        get_token()
+      _ ->
         case BigQuery.Base.Auth.get_token do
           {:ok, token, exp} ->
             :ets.insert(__MODULE__, {:auth_token, token, exp})

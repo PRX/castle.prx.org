@@ -7,46 +7,49 @@ defmodule BigQuery.Programs do
     (#{select(:bq_downloads_table)}) a
     FULL JOIN
     (#{select(:bq_impressions_table)}) b
-    ON (a.program = b.program)
+    ON (a.feeder_podcast = b.feeder_podcast)
     """
     |> query(params(now))
   end
 
-  def show(program, now \\ Timex.now) do
+  def show(podcast_id, now \\ Timex.now) do
+    params = params(now) |> Map.put(:podcast, podcast_id)
+    sql = """
+      SELECT #{outer_selects()} FROM
+      (#{select(:bq_downloads_table, podcast_id)}) a
+      FULL JOIN
+      (#{select(:bq_impressions_table, podcast_id)}) b
+      ON (a.feeder_podcast = b.feeder_podcast)
     """
-    SELECT #{outer_selects()} FROM
-    (#{select(:bq_downloads_table, program)}) a
-    FULL JOIN
-    (#{select(:bq_impressions_table, program)}) b
-    ON (a.program = b.program)
-    """
-    |> query(params(now) |> Map.put(:program, program))
-    |> hd
+    query(sql, params) |> show_first()
   end
+
+  defp show_first({[program | _rest], meta}), do: {program, meta}
+  defp show_first({_, meta}), do: {%{}, meta}
 
   defp outer_selects do
     """
-    IF(a.program IS NULL, b.program, a.program) AS program,
+    IF(a.feeder_podcast IS NULL, b.feeder_podcast, a.feeder_podcast) AS feeder_podcast,
     a.past1 AS downloads_past1, a.past12 AS downloads_past12, a.past24 AS downloads_past24, a.past48 AS downloads_past48,
     b.past1 AS impressions_past1, b.past12 AS impressions_past12, b.past24 AS impressions_past24, b.past48 AS impressions_past48
     """
   end
 
-  defp select(table, _program) do
+  defp select(table, _podcast) do
     """
-    SELECT program, #{counts()}
+    SELECT feeder_podcast, #{counts()}
     FROM #{Env.get(table)}
-    WHERE #{partitions()} AND is_duplicate = false AND program = @program
-    GROUP BY program ORDER BY program ASC
+    WHERE #{partitions()} AND is_duplicate = false AND feeder_podcast = @podcast
+    GROUP BY feeder_podcast ORDER BY feeder_podcast ASC
     """
   end
 
   defp select(table) do
     """
-    SELECT program, #{counts()}
+    SELECT feeder_podcast, #{counts()}
     FROM #{Env.get(table)}
     WHERE #{partitions()} AND is_duplicate = false
-    GROUP BY program ORDER BY program ASC
+    GROUP BY feeder_podcast ORDER BY feeder_podcast ASC
     """
   end
 

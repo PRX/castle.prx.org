@@ -3,7 +3,7 @@ defmodule Porter.BigQueryDownloadsTest do
 
   import BigQuery.Downloads
 
-  # @tag :external
+  @tag :external
   test "lists downloads for a podcast" do
     {:ok, start, _} = DateTime.from_iso8601("2017-04-09T21:45:00Z")
     {:ok, finish, _} = DateTime.from_iso8601("2017-04-10T04:15:00Z")
@@ -16,7 +16,7 @@ defmodule Porter.BigQueryDownloadsTest do
     assert hd(result).count > 0
   end
 
-  # @tag :external
+  @tag :external
   test "lists downloads for an episode" do
     {:ok, start, _} = DateTime.from_iso8601("2017-04-09T21:45:00Z")
     {:ok, finish, _} = DateTime.from_iso8601("2017-04-10T04:15:00Z")
