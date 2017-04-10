@@ -1,9 +1,9 @@
 defmodule BigQuery do
 
-  defdelegate podcast(), to: BigQuery.Podcasts, as: :list
+  defdelegate podcasts(), to: BigQuery.Podcasts, as: :list
   defdelegate podcast(id), to: BigQuery.Podcasts, as: :show
 
-  defdelegate episode(), to: BigQuery.Episodes, as: :list
+  defdelegate episodes(), to: BigQuery.Episodes, as: :list
   defdelegate episode(guid), to: BigQuery.Episodes, as: :show
 
   defdelegate podcast_downloads(id, from, to, interval),
