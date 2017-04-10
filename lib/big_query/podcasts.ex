@@ -1,4 +1,4 @@
-defmodule BigQuery.Programs do
+defmodule BigQuery.Podcasts do
   import BigQuery.Base.Query
 
   def list(now \\ Timex.now) do
@@ -24,7 +24,7 @@ defmodule BigQuery.Programs do
     query(sql, params) |> show_first()
   end
 
-  defp show_first({[program | _rest], meta}), do: {program, meta}
+  defp show_first({[podcast | _rest], meta}), do: {podcast, meta}
   defp show_first({_, meta}), do: {%{}, meta}
 
   defp outer_selects do

@@ -1,10 +1,10 @@
-defmodule Porter.BigQueryProgramsTest do
+defmodule Porter.BigQueryPodcastsTest do
   use Porter.BigQueryCase, async: true
 
-  import BigQuery.Programs
+  import BigQuery.Podcasts
 
   @tag :external
-  test "lists programs" do
+  test "lists podcasts" do
     {result, _meta} = list(Timex.to_datetime(~D[2017-04-09]))
     assert is_list result
     assert length(result) > 10
@@ -22,7 +22,7 @@ defmodule Porter.BigQueryProgramsTest do
   end
 
   @tag :external
-  test "shows program" do
+  test "shows a podcast" do
     {result, _meta} = show(45, Timex.to_datetime(~D[2017-04-09]))
     assert is_map result
     assert result.feeder_podcast == 45
