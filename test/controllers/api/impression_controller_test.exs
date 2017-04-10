@@ -1,5 +1,5 @@
 defmodule Porter.API.ImpressionControllerTest do
-  use Porter.ConnCase, async: true
+  use Porter.ConnCase, async: false
 
   import Mock
 

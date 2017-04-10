@@ -1,5 +1,5 @@
 defmodule Porter.API.PodcastControllerTest do
-  use Porter.ConnCase, async: true
+  use Porter.ConnCase, async: false
 
   import Mock
 
@@ -16,7 +16,7 @@ defmodule Porter.API.PodcastControllerTest do
 
   describe "show/2" do
     test "responds with a single podcast", %{conn: conn} do
-      with_mock BigQuery, fake_programs() do
+      with_mock BigQuery, fake_program() do
         resp = conn |> get(api_podcast_path(conn, :show, "foo")) |> json_response(200)
         assert resp["name"] == "foo"
         assert "_links" in Map.keys(resp)
@@ -24,11 +24,12 @@ defmodule Porter.API.PodcastControllerTest do
     end
   end
 
+  defp fake_program do
+    [program: fn(id) -> {program(id), %{meta: "data"}} end]
+  end
+
   defp fake_programs do
-    [
-      programs: fn() -> Enum.map(["foo", "bar"], &program/1) end,
-      program: &program/1,
-    ]
+    [programs: fn() -> {[program("foo"), program("bar")], %{meta: "data"}} end]
   end
 
   defp program(name) do

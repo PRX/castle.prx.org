@@ -2,10 +2,12 @@ defmodule Porter.API.PodcastController do
   use Porter.Web, :controller
 
   def index(conn, _params) do
-    render conn, "index.json", programs: BigQuery.programs(), conn: conn
+    {programs, meta} = BigQuery.programs()
+    render conn, "index.json", conn: conn, programs: programs, meta: meta
   end
 
   def show(conn, %{"id" => id}) do
-    render conn, "show.json", program: BigQuery.program(id), conn: conn
+    {program, meta} = BigQuery.program(id)
+    render conn, "show.json", conn: conn, program: program, meta: meta
   end
 end
