@@ -8,12 +8,16 @@ defmodule Porter.Plugs.TimeFrom do
       {:ok, dtim} ->
         assign conn, :time_from, dtim
       {:error, _err} ->
-        send_resp conn, 400, "Bad from param: must be a valid ISO8601 date"
+        conn
+        |> send_resp(400, "Bad from param: must be a valid ISO8601 date")
+        |> halt()
     end
   end
 
   def call(conn, _default) do
-    send_resp conn, 400, "Missing required param: from"
+    conn
+    |> send_resp(400, "Missing required param: from")
+    |> halt()
   end
 
   defp parse_dtim(dtim_string) do

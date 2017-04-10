@@ -14,12 +14,14 @@ defmodule Porter.PlugsTimeFromTest do
   test "handles invalid params", %{conn: conn} do
     conn = call_time_from(conn, "3888385885")
     assert conn.status == 400
+    assert conn.halted == true
     assert conn.resp_body =~ ~r/bad from param/i
   end
 
   test "requires the from param", %{conn: conn} do
     conn = call_time_from(conn, nil)
     assert conn.status == 400
+    assert conn.halted == true
     assert conn.resp_body =~ ~r/missing required param/i
   end
 

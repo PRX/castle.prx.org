@@ -11,7 +11,9 @@ defmodule Porter.Plugs.TimeTo do
       {:ok, dtim} ->
         assign conn, :time_to, dtim
       {:error, _err} ->
-        send_resp conn, 400, "Bad to param: must be a valid ISO8601 date"
+        conn
+        |> send_resp(400, "Bad to param: must be a valid ISO8601 date")
+        |> halt()
     end
   end
 

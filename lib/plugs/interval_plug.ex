@@ -22,7 +22,9 @@ defmodule Porter.Plugs.Interval do
       assign conn, :interval, @intervals[interval]
     else
       options = @intervals |> Map.keys() |> Enum.join(", ")
-      send_resp conn, 400, "Bad interval param: use one of #{options}"
+      conn
+      |> send_resp(400, "Bad interval param: use one of #{options}")
+      |> halt()
     end
   end
   defp set_interval(%{status: nil} = conn) do
@@ -51,7 +53,9 @@ defmodule Porter.Plugs.Interval do
     {time_from, time_to, interval} = interval_params(conn)
     window = Timex.to_unix(time_to) - Timex.to_unix(time_from)
     if (window / interval) > @max_in_window do
-      send_resp conn, 400, "Time window too large for specified interval"
+      conn
+      |> send_resp(400, "Time window too large for specified interval")
+      |> halt()
     else
       conn
     end

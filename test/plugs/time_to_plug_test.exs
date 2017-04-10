@@ -24,6 +24,7 @@ defmodule Porter.PlugsTimeToTest do
   test "handles invalid params", %{conn: conn} do
     conn = call_time_to(conn, "3888385885")
     assert conn.status == 400
+    assert conn.halted == true
     assert conn.resp_body =~ ~r/bad to param/i
   end
 
