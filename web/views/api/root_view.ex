@@ -39,24 +39,24 @@ defmodule Porter.API.RootView do
         "prx:downloads": [
           %{
             rel: "podcast",
-            href: fix_path(api_podcast_download_path(conn, :index, "{id}") <> "{?interval,start,end}"),
+            href: fix_path(api_podcast_download_path(conn, :index, "{id}") <> "{?interval,from,to}"),
             templated: true,
           },
           %{
             rel: "episode",
-            href: fix_path(api_episode_download_path(conn, :index, "{guid}") <> "{?interval,start,end}"),
+            href: fix_path(api_episode_download_path(conn, :index, "{guid}") <> "{?interval,from,to}"),
             templated: true,
           },
         ],
         "prx:impressions": [
           %{
             rel: "podcast",
-            href: fix_path(api_podcast_impression_path(conn, :index, "{id}") <> "{?interval,start,end}"),
+            href: fix_path(api_podcast_impression_path(conn, :index, "{id}") <> "{?interval,from,to}"),
             templated: true,
           },
           %{
             rel: "episode",
-            href: fix_path(api_episode_impression_path(conn, :index, "{guid}") <> "{?interval,start,end}"),
+            href: fix_path(api_episode_impression_path(conn, :index, "{guid}") <> "{?interval,from,to}"),
             templated: true,
           },
         ],

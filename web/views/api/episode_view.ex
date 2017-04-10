@@ -40,11 +40,11 @@ defmodule Porter.API.EpisodeView do
           href: "http://feeder.prx.org/api/v1/episodes/#{episode.feeder_episode}"
         },
         "prx:downloads": %{
-          href: api_episode_download_path(conn, :index, episode.feeder_episode) <> "{?interval,timeframe}",
+          href: api_episode_download_path(conn, :index, episode.feeder_episode) <> "{?interval,from,to}",
           templated: true,
         },
         "prx:impressions": %{
-          href: api_episode_impression_path(conn, :index, episode.feeder_episode) <> "{?interval,timeframe}",
+          href: api_episode_impression_path(conn, :index, episode.feeder_episode) <> "{?interval,from,to}",
           templated: true,
         },
       }
