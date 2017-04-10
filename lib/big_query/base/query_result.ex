@@ -1,7 +1,19 @@
 defmodule BigQuery.Base.QueryResult do
 
   def from_response(data) do
-    parse_rows(data["rows"], data["schema"]["fields"])
+    {
+      parse_rows(data["rows"], data["schema"]["fields"]),
+      parse_meta(data),
+    }
+  end
+
+  defp parse_meta(data) do
+    %{
+      cached: data |> Map.get("cacheHit", false),
+      total: data |> Map.get("totalRows", "0") |> String.to_integer,
+      bytes: data |> Map.get("totalBytesProcessed", "0") |> String.to_integer,
+      megabytes: data |> Map.get("totalBytesProcessed", "0") |> String.to_integer |> div(1000 * 1000),
+    }
   end
 
   defp parse_rows([row | rest], schema) do

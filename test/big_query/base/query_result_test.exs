@@ -4,19 +4,19 @@ defmodule Porter.BigQueryBaseQueryResultTest do
   import BigQuery.Base.QueryResult
 
   test "handles 0-length results" do
-    result = from_response(%{"rows" => [], "schema" => %{"fields" => []}})
+    {result, _meta} = from_response(%{"rows" => [], "schema" => %{"fields" => []}})
     assert is_list result
     assert length(result) == 0
   end
 
   test "handles null results" do
-    result = from_response(%{"schema" => %{"fields" => []}})
+    {result, _meta} = from_response(%{"schema" => %{"fields" => []}})
     assert is_list result
     assert length(result) == 0
   end
 
   test "names result fields based on the schema" do
-    result = from_response(%{
+    {result, _meta} = from_response(%{
       "rows" => [%{"f" => [
         %{"v" => "something"},
         %{"v" => "okay"},
@@ -34,7 +34,7 @@ defmodule Porter.BigQueryBaseQueryResultTest do
   end
 
   test "casts field types based on the schema" do
-    result = from_response(%{
+    {result, _meta} = from_response(%{
       "rows" => [%{"f" => [
         %{"v" => "string"},
         %{"v" => "true"},
@@ -65,7 +65,7 @@ defmodule Porter.BigQueryBaseQueryResultTest do
   end
 
   test "handles null values" do
-    result = from_response(%{
+    {result, _meta} = from_response(%{
       "rows" => [%{"f" => [%{"v" => nil}, %{"v" => nil}, %{"v" => nil}, %{"v" => nil}]}],
       "schema" => %{"fields" => [
         %{"name" => "string", "type" => "STRING"},
@@ -81,5 +81,21 @@ defmodule Porter.BigQueryBaseQueryResultTest do
     assert hd(result).bool == nil
     assert hd(result).int == nil
     assert hd(result).stamp == nil
+  end
+
+  test "parses metadata" do
+    {_result, meta} = from_response(%{
+      "rows" => [],
+      "schema" => %{"fields" => []},
+      "cacheHit" => true,
+      "totalRows" => "43",
+      "totalBytesProcessed" => "467346298948",
+    })
+
+    assert is_map meta
+    assert meta.cached == true
+    assert meta.total == 43
+    assert meta.bytes == 467346298948
+    assert meta.megabytes == 467346
   end
 end
