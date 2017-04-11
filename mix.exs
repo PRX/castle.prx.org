@@ -45,6 +45,7 @@ defmodule Porter.Mixfile do
      {:httpoison, "~> 0.11"},
      {:uuid, "~> 1.1"},
      {:timex, "~> 3.0"},
+     {:redix, ">= 0.6.0"},
      {:dotenv, "~> 2.1", only: [:dev, :test]},
      {:mock, "~> 0.2.0", only: :test}]
   end

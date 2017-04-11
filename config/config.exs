@@ -21,7 +21,10 @@ config :porter, :env_config,
   bq_project_id: System.get_env("BQ_PROJECT_ID") || "${BQ_PROJECT_ID}",
   bq_dataset: System.get_env("BQ_DATASET") || "${BQ_DATASET}",
   bq_downloads_table: System.get_env("BQ_DOWNLOADS_TABLE") || "${BQ_DOWNLOADS_TABLE}",
-  bq_impressions_table: System.get_env("BQ_IMPRESSIONS_TABLE") || "${BQ_IMPRESSIONS_TABLE}"
+  bq_impressions_table: System.get_env("BQ_IMPRESSIONS_TABLE") || "${BQ_IMPRESSIONS_TABLE}",
+  redis_host: System.get_env("REDIS_HOST") || "${REDIS_HOST}",
+  redis_port: System.get_env("REDIS_PORT") || "${REDIS_PORT}",
+  redis_pool_size: System.get_env("REDIS_POOL_SIZE") || "${REDIS_POOL_SIZE}"
 
 # Configures Elixir's Logger
 config :logger, :console,

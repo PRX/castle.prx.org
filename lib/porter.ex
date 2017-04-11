@@ -14,6 +14,16 @@ defmodule Porter do
       # worker(Porter.Worker, [arg1, arg2, arg3]),
     ]
 
+    # Create the redix children list of workers:
+    redix_config =
+      [host: Env.get(:redis_host), port: Env.get(:redis_port)]
+      |> Enum.filter(fn({_key, val}) -> val end)
+    redix_size = Env.get(:redis_pool_size) || 5
+    redix_workers = for i <- 0..(redix_size - 1) do
+      worker(Redix, [redix_config, [name: :"redix_#{i}"]], id: {Redix, i})
+    end
+    children = children ++ redix_workers
+
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Porter.Supervisor]
