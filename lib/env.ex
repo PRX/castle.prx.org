@@ -1,7 +1,7 @@
 defmodule Env do
 
   def get(key) do
-    get_env_config(key)
+    get_dot_env(key) || get_env_config(key)
   end
 
   defp get_dot_env(key) do
