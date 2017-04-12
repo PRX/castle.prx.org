@@ -17,8 +17,8 @@ defmodule Porter.API.PodcastControllerTest do
   describe "show/2" do
     test "responds with a single podcast", %{conn: conn} do
       with_mock BigQuery, fake_data() do
-        resp = conn |> get(api_podcast_path(conn, :show, "foo")) |> json_response(200)
-        assert resp["id"] == "foo"
+        resp = conn |> get(api_podcast_path(conn, :show, 999)) |> json_response(200)
+        assert resp["id"] == 999
         assert "_links" in Map.keys(resp)
       end
     end

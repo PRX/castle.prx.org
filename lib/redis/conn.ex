@@ -1,9 +1,11 @@
-defmodule Porter.Redis do
+defmodule Porter.Redis.Conn do
 
   def get(keys) when is_list(keys) do
     keys |> Enum.map(&(["GET", &1])) |> pipeline() |> decode()
   end
-  def get(key), do: command(["GET", key]) |> decode
+  def get(key) do
+    command(["GET", key]) |> decode()
+  end
 
   def set(sets) when is_map(sets) do
     sets |> Enum.map(fn({key, val}) -> ["SET", key, encode(val)] end) |> pipeline()
@@ -29,15 +31,7 @@ defmodule Porter.Redis do
     end
   end
 
-  def cached(key, ttl, work_fn) do
-    case get(key) do
-      nil -> set key, ttl, work_fn.()
-      val -> val
-    end
-  end
-
   defp encode(nil), do: nil
-  defp encode(values) when is_list(values), do: Enum.map(values, &encode/1)
   defp encode(value) do
     {:ok, encoded} = Poison.encode(value)
     encoded
@@ -48,7 +42,7 @@ defmodule Porter.Redis do
   defp decode(value) do
     case Poison.decode(value, keys: :atoms!) do
       {:ok, decoded} -> decoded
-      _ -> nil
+      err -> IO.inspect(err); nil
     end
   end
 

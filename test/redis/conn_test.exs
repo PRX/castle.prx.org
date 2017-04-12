@@ -1,7 +1,7 @@
-defmodule Porter.RedisTest do
+defmodule Porter.RedisConnTest do
   use Porter.RedisCase, async: true
 
-  import Porter.Redis
+  import Porter.Redis.Conn
 
   setup do
     del("some_cache_key")
@@ -34,16 +34,5 @@ defmodule Porter.RedisTest do
     assert del("some_cache_key") == true
     assert del("some_cache_key") == false
     assert get("some_cache_key") == nil
-  end
-
-  @tag :external
-  test "caches function results" do
-    val = cached("some_cache_key", 1, fn() -> "foo" end)
-    assert val == "foo"
-    val = cached("some_cache_key", 1, fn() -> "bar" end)
-    assert val == "foo"
-    :timer.sleep(1200);
-    val = cached("some_cache_key", 1, fn() -> "last" end)
-    assert val == "last"
   end
 end

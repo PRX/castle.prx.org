@@ -4,7 +4,7 @@ defmodule Porter.API.PodcastViewTest do
   import Porter.API.PodcastView
 
   test "index.json", %{conn: conn} do
-    doc = render("index.json", %{conn: conn, podcasts: test_podcasts()})
+    doc = render("index.json", %{conn: conn, podcasts: test_podcasts(), meta: %{}})
     embedded = doc[:"_embedded"][:"prx:items"]
 
     assert doc.count == 2
@@ -15,7 +15,7 @@ defmodule Porter.API.PodcastViewTest do
   end
 
   test "show.json", %{conn: conn} do
-    doc = render("show.json", %{conn: conn, podcast: test_podcast("foo")})
+    doc = render("show.json", %{conn: conn, podcast: test_podcast("foo"), meta: %{}})
     assert doc.id == "foo"
     assert doc.downloads.past1 == 10
     assert doc.downloads.past12 == 20
