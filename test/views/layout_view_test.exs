@@ -1,3 +1,3 @@
-defmodule Porter.LayoutViewTest do
-  use Porter.ConnCase, async: true
+defmodule Castle.LayoutViewTest do
+  use Castle.ConnCase, async: true
 end

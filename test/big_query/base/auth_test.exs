@@ -1,5 +1,5 @@
-defmodule Porter.BigQueryBaseAuthTest do
-  use Porter.BigQueryCase, async: true
+defmodule Castle.BigQueryBaseAuthTest do
+  use Castle.BigQueryCase, async: true
 
   import BigQuery.Base.Auth
 

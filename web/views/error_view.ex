@@ -1,5 +1,5 @@
-defmodule Porter.ErrorView do
-  use Porter.Web, :view
+defmodule Castle.ErrorView do
+  use Castle.Web, :view
 
   def render("404.html", _assigns) do
     "Page not found"

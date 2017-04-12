@@ -1,5 +1,5 @@
-defmodule Porter.BigQueryBaseQueryResultTest do
-  use Porter.BigQueryCase, async: true
+defmodule Castle.BigQueryBaseQueryResultTest do
+  use Castle.BigQueryCase, async: true
 
   import BigQuery.Base.QueryResult
 

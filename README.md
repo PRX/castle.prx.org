@@ -1,4 +1,4 @@
-# Porter.prx.org
+# Castle.prx.org
 
 ## Description
 
@@ -14,7 +14,7 @@ To get started, make sure you have completed the [Phoenix install guide](http://
 
 ```
 # Get the code
-git clone git@github.com:PRX/porter.prx.org.git
+git clone git@github.com:PRX/castle.prx.org.git
 
 # Install dependencies
 mix deps.get

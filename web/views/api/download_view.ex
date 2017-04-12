@@ -1,5 +1,5 @@
-defmodule Porter.API.DownloadView do
-  use Porter.Web, :view
+defmodule Castle.API.DownloadView do
+  use Castle.Web, :view
 
   def render("podcast.json", %{id: id} = data) do
     download_json(%{id: id}, data)

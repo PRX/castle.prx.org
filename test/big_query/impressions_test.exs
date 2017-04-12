@@ -1,5 +1,5 @@
-defmodule Porter.BigQueryImpressionsTest do
-  use Porter.BigQueryCase, async: true
+defmodule Castle.BigQueryImpressionsTest do
+  use Castle.BigQueryCase, async: true
 
   import BigQuery.Impressions
 

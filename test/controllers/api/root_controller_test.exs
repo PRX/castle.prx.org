@@ -1,5 +1,5 @@
-defmodule Porter.API.RootControllerTest do
-  use Porter.ConnCase, async: true
+defmodule Castle.API.RootControllerTest do
+  use Castle.ConnCase, async: true
 
   describe "index/2" do
     test "responds with the root doc", %{conn: conn} do

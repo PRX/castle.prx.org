@@ -1,5 +1,5 @@
-defmodule Porter.BigQueryBaseQueryParamsTest do
-  use Porter.BigQueryCase, async: true
+defmodule Castle.BigQueryBaseQueryParamsTest do
+  use Castle.BigQueryCase, async: true
 
   import BigQuery.Base.QueryParams
 

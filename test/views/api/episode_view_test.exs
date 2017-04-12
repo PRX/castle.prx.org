@@ -1,7 +1,7 @@
-defmodule Porter.API.EpisodeViewTest do
-  use Porter.ConnCase, async: true
+defmodule Castle.API.EpisodeViewTest do
+  use Castle.ConnCase, async: true
 
-  import Porter.API.EpisodeView
+  import Castle.API.EpisodeView
 
   test "index.json", %{conn: conn} do
     doc = render("index.json", %{conn: conn, episodes: test_episodes(), meta: %{}})

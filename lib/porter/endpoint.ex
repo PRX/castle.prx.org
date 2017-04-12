@@ -1,14 +1,14 @@
-defmodule Porter.Endpoint do
-  use Phoenix.Endpoint, otp_app: :porter
+defmodule Castle.Endpoint do
+  use Phoenix.Endpoint, otp_app: :castle
 
-  socket "/socket", Porter.UserSocket
+  socket "/socket", Castle.UserSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phoenix.digest
   # when deploying your static files in production.
   plug Plug.Static,
-    at: "/", from: :porter, gzip: false,
+    at: "/", from: :castle, gzip: false,
     only: ~w(css fonts images js favicon.ico robots.txt)
 
   # Code reloading can be explicitly enabled under the
@@ -35,8 +35,8 @@ defmodule Porter.Endpoint do
   # Set :encryption_salt if you would also like to encrypt it.
   plug Plug.Session,
     store: :cookie,
-    key: "_porter_key",
+    key: "_castle_key",
     signing_salt: "N6LvHZ+T"
 
-  plug Porter.Router
+  plug Castle.Router
 end

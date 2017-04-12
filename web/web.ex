@@ -1,12 +1,12 @@
-defmodule Porter.Web do
+defmodule Castle.Web do
   @moduledoc """
   A module that keeps using definitions for controllers,
   views and so on.
 
   This can be used in your application as:
 
-      use Porter.Web, :controller
-      use Porter.Web, :view
+      use Castle.Web, :controller
+      use Castle.Web, :view
 
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused
@@ -26,8 +26,8 @@ defmodule Porter.Web do
     quote do
       use Phoenix.Controller
 
-      import Porter.Router.Helpers
-      import Porter.Gettext
+      import Castle.Router.Helpers
+      import Castle.Gettext
     end
   end
 
@@ -41,9 +41,9 @@ defmodule Porter.Web do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
-      import Porter.Router.Helpers
-      import Porter.ErrorHelpers
-      import Porter.Gettext
+      import Castle.Router.Helpers
+      import Castle.ErrorHelpers
+      import Castle.Gettext
     end
   end
 
@@ -56,7 +56,7 @@ defmodule Porter.Web do
   def channel do
     quote do
       use Phoenix.Channel
-      import Porter.Gettext
+      import Castle.Gettext
     end
   end
 

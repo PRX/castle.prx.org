@@ -1,4 +1,4 @@
-defmodule Porter.ConnCase do
+defmodule Castle.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -20,10 +20,10 @@ defmodule Porter.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
 
-      import Porter.Router.Helpers
+      import Castle.Router.Helpers
 
       # The default endpoint for testing
-      @endpoint Porter.Endpoint
+      @endpoint Castle.Endpoint
     end
   end
 

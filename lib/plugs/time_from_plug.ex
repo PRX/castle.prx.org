@@ -1,4 +1,4 @@
-defmodule Porter.Plugs.TimeFrom do
+defmodule Castle.Plugs.TimeFrom do
   import Plug.Conn
 
   def init(default), do: default

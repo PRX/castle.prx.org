@@ -1,7 +1,7 @@
-defmodule Porter.API.ImpressionViewTest do
-  use Porter.ConnCase, async: true
+defmodule Castle.API.ImpressionViewTest do
+  use Castle.ConnCase, async: true
 
-  import Porter.API.ImpressionView
+  import Castle.API.ImpressionView
 
   test "podcast.json" do
     {:ok, time, _} = DateTime.from_iso8601("2017-04-09T21:45:00Z")

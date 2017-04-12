@@ -1,7 +1,7 @@
-defmodule Porter.API.EpisodeController do
-  use Porter.Web, :controller
+defmodule Castle.API.EpisodeController do
+  use Castle.Web, :controller
 
-  alias Porter.Redis.CachedResponse, as: Redis
+  alias Castle.Redis.CachedResponse, as: Redis
 
   @index_ttl 900
   @show_ttl 300

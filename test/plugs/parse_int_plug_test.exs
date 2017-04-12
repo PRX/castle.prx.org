@@ -1,5 +1,5 @@
-defmodule Porter.PlugsParseIntTest do
-  use Porter.ConnCase, async: true
+defmodule Castle.PlugsParseIntTest do
+  use Castle.ConnCase, async: true
 
   test "parses integer params", %{conn: conn} do
     conn = call_parse_int(conn, "id", "987")
@@ -22,10 +22,10 @@ defmodule Porter.PlugsParseIntTest do
   defp call_parse_int(conn, name, val) do
     conn
     |> Map.merge(%{params: %{name => val}})
-    |> Porter.Plugs.ParseInt.call(name)
+    |> Castle.Plugs.ParseInt.call(name)
   end
 
   defp call_parse_int(conn, name) do
-    conn |> Porter.Plugs.ParseInt.call(name)
+    conn |> Castle.Plugs.ParseInt.call(name)
   end
 end

@@ -1,8 +1,8 @@
-defmodule Porter.Mixfile do
+defmodule Castle.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :porter,
+    [app: :castle,
      version: "0.0.1",
      elixir: "~> 1.2",
      elixirc_paths: elixirc_paths(Mix.env),
@@ -16,7 +16,7 @@ defmodule Porter.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {Porter, []},
+    [mod: {Castle, []},
      applications: apps(Mix.env)]
   end
   defp apps(:dev), do: [:dotenv | apps()]

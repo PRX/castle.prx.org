@@ -1,5 +1,5 @@
-defmodule Porter.API.RootView do
-  use Porter.Web, :view
+defmodule Castle.API.RootView do
+  use Castle.Web, :view
 
   def render("index.json", %{conn: conn}) do
     %{

@@ -1,5 +1,5 @@
-defmodule Porter.PlugsIntervalTest do
-  use Porter.ConnCase, async: true
+defmodule Castle.PlugsIntervalTest do
+  use Castle.ConnCase, async: true
 
   @default_from "2017-04-01T14:04:00Z"
   @default_to "2017-04-01T14:05:00Z"
@@ -65,7 +65,7 @@ defmodule Porter.PlugsIntervalTest do
   end
 
   defp call_interval(conn, val, from \\ nil, to \\ nil) do
-    conn |> set_times(from, to) |> set_interval(val) |> Porter.Plugs.Interval.call(%{})
+    conn |> set_times(from, to) |> set_interval(val) |> Castle.Plugs.Interval.call(%{})
   end
 
   defp set_interval(conn, nil), do: conn

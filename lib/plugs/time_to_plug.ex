@@ -1,4 +1,4 @@
-defmodule Porter.Plugs.TimeTo do
+defmodule Castle.Plugs.TimeTo do
   import Plug.Conn
 
   # if no end date is set, just use this many seconds into the future

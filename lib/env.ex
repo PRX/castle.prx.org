@@ -17,7 +17,7 @@ defmodule Env do
   defp fix_dotenv_newlines(val), do: val
 
   defp get_env_config(key) do
-    Application.get_env(:porter, :env_config)[key] |> defined_value
+    Application.get_env(:castle, :env_config)[key] |> defined_value
   end
 
   # don't allow uncompiled "${KEY}" values

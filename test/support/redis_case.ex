@@ -1,4 +1,4 @@
-defmodule Porter.RedisCase do
+defmodule Castle.RedisCase do
   use ExUnit.CaseTemplate
 
   using do

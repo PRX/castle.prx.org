@@ -1,4 +1,4 @@
-defmodule Porter.ErrorHelpers do
+defmodule Castle.ErrorHelpers do
   @moduledoc """
   Conveniences for translating and building error messages.
   """
@@ -32,9 +32,9 @@ defmodule Porter.ErrorHelpers do
     #     dgettext "errors", "is invalid"
     #
     if count = opts[:count] do
-      Gettext.dngettext(Porter.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(Castle.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(Porter.Gettext, "errors", msg, opts)
+      Gettext.dgettext(Castle.Gettext, "errors", msg, opts)
     end
   end
 end

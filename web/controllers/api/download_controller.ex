@@ -1,9 +1,9 @@
-defmodule Porter.API.DownloadController do
-  use Porter.Web, :controller
+defmodule Castle.API.DownloadController do
+  use Castle.Web, :controller
 
-  alias Porter.Redis.CachedResponse, as: Redis
+  alias Castle.Redis.CachedResponse, as: Redis
 
-  plug Porter.Plugs.ParseInt, "podcast_id"
+  plug Castle.Plugs.ParseInt, "podcast_id"
 
   @downloads_ttl 15
 

@@ -6,16 +6,16 @@
 use Mix.Config
 
 # Configures the endpoint
-config :porter, Porter.Endpoint,
+config :castle, Castle.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "+DVZXtoG6yRaQrhCNCPNjdyhioRgRlrKMUDDlZkPLXCghP4NCJ+JafxydZD/QnOq",
-  render_errors: [view: Porter.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Porter.PubSub,
+  render_errors: [view: Castle.ErrorView, accepts: ~w(html json)],
+  pubsub: [name: Castle.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
 # Environment config (precompiled OR from env variables)
 # MUST release with RELX_REPLACE_OS_VARS=true
-config :porter, :env_config,
+config :castle, :env_config,
   bq_client_email: System.get_env("BQ_CLIENT_EMAIL") || "${BQ_CLIENT_EMAIL}",
   bq_private_key: System.get_env("BQ_PRIVATE_KEY") || "${BQ_PRIVATE_KEY}",
   bq_project_id: System.get_env("BQ_PROJECT_ID") || "${BQ_PROJECT_ID}",

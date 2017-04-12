@@ -1,7 +1,7 @@
-defmodule Porter.RedisConnTest do
-  use Porter.RedisCase, async: true
+defmodule Castle.RedisConnTest do
+  use Castle.RedisCase, async: true
 
-  import Porter.Redis.Conn
+  import Castle.Redis.Conn
 
   setup do
     del("some_cache_key")

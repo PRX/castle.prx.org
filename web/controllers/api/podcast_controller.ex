@@ -1,9 +1,9 @@
-defmodule Porter.API.PodcastController do
-  use Porter.Web, :controller
+defmodule Castle.API.PodcastController do
+  use Castle.Web, :controller
 
-  alias Porter.Redis.CachedResponse, as: Redis
+  alias Castle.Redis.CachedResponse, as: Redis
 
-  plug Porter.Plugs.ParseInt, "id" when action == :show
+  plug Castle.Plugs.ParseInt, "id" when action == :show
 
   @index_ttl 900
   @show_ttl 300

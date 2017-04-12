@@ -1,3 +1,3 @@
-defmodule Porter.LayoutView do
-  use Porter.Web, :view
+defmodule Castle.LayoutView do
+  use Castle.Web, :view
 end

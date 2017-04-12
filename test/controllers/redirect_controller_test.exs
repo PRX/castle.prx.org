@@ -1,5 +1,5 @@
-defmodule Porter.RedirectControllerTest do
-  use Porter.ConnCase, async: true
+defmodule Castle.RedirectControllerTest do
+  use Castle.ConnCase, async: true
 
   describe "index/2" do
     test "redirects to the api", %{conn: conn} do

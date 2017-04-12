@@ -1,4 +1,4 @@
-defmodule Porter.Redis.Conn do
+defmodule Castle.Redis.Conn do
 
   def get(keys) when is_list(keys) do
     keys |> Enum.map(&(["GET", &1])) |> pipeline() |> decode()

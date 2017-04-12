@@ -1,4 +1,4 @@
-defmodule Porter.Plugs.ParseInt do
+defmodule Castle.Plugs.ParseInt do
   import Plug.Conn
 
   def init(default), do: default

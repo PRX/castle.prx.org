@@ -1,5 +1,5 @@
-defmodule Porter.BigQueryBaseTimestampTest do
-  use Porter.BigQueryCase, async: true
+defmodule Castle.BigQueryBaseTimestampTest do
+  use Castle.BigQueryCase, async: true
 
   import BigQuery.Base.Timestamp
 

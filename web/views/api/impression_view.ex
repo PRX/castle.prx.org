@@ -1,5 +1,5 @@
-defmodule Porter.API.ImpressionView do
-  use Porter.Web, :view
+defmodule Castle.API.ImpressionView do
+  use Castle.Web, :view
 
   def render("podcast.json", %{id: id} = data) do
     impression_json(%{id: id}, data)

@@ -1,5 +1,5 @@
-defmodule Porter.Router do
-  use Porter.Web, :router
+defmodule Castle.Router do
+  use Castle.Web, :router
 
   # pipeline :browser do
   #   plug :accepts, ["html"]
@@ -14,19 +14,19 @@ defmodule Porter.Router do
   end
 
   pipeline :metrics do
-    plug Porter.Plugs.TimeFrom
-    plug Porter.Plugs.TimeTo
-    plug Porter.Plugs.Interval
+    plug Castle.Plugs.TimeFrom
+    plug Castle.Plugs.TimeTo
+    plug Castle.Plugs.Interval
   end
 
-  scope "/", Porter do
+  scope "/", Castle do
     pipe_through :api
 
     get "/", RedirectController, :index
     get "/api", RedirectController, :index
   end
 
-  scope "/api/v1", Porter.API, as: :api do
+  scope "/api/v1", Castle.API, as: :api do
     pipe_through :api
 
     get "/", RootController, :index

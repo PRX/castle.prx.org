@@ -1,5 +1,5 @@
-defmodule Porter.Redis.CachedResponse do
-  alias Porter.Redis.Conn, as: Conn
+defmodule Castle.Redis.CachedResponse do
+  alias Castle.Redis.Conn, as: Conn
 
   def cached(key, ttl, work_fn) do
     case Conn.get(key) do

@@ -1,7 +1,7 @@
-defmodule Porter.RedirectController do
-  use Porter.Web, :controller
+defmodule Castle.RedirectController do
+  use Castle.Web, :controller
 
-  import Porter.Router.Helpers
+  import Castle.Router.Helpers
 
   def index(conn, _params) do
     redirect conn, to: api_root_path(conn, :index)

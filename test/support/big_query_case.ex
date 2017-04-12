@@ -1,4 +1,4 @@
-defmodule Porter.BigQueryCase do
+defmodule Castle.BigQueryCase do
   use ExUnit.CaseTemplate
 
   using do

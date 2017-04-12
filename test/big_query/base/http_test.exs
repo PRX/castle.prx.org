@@ -1,5 +1,5 @@
-defmodule Porter.BigQueryBaseHTTPTest do
-  use Porter.BigQueryCase, async: false
+defmodule Castle.BigQueryBaseHTTPTest do
+  use Castle.BigQueryCase, async: false
 
   import Mock
   import BigQuery.Base.HTTP

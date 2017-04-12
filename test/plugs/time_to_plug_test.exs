@@ -1,5 +1,5 @@
-defmodule Porter.PlugsTimeToTest do
-  use Porter.ConnCase, async: true
+defmodule Castle.PlugsTimeToTest do
+  use Castle.ConnCase, async: true
 
   test "sets a default slightly in the future", %{conn: conn} do
     time_to = get_time(conn)
@@ -35,6 +35,6 @@ defmodule Porter.PlugsTimeToTest do
   defp call_time_to(conn, query_val) do
     conn
     |> Map.merge(%{params: %{"to" => query_val}})
-    |> Porter.Plugs.TimeTo.call(%{})
+    |> Castle.Plugs.TimeTo.call(%{})
   end
 end

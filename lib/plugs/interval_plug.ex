@@ -1,4 +1,4 @@
-defmodule Porter.Plugs.Interval do
+defmodule Castle.Plugs.Interval do
   import Plug.Conn
 
   @intervals %{

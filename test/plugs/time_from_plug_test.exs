@@ -1,5 +1,5 @@
-defmodule Porter.PlugsTimeFromTest do
-  use Porter.ConnCase, async: true
+defmodule Castle.PlugsTimeFromTest do
+  use Castle.ConnCase, async: true
 
   test "parses query timestamps", %{conn: conn} do
     time_from = get_time(conn, "2017-04-01T14:04:11Z")
@@ -32,6 +32,6 @@ defmodule Porter.PlugsTimeFromTest do
   defp call_time_from(conn, query_val) do
     conn
     |> Map.merge(%{params: %{"from" => query_val}})
-    |> Porter.Plugs.TimeFrom.call(%{})
+    |> Castle.Plugs.TimeFrom.call(%{})
   end
 end

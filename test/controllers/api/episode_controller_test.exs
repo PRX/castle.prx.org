@@ -1,5 +1,5 @@
-defmodule Porter.API.EpisodeControllerTest do
-  use Porter.ConnCase, async: false
+defmodule Castle.API.EpisodeControllerTest do
+  use Castle.ConnCase, async: false
 
   import Mock
 
