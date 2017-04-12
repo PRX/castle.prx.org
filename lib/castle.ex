@@ -18,7 +18,8 @@ defmodule Castle do
     redix_config =
       [host: Env.get(:redis_host), port: Env.get(:redis_port)]
       |> Enum.filter(fn({_key, val}) -> val end)
-    redix_size = Env.get(:redis_pool_size) || 5
+    IO.inspect Env.get(:redis_pool_size)
+    redix_size = 5
     redix_workers = for i <- 0..(redix_size - 1) do
       worker(Redix, [redix_config, [name: :"redix_#{i}"]], id: {Redix, i})
     end
