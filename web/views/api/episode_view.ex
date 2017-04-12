@@ -1,18 +1,19 @@
 defmodule Porter.API.EpisodeView do
   use Porter.Web, :view
 
-  def render("index.json", %{conn: conn, episodes: episodes}) do
+  def render("index.json", %{conn: conn, episodes: episodes, meta: meta}) do
     %{
       count: length(episodes),
       total: length(episodes),
       _embedded: %{
         "prx:items": Enum.map(episodes, fn(p) -> episode_json(p, conn) end)
-      }
+      },
+      meta: meta,
     }
   end
 
-  def render("show.json", %{conn: conn, episode: episode}) do
-    episode_json(episode, conn)
+  def render("show.json", %{conn: conn, episode: episode, meta: meta}) do
+    episode_json(episode, conn) |> Map.put(:meta, meta)
   end
 
   defp episode_json(episode, conn) do
