@@ -1,0 +1,9 @@
+_build
+db
+deps
+*.ez
+node_modules
+.env
+env-example
+.git
+erl_crash.dump
