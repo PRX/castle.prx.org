@@ -3,6 +3,8 @@ defmodule Porter.API.PodcastController do
 
   alias Porter.Redis.CachedResponse, as: Redis
 
+  plug Porter.Plugs.ParseInt, "id" when action == :show
+
   @index_ttl 900
   @show_ttl 300
 
@@ -12,12 +14,7 @@ defmodule Porter.API.PodcastController do
   end
 
   def show(conn, %{"id" => id}) do
-    case Integer.parse(id) do
-      {num, _rem} ->
-        {podcast, meta} = Redis.cached "podcast.show.#{num}", @show_ttl, fn() -> BigQuery.podcast(num) end
-        render conn, "show.json", conn: conn, podcast: podcast, meta: meta
-      :error ->
-        conn |> put_status(404) |> text("Podcast #{id} not found")
-    end
+    {podcast, meta} = Redis.cached "podcast.show.#{id}", @show_ttl, fn() -> BigQuery.podcast(id) end
+    render conn, "show.json", conn: conn, podcast: podcast, meta: meta
   end
 end
