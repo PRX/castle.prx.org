@@ -40,7 +40,8 @@ defmodule Castle.Redis.Conn do
   defp decode(nil), do: nil
   defp decode(values) when is_list(values), do: Enum.map(values, &decode/1)
   defp decode(value) do
-    case Poison.decode(value, keys: :atoms!) do
+    # TODO: probably switch back to string keys, to avoid atom exhaustion
+    case Poison.decode(value, keys: :atoms) do
       {:ok, decoded} -> decoded
       err -> IO.inspect(err); nil
     end
