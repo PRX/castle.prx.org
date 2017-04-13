@@ -17,3 +17,7 @@ erl_crash.dump
 
 # Configuration
 .env
+
+# Docker-compose mounts
+/_build_docker_compose
+/deps_docker_compose

@@ -26,11 +26,36 @@ vi .env
 
 ### Docker
 
-TODO: Docker support.
+Currently on OSX, [Dinghy](https://github.com/codekitchen/dinghy) is probably
+the best way to set up your dev environment.  Using VirtualBox is recommended.
+Also be sure to install `docker-compose` along with the toolbox.
+
+This project is setup primarily to build a `MIX_ENV=prod` docker image. To avoid
+recompiling dependencies every time you run a non-prod docker-compose command,
+mount some local directories to mask the build/deps directories in the image.
+
+```
+docker-compose build
+
+# mount dev dependencies locally
+mkdir _build_docker_compose deps_docker_compose
+docker-compose run castle do deps.get, compile
+
+# now you can run a local server
+docker-compose up
+open http://castle.prx.docker
+
+# or run the tests
+docker-compose run castle test
+docker-compose run castle test --include external
+
+# or run a single test
+docker-compose run castle test test/controllers/api/root_controller_test.exs
+```
 
 ## Dependencies
 
-TODO: probably feeder?  Bigquery?
+Currently, just BigQuery.
 
 ## Usage
 

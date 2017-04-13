@@ -1,6 +1,8 @@
 castle:
   build: .
   volumes:
+    - ./_build_docker_compose:/app/_build
+    - ./deps_docker_compose:/app/deps
     - ./config:/app/config
     - ./lib:/app/lib
     - ./priv:/app/priv
@@ -16,7 +18,7 @@ castle:
   environment:
     VIRTUAL_HOST: castle.prx.docker
     REDIS_HOST: redis
-    MIX_ENV: dev
+    MIX_ENV:
 redis:
   image: redis
   ports:
