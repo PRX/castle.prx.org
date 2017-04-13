@@ -1,0 +1,37 @@
+version: 0.1
+environment_variables:
+  plaintext:
+    BUILD_PHASE_MARKER: build_phase_complete
+phases:
+  install:
+    commands:
+      - apt-get update -y
+      - apt-get install -y jq
+      - curl -L "https://github.com/docker/compose/releases/download/1.11.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - $(aws ecr get-login --region $ECR_REGION)
+      - mkdir _build_docker_compose deps_docker_compose
+  build:
+    commands:
+      - docker-compose build
+      - docker-compose run castle test
+      - docker tag castle_app $AWS_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$((ECR_IMAGE_TAG+1))
+      - touch $BUILD_PHASE_MARKER
+  post_build:
+    commands:
+      - test -e $BUILD_PHASE_MARKER
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$((ECR_IMAGE_TAG+1))
+      - aws s3 cp s3://$TEMPLATE_CONFIG_BUCKET/$TEMPLATE_CONFIG_ARTIFACT $TEMPLATE_CONFIG_ARTIFACT
+      - unzip $TEMPLATE_CONFIG_ARTIFACT
+      - jq --arg tag $((ECR_IMAGE_TAG+1)) '.Parameters.CastleECRImageTag = $tag' staging.json > staging2.json
+      - rm staging.json && mv staging2.json staging.json
+      - zip $TEMPLATE_CONFIG_ARTIFACT staging.json
+      - aws s3 cp $TEMPLATE_CONFIG_ARTIFACT s3://$TEMPLATE_CONFIG_BUCKET/
+      # that will trigger a Root Stack CodePipeline execution
+artifacts:
+  # It seems like CodePipeline and CodeBuild expect an artifact here. Currently
+  # we don't need any, so this is essentially a no-op.
+  files:
+    - README.md
