@@ -11,6 +11,9 @@ defmodule Castle.Redis.Conn do
     sets |> Enum.map(fn({key, val}) -> ["SET", key, encode(val)] end) |> pipeline()
     sets
   end
+  def set(sets) when is_list(sets) do
+    sets |> Enum.map(fn({key, ttl, val}) -> ["SETEX", key, ttl, encode(val)] end) |> pipeline()
+  end
   def set(sets, ttl) when is_map(sets) do
     sets |> Enum.map(fn({key, val}) -> ["SETEX", key, ttl, encode(val)] end) |> pipeline()
     sets
@@ -47,14 +50,14 @@ defmodule Castle.Redis.Conn do
     end
   end
 
-  defp command(command) do
+  def command(command) do
     case Redix.command(:"redix_#{random_index()}", command) do
       {:ok, val} -> val
       _ -> nil
     end
   end
 
-  defp pipeline(commands) do
+  def pipeline(commands) do
     case Redix.pipeline(:"redix_#{random_index()}", commands) do
       {:ok, vals} -> vals
       _ -> Enum.map(commands, fn(_) -> nil end)

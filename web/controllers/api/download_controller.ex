@@ -1,17 +1,16 @@
 defmodule Castle.API.DownloadController do
   use Castle.Web, :controller
 
-  alias Castle.Redis.CachedResponse, as: Redis
+  alias Castle.Redis.IntervalResponse, as: Redis
 
   plug Castle.Plugs.ParseInt, "podcast_id"
-
-  @downloads_ttl 15
 
   def index(conn, %{"podcast_id" => podcast_id}) do
     %{assigns: %{time_from: from, time_to: to, interval: interval}} = conn
 
-    fetch = fn() -> BigQuery.podcast_downloads(podcast_id, from, to, interval) end
-    {data, meta} = Redis.cached key("podcast", podcast_id, from, to, interval), @downloads_ttl, fetch
+    {data, meta} = Redis.interval "downloads.podcast.#{podcast_id}", from, to, interval, fn(new_from) ->
+      BigQuery.podcast_downloads(podcast_id, new_from, to, interval)
+    end
 
     render conn, "podcast.json",
       id: podcast_id,
@@ -23,21 +22,14 @@ defmodule Castle.API.DownloadController do
   def index(conn, %{"episode_guid" => episode_guid}) do
     %{assigns: %{time_from: from, time_to: to, interval: interval}} = conn
 
-    fetch = fn() -> BigQuery.episode_downloads(episode_guid, from, to, interval) end
-    {data, meta} = Redis.cached key("episode", episode_guid, from, to, interval), @downloads_ttl, fetch
+    {data, meta} = Redis.interval "downloads.episode.#{episode_guid}", from, to, interval, fn(new_from) ->
+      BigQuery.episode_downloads(episode_guid, new_from, to, interval)
+    end
 
     render conn, "episode.json",
       guid: episode_guid,
       interval: interval,
       downloads: data,
       meta: meta
-  end
-
-  defp key(type, id, from, to, interval) do
-    if Timex.compare(to, Timex.now) > 0 do
-      "#{type}.downloads.#{id}.#{from}.now.#{interval}"
-    else
-      "#{type}.downloads.#{id}.#{from}.#{to}.#{interval}"
-    end
   end
 end
