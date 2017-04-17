@@ -24,7 +24,9 @@ config :castle, :env_config,
   bq_impressions_table: System.get_env("BQ_IMPRESSIONS_TABLE") || "${BQ_IMPRESSIONS_TABLE}",
   redis_host: System.get_env("REDIS_HOST") || "${REDIS_HOST}",
   redis_port: System.get_env("REDIS_PORT") || "${REDIS_PORT}",
-  redis_pool_size: System.get_env("REDIS_POOL_SIZE") || "${REDIS_POOL_SIZE}"
+  redis_pool_size: System.get_env("REDIS_POOL_SIZE") || "${REDIS_POOL_SIZE}",
+  basic_auth_user: System.get_env("BASIC_AUTH_USER") || "${BASIC_AUTH_USER}",
+  basic_auth_pass: System.get_env("BASIC_AUTH_PASS") || "${BASIC_AUTH_PASS}"
 
 # Configures Elixir's Logger
 config :logger, :console,

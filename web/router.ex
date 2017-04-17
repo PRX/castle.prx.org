@@ -13,6 +13,12 @@ defmodule Castle.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :authorized do
+    plug Castle.Plugs.BasicAuth,
+      user: Env.get(:basic_auth_user),
+      pass: Env.get(:basic_auth_pass)
+  end
+
   pipeline :metrics do
     plug Castle.Plugs.TimeFrom
     plug Castle.Plugs.TimeTo
@@ -24,12 +30,13 @@ defmodule Castle.Router do
 
     get "/", RedirectController, :index
     get "/api", RedirectController, :index
+    get "/api/v1", API.RootController, :index, as: :api_root
   end
 
   scope "/api/v1", Castle.API, as: :api do
     pipe_through :api
+    pipe_through :authorized
 
-    get "/", RootController, :index
     resources "/podcasts", PodcastController, only: [:index, :show]
     resources "/episodes", EpisodeController, only: [:index, :show]
 
