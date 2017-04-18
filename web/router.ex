@@ -14,9 +14,7 @@ defmodule Castle.Router do
   end
 
   pipeline :authorized do
-    plug Castle.Plugs.BasicAuth,
-      user: Env.get(:basic_auth_user),
-      pass: Env.get(:basic_auth_pass)
+    plug Castle.Plugs.BasicAuth
   end
 
   pipeline :metrics do
