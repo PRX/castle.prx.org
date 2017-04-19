@@ -4,13 +4,13 @@ services:
     build: .
     image: castle_app
     volumes:
-      - ./_build_docker_compose:/app/_build
-      - ./deps_docker_compose:/app/deps
-      - ./config:/app/config
-      - ./lib:/app/lib
-      - ./priv:/app/priv
-      - ./test:/app/test
-      - ./web:/app/web
+      - ./_build_docker_compose:/opt/app/_build
+      - ./deps_docker_compose:/opt/app/deps
+      - ./config:/opt/app/config
+      - ./lib:/opt/app/lib
+      - ./priv:/opt/app/priv
+      - ./test:/opt/app/test
+      - ./web:/opt/app/web
     env_file:
       - .env
     links:
