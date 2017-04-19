@@ -1,0 +1,16 @@
+version: "2"
+services:
+  castle:
+    build: .
+    image: castle_app
+    links:
+      - redis
+    command: test
+    environment:
+      VIRTUAL_HOST: castle.prx.docker
+      REDIS_HOST: redis
+      MIX_ENV: test
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
