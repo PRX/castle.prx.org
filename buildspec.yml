@@ -13,6 +13,7 @@ phases:
       - echo Logging in to Amazon ECR...
       - $(aws ecr get-login --region $ECR_REGION)
       - mkdir _build_docker_compose deps_docker_compose
+      - cp env-example .env
   build:
     commands:
       - docker-compose build
