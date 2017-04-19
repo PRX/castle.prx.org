@@ -28,6 +28,11 @@ config :castle, :env_config,
   basic_auth_user: System.get_env("BASIC_AUTH_USER") || "${BASIC_AUTH_USER}",
   basic_auth_pass: System.get_env("BASIC_AUTH_PASS") || "${BASIC_AUTH_PASS}"
 
+# HAL mime type
+config :mime, :types, %{
+  "application/hal+json" => ["hal"],
+}
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
