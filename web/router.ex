@@ -10,7 +10,7 @@ defmodule Castle.Router do
   # end
 
   pipeline :api do
-    plug :accepts, ["json", :hal]
+    plug :accepts, ["json", "hal"]
   end
 
   pipeline :authorized do
