@@ -1,7 +1,13 @@
 defmodule Castle.API.ImpressionControllerTest do
   use Castle.ConnCase, async: false
+  use Castle.RedisCase
 
   import Mock
+
+  setup do
+    redis_clear("impressions.*")
+    []
+  end
 
   test "requires query params", %{conn: conn} do
     with_mock BigQuery, fake_data() do
