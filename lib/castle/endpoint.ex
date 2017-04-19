@@ -38,5 +38,12 @@ defmodule Castle.Endpoint do
     key: "_castle_key",
     signing_salt: "N6LvHZ+T"
 
+  # CORS support
+  plug Corsica,
+    origins: ~r/.*\.prx\.(?:org|dev|tech|docker)$/,
+    allow_headers: ~w(Authorization),
+    allow_methods: ~w(HEAD GET),
+    allow_credentials: true
+
   plug Castle.Router
 end
