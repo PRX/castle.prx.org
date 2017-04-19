@@ -14,7 +14,7 @@ phases:
       - $(aws ecr get-login --region $ECR_REGION)
   build:
     commands:
-      - docker-compose build
+      - docker-compose -f docker-compose-ci.yml build
       - docker-compose -f docker-compose-ci.yml run castle
       - docker tag castle_app $AWS_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$((ECR_IMAGE_TAG+1))
       - touch $BUILD_PHASE_MARKER
