@@ -36,30 +36,22 @@ defmodule Castle.API.RootView do
           href: fix_path(api_episode_path(conn, :show, "{guid}")),
           templated: true,
         }],
-        "prx:downloads": [
-          %{
-            rel: "podcast",
-            href: fix_path(api_podcast_download_path(conn, :index, "{id}") <> "{?interval,from,to}"),
-            templated: true,
-          },
-          %{
-            rel: "episode",
-            href: fix_path(api_episode_download_path(conn, :index, "{guid}") <> "{?interval,from,to}"),
-            templated: true,
-          },
-        ],
-        "prx:impressions": [
-          %{
-            rel: "podcast",
-            href: fix_path(api_podcast_impression_path(conn, :index, "{id}") <> "{?interval,from,to}"),
-            templated: true,
-          },
-          %{
-            rel: "episode",
-            href: fix_path(api_episode_impression_path(conn, :index, "{guid}") <> "{?interval,from,to}"),
-            templated: true,
-          },
-        ],
+        "prx:podcast-downloads": [%{
+          href: fix_path(api_podcast_download_path(conn, :index, "{id}") <> "{?interval,from,to}"),
+          templated: true,
+        }],
+        "prx:episode-downloads": [%{
+          href: fix_path(api_episode_download_path(conn, :index, "{guid}") <> "{?interval,from,to}"),
+          templated: true,
+        }],
+        "prx:podcast-impressions": [%{
+          href: fix_path(api_podcast_impression_path(conn, :index, "{id}") <> "{?interval,from,to}"),
+          templated: true,
+        }],
+        "prx:episode-impressions": [%{
+          href: fix_path(api_episode_impression_path(conn, :index, "{guid}") <> "{?interval,from,to}"),
+          templated: true,
+        }],
       }
     }
   end
