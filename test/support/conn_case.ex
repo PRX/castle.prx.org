@@ -28,7 +28,17 @@ defmodule Castle.ConnCase do
   end
 
   setup tags do
+    conn = Phoenix.ConnTest.build_conn() |> basic_auth(tags)
+    {:ok, conn: conn}
+  end
 
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+  defp basic_auth(conn, %{no_auth: true}), do: conn
+  defp basic_auth(conn, _tags) do
+    set_auth_header conn, Env.get(:basic_auth_user), Env.get(:basic_auth_pass)
+  end
+
+  defp set_auth_header(conn, nil, nil), do: conn
+  defp set_auth_header(conn, user, pass) do
+    Plug.Conn.put_req_header conn, "authorization", "Basic " <> Base.encode64("#{user}:#{pass}")
   end
 end
