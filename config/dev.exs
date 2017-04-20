@@ -33,5 +33,5 @@ config :logger, :console, format: "[$level] $message\n"
 config :phoenix, :stacktrace_depth, 20
 
 # External clients
-config :castle, :redis, Castle.Redis
+config :castle, :redis, Castle.Redis.Api
 config :castle, :bigquery, BigQuery

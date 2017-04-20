@@ -19,7 +19,7 @@ config :castle, Castle.Endpoint,
 config :logger, level: :info
 
 # External clients
-config :castle, :redis, Castle.Redis
+config :castle, :redis, Castle.Redis.Api
 config :castle, :bigquery, BigQuery
 
 # ## SSL Support
