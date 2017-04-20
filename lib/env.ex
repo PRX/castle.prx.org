@@ -12,6 +12,7 @@ defmodule Env do
     |> fix_newlines
     |> fix_quotes
     |> defined_value
+    |> parse_int
   end
 
   defp get_env_config(key) do
@@ -19,6 +20,7 @@ defmodule Env do
     |> fix_newlines
     |> fix_quotes
     |> defined_value
+    |> parse_int
   end
 
   # multiline .env values will have double encoded newlines
@@ -33,5 +35,15 @@ defmodule Env do
   def defined_value("${" <> _rest), do: nil
   def defined_value(""), do: nil
   def defined_value(val), do: val
+
+  # safe parse ints
+  def parse_int(nil), do: nil
+  def parse_int(str) do
+    if str =~ ~r/^[0-9]+$/ do
+      String.to_integer(str)
+    else
+      str
+    end
+  end
 
 end
