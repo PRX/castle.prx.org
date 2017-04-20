@@ -6,7 +6,7 @@ defmodule Castle.Plugs.Interval do
     "1h"  => 3600,
     "15m" => 900,
   }
-  @max_in_window 100
+  @max_in_window 1000
 
   def init(default), do: default
 
