@@ -1,23 +1,24 @@
-defmodule Castle.RedisCachedResponseTest do
+defmodule Castle.RedisResponseCacheTest do
   use Castle.RedisCase, async: true
 
-  import Castle.Redis.CachedResponse
+  @moduletag :redis
+
+  import Castle.Redis.ResponseCache
 
   setup do
-    Castle.Redis.Conn.del("some_cache_key")
+    redis_clear("response_cache_test*")
     []
   end
 
-  @tag :redis
   test "caches responses but not metadata" do
     data = %{some: "data"}
     meta = %{the: "meta"}
 
-    {d, m} = cached("some_cache_key", 1, fn() -> {data, meta} end)
+    {d, m} = cached("response_cache_test", 1, fn() -> {data, meta} end)
     assert d == %{some: "data"}
     assert m == %{the: "meta"}
 
-    {d, m} = cached("some_cache_key", 1, fn() -> {data, meta} end)
+    {d, m} = cached("response_cache_test", 1, fn() -> {data, meta} end)
     assert d == %{some: "data"}
     assert m == %{cached: true}
   end

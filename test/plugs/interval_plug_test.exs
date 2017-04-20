@@ -40,7 +40,7 @@ defmodule Castle.PlugsIntervalTest do
   end
 
   test "validates the intervals per time window", %{conn: conn} do
-    conn = call_interval(conn, "15m", "2017-04-01T00:00:00Z", "2017-04-04T00:00:00Z")
+    conn = call_interval(conn, "15m", "2017-03-01T00:00:00Z", "2017-04-01T00:00:00Z")
     assert conn.status == 400
     assert conn.halted == true
     assert conn.resp_body =~ ~r/time window too large/i

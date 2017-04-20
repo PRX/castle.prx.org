@@ -1,9 +1,11 @@
-defmodule Castle.RedisIntervalResponseTest do
+defmodule Castle.RedisIntervalCacheTest do
   use Castle.RedisCase, async: true
 
-  import Castle.Redis.IntervalResponse
+  @moduletag :redis
 
-  @prefix "interval.response.test"
+  import Castle.Redis.IntervalCache
+
+  @prefix "interval.cache.test"
 
   setup do
     redis_clear("#{@prefix}*")

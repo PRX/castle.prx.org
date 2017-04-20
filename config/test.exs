@@ -8,3 +8,7 @@ config :castle, Castle.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+# External clients
+config :castle, :redis, Castle.FakeRedis
+config :castle, :bigquery, BigQuery
