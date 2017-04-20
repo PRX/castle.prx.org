@@ -26,7 +26,7 @@ defmodule Castle.ChannelCase do
     end
   end
 
-  setup tags do
+  setup _tags do
 
     :ok
   end
