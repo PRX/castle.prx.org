@@ -18,6 +18,10 @@ config :castle, Castle.Endpoint,
 # Do not print debug messages in production
 config :logger, level: :info
 
+# External clients
+config :castle, :redis, Castle.Redis
+config :castle, :bigquery, BigQuery
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key

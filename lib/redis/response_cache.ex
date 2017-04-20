@@ -1,4 +1,4 @@
-defmodule Castle.Redis.CachedResponse do
+defmodule Castle.Redis.ResponseCache do
   alias Castle.Redis.Conn, as: Conn
 
   def cached(key, ttl, work_fn) do

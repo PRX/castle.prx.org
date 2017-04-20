@@ -1,4 +1,4 @@
-defmodule Castle.Redis.IntervalResponse do
+defmodule Castle.Redis.IntervalCache do
   alias Castle.Redis.Conn, as: Conn
 
   @past_interval_ttl 43200
