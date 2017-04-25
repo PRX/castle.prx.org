@@ -6,6 +6,7 @@ castle:
   environment:
     VIRTUAL_HOST: castle.prx.docker
     REDIS_HOST: redis
+    REDIS_PORT: 6379
     MIX_ENV: test
 redis:
   image: redis
