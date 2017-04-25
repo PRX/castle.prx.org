@@ -1,6 +1,7 @@
 FROM bitwalker/alpine-elixir:1.4.2
 
 MAINTAINER PRX <sysadmin@prx.org>
+LABEL org.prx.app="yes"
 
 ADD mix.exs mix.lock ./
 RUN mix do deps.get, deps.compile
