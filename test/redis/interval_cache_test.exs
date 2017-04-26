@@ -92,6 +92,17 @@ defmodule Castle.RedisIntervalCacheTest do
     assert Enum.member? redis_keys("#{@prefix}*"), "#{@prefix}.900.2017-03-22T01:45:00Z"
   end
 
+  test "handles blank responses", %{from: from, to: to} do
+    {data, meta} = interval @prefix, from, to, 900, fn(new_from) ->
+      assert format_dtim(new_from) == "2017-03-22T01:15:00Z"
+      {[], %{meta: "data"}}
+    end
+    assert redis_count("#{@prefix}*") == 0
+    assert data == []
+    assert meta.meta == "data"
+    assert meta.cache_hits == 0
+  end
+
   test "caches response intervals", %{from: from, partial_to: partial_to, to: to} do
     data1 = [
       %{count: 55, time: get_dtim("2017-03-22T01:15:00Z")},
