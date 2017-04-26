@@ -1,0 +1,45 @@
+#!/bin/sh
+
+PROCESS=
+CMD_ARGS=
+
+ApplicationUsage () {
+  echo "usage: application [ help | test | web | mix | -- ]"
+}
+
+ApplicationParseOpts () {
+  PROCESS=$1
+  shift
+  CMD_ARGS=$*
+}
+
+UpdateEnvironment () {
+  export `aws-secrets-get prx-castle`
+}
+
+ApplicationRun () {
+  UpdateEnvironment
+
+  CMD=
+  if [ "$PROCESS" = "help" ] ; then
+    ApplicationUsage
+    exit
+  elif [ "$PROCESS" = "web" ] ; then
+    CMD="mix phoenix.server"
+  elif [ "$PROCESS" = "test" ] ; then
+    CMD="mix test"
+  elif [ "$PROCESS" = "mix" ] ; then
+    CMD="mix"
+  elif [ "$PROCESS" = "--" ] ; then
+    CMD=
+  else
+    echo "ERROR: $PROCESS is not a valid command."
+    ApplicationUsage
+    exit
+  fi
+
+  $CMD $CMD_ARGS
+}
+
+ApplicationParseOpts $*
+ApplicationRun

@@ -3,6 +3,20 @@ FROM bitwalker/alpine-elixir:1.4.2
 MAINTAINER PRX <sysadmin@prx.org>
 LABEL org.prx.app="yes"
 
+# install git, aws-cli
+RUN apk update && apk --update add \
+    ca-certificates \
+    git
+
+RUN apk --no-cache update && \
+    apk --no-cache add python py-pip py-setuptools ca-certificates groff less && \
+    pip --no-cache-dir install awscli && \
+    rm -rf /var/cache/apk/*
+
+# install PRX aws-secrets scripts
+RUN git clone -o github https://github.com/PRX/aws-secrets
+RUN cp ./aws-secrets/bin/* /usr/local/bin
+
 ADD mix.exs mix.lock ./
 RUN mix do deps.get, deps.compile
 
@@ -20,5 +34,6 @@ USER default
 ENV MIX_ENV=prod
 ENV RELX_REPLACE_OS_VARS=true
 EXPOSE 4000
-ENTRYPOINT ["/tini", "--", "mix"]
-CMD [ "phoenix.server" ]
+
+ENTRYPOINT [ "/tini", "--", "./bin/application" ]
+CMD [ "web" ]

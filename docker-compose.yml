@@ -8,13 +8,14 @@ castle:
     - ./priv:/opt/app/priv
     - ./test:/opt/app/test
     - ./web:/opt/app/web
+    - ./bin:/opt/app/bin
   env_file:
     - .env
   links:
     - redis
   ports:
     - "4000:4000"
-  command: phoenix.server
+  command: web
   environment:
     VIRTUAL_HOST: castle.prx.docker
     REDIS_HOST: redis
