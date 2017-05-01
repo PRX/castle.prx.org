@@ -4,14 +4,12 @@ MAINTAINER PRX <sysadmin@prx.org>
 LABEL org.prx.app="yes"
 
 # install git, aws-cli
-RUN apk update && apk --update add \
+RUN apk --update add \
     ca-certificates \
     git
 
-RUN apk --no-cache update && \
-    apk --no-cache add python py-pip py-setuptools ca-certificates groff less && \
-    pip --no-cache-dir install awscli && \
-    rm -rf /var/cache/apk/*
+RUN apk --no-cache add python py-pip py-setuptools groff less && \
+    pip --no-cache-dir install awscli
 
 # install PRX aws-secrets scripts
 RUN git clone -o github https://github.com/PRX/aws-secrets
