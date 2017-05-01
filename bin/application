@@ -14,7 +14,7 @@ ApplicationParseOpts () {
 }
 
 UpdateEnvironment () {
-  export `aws-secrets-get prx-castle`
+  export `aws-secrets-get castle`
 }
 
 ApplicationRun () {
