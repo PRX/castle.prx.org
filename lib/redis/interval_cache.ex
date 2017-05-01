@@ -26,6 +26,7 @@ defmodule Castle.Redis.IntervalCache do
     cache_hits(times, counts)
   end
 
+  def interval_set(_key_prefix, _from, _to, _interval, []), do: []
   def interval_set(key_prefix, from, to, interval, counts) do
     Enum.zip([
       interval_keys(key_prefix, from, to, interval),
