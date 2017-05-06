@@ -18,7 +18,7 @@ UpdateEnvironment () {
   for item in `aws-secrets-get`; do
     export "$item"
   done
-  IFS=' '
+  unset IFS
 }
 
 ApplicationRun () {
