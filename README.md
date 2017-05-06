@@ -39,7 +39,7 @@ docker-compose build
 
 # mount dev dependencies locally
 mkdir _build_docker_compose deps_docker_compose
-docker-compose run castle do deps.get, compile
+docker-compose run castle compile
 
 # now you can run a local server
 docker-compose up
