@@ -1,0 +1,51 @@
+#!/bin/sh
+
+PROCESS=
+CMD_ARGS=
+
+ApplicationUsage () {
+  echo "usage: application [ help | test | web | mix | compile | -- ]"
+}
+
+ApplicationParseOpts () {
+  PROCESS=$1
+  shift
+  CMD_ARGS=$*
+}
+
+UpdateEnvironment () {
+  IFS=$'\n'
+  for item in `aws-secrets-get`; do
+    export "$item"
+  done
+  unset IFS
+}
+
+ApplicationRun () {
+  CMD=
+  if [ "$PROCESS" = "help" ] ; then
+    ApplicationUsage
+    exit
+  elif [ "$PROCESS" = "web" ] ; then
+    UpdateEnvironment
+    CMD="mix phoenix.server"
+  elif [ "$PROCESS" = "test" ] ; then
+    CMD="mix test"
+  elif [ "$PROCESS" = "mix" ] ; then
+    CMD="mix"
+  elif [ "$PROCESS" = "compile" ] ; then
+    CMD="mix do deps.get, compile"
+  elif [ "$PROCESS" = "--" ] ; then
+    UpdateEnvironment
+    CMD=
+  else
+    echo "ERROR: $PROCESS is not a valid command."
+    ApplicationUsage
+    exit
+  fi
+
+  $CMD $CMD_ARGS
+}
+
+ApplicationParseOpts $*
+ApplicationRun
