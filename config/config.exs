@@ -30,7 +30,7 @@ config :castle, :env_config,
 
 # HAL mime type
 config :mime, :types, %{
-  "application/hal+json" => ["hal"],
+  "application/hal+json" => ["hal"]
 }
 
 # Configures Elixir's Logger
