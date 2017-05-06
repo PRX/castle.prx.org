@@ -14,7 +14,11 @@ ApplicationParseOpts () {
 }
 
 UpdateEnvironment () {
-  export `aws-secrets-get`
+  IFS=$'\n'
+  for item in `aws-secrets-get`; do
+    export "$item"
+  done
+  IFS=' '
 }
 
 ApplicationRun () {
