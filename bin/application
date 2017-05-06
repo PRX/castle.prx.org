@@ -44,7 +44,7 @@ ApplicationRun () {
     exit
   fi
 
-  $CMD $CMD_ARGS
+  exec $CMD $CMD_ARGS
 }
 
 ApplicationParseOpts $*
