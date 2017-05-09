@@ -2,7 +2,6 @@
 
 ## Description
 
-
 [Phoenix app](http://www.phoenixframework.org) providing an API to PRX metrics in BigQuery.
 
 This project follows the [standards for PRX services](https://github.com/PRX/meta.prx.org/wiki/Project-Standards#services).
