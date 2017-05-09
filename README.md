@@ -1,4 +1,4 @@
-# Castle.prx.org
+# castle.prx.org
 
 ## Description
 
