@@ -8,10 +8,8 @@ defmodule Castle do
 
     # Define workers and child supervisors to be supervised
     children = [
-      # Start the endpoint when the application starts
       supervisor(Castle.Endpoint, []),
-      # Start your own worker by calling: Castle.Worker.start_link(arg1, arg2, arg3)
-      # worker(Castle.Worker, [arg1, arg2, arg3]),
+      worker(PrxAuth.Certificate.Cache, [[name: PrxAuth.Certificate.Cache]])
     ]
 
     # Create the redix children list of workers:
