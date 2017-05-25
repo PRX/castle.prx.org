@@ -38,4 +38,16 @@ defmodule PrxAuth.CertificateTest do
       assert fetch() != val1
     end
   end
+
+  test "throws errors when cert not found" do
+    with_http %{} do
+      try do
+        fetch("http://some.where/foobar")
+        flunk("should have thrown an error")
+      rescue
+        e in RuntimeError ->
+          assert e.message =~ ~r/no certificates in/i
+      end
+    end
+  end
 end
