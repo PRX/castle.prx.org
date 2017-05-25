@@ -14,7 +14,7 @@ defmodule Castle.Router do
   end
 
   pipeline :authorized do
-    plug Castle.Plugs.BasicAuth
+    # plug PrxAuth.Plug
   end
 
   pipeline :metrics do

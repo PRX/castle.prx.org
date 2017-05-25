@@ -28,6 +28,10 @@ defmodule PrxAuth.TokenTest do
     assert claims["aur"]["123456"] == "admin"
   end
 
+  test "verifies lack of token" do
+    assert {:no_token} = verify(@cert, "id.prx.org", nil)
+  end
+
   test "verifies invalid jwts" do
     assert {:invalid} = verify(@cert, "id.prx.org", "foobar")
   end

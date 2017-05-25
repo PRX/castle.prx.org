@@ -1,5 +1,6 @@
 defmodule PrxAuth.Token do
 
+  def verify(_cert, _iss, nil), do: {:no_token}
   def verify(cert, iss, jwt) do
     jwk = JOSE.JWK.from_pem(cert)
     cond do
