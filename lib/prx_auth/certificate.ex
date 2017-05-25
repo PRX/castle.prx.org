@@ -11,12 +11,8 @@ defmodule PrxAuth.Certificate do
     now = :os.system_time(:seconds)
     case cache_get(cert_loc) do
       {:found, exp, result} when exp > now -> result
-      {:found, exp, _result} ->
-        IO.puts " -------------- expired #{exp} #{now} --------------"
-        fetch_and_set(cert_loc, now + @expires_in)
-      {:not_found} ->
-        IO.puts " -------------- not found --------------"
-        fetch_and_set(cert_loc, now + @expires_in)
+      {:found, _exp, _result} -> fetch_and_set(cert_loc, now + @expires_in)
+      {:not_found} -> fetch_and_set(cert_loc, now + @expires_in)
     end
   end
   def fetch(), do: fetch(@cert_loc)

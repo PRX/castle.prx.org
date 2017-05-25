@@ -12,6 +12,10 @@ defmodule PrxAuth.Certificate.Cache do
     GenServer.call(__MODULE__, {:set, url, expiration, data})
   end
 
+  def cache_clear() do
+    GenServer.call(__MODULE__, {:clear})
+  end
+
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, [], opts)
   end
@@ -28,5 +32,16 @@ defmodule PrxAuth.Certificate.Cache do
   def handle_call({:set, key, expiration, data}, _from, state) do
     true = :ets.insert(__MODULE__, {key, expiration, data})
     {:reply, data, state}
+  end
+
+  def handle_call({:clear}, _from, state) do
+    {:reply, delete_keys(), state}
+  end
+
+  defp delete_keys(), do: :ets.first(__MODULE__) |> delete_keys()
+  defp delete_keys(:"$end_of_table"), do: true
+  defp delete_keys(key) do
+    true = :ets.delete(__MODULE__, key)
+    delete_keys(:ets.first(__MODULE__))
   end
 end
