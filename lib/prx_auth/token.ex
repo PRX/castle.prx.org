@@ -9,6 +9,7 @@ defmodule PrxAuth.Token do
       jwk == [] -> {:bad_cert}
       true ->
         case JOSE.JWT.verify(jwk, jwt) do
+          {:error, _err} -> {:failed}
           {false, _claims, _jws} -> {:failed}
           {true, claims, _jws} ->
             if expired?(claims.fields), do: {:expired}, else: {:ok, claims.fields}
