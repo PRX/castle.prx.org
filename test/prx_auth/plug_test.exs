@@ -1,6 +1,8 @@
 defmodule PrxAuth.PlugTest do
   use Castle.ConnCase, async: false
 
+  @moduletag :prx_auth
+
   import Mock
 
   defmacro with_verify(val, do: expression) do

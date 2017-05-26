@@ -4,13 +4,17 @@ defmodule PrxAuth.Plug do
   def init(default), do: default
 
   def call(conn, iss: iss, required: reqd) do
-    cert = PrxAuth.Certificate.fetch(id_url(iss))
-    token = conn |> get_req_header("authorization") |> get_bearer_auth()
-    case PrxAuth.Token.verify(cert, iss, token) do
-      {:ok, claims} -> Map.put(conn, :prx_user, PrxAuth.User.unpack(claims))
-      {:bad_issuer} -> unauthorized(conn, reqd)
-      {:no_token} -> unauthorized(conn, reqd)
-      {_any} -> unauthorized(conn, true)
+    if Map.get(conn, :skip_prx_auth_during_tests) do
+      conn
+    else
+      cert = PrxAuth.Certificate.fetch(id_url(iss))
+      token = conn |> get_req_header("authorization") |> get_bearer_auth()
+      case PrxAuth.Token.verify(cert, iss, token) do
+        {:ok, claims} -> Map.put(conn, :prx_user, PrxAuth.User.unpack(claims))
+        {:bad_issuer} -> unauthorized(conn, reqd)
+        {:no_token} -> unauthorized(conn, reqd)
+        {_any} -> unauthorized(conn, true)
+      end
     end
   end
   def call(conn, iss: iss), do: call(conn, iss: iss, required: true)
