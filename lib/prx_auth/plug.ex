@@ -7,7 +7,7 @@ defmodule PrxAuth.Plug do
     cert = PrxAuth.Certificate.fetch(id_url(iss))
     token = conn |> get_req_header("authorization") |> get_bearer_auth()
     case PrxAuth.Token.verify(cert, iss, token) do
-      {:ok, claims} -> conn #todo
+      {:ok, claims} -> Map.put(conn, :prx_user, PrxAuth.User.unpack(claims))
       {:bad_issuer} -> unauthorized(conn, reqd)
       {:no_token} -> unauthorized(conn, reqd)
       {_any} -> unauthorized(conn, true)

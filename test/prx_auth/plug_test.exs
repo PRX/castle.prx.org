@@ -39,6 +39,17 @@ defmodule PrxAuth.PlugTest do
     end
   end
 
+  test "decodes user", %{conn: conn} do
+    with_verify {:ok, %{"sub" => 1234, "scope" => "read", "aur" => %{123 => "write"}}} do
+      conn = call_prx_auth(conn, "token", "id.prx.org", true)
+      assert conn.status == nil
+      assert Map.has_key?(conn, :prx_user)
+      assert conn.prx_user.id == 1234
+      assert conn.prx_user.auths["123"]["read"] == true
+      assert conn.prx_user.auths["123"]["write"] == true
+    end
+  end
+
   defp call_prx_auth(conn, auth, issuer, reqd) do
     conn |> set_auth(auth) |> PrxAuth.Plug.call(iss: issuer, required: reqd)
   end

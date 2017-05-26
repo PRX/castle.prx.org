@@ -26,7 +26,6 @@ defmodule PrxAuth.User do
       |> Enum.map(&global_scopes(&1, claims["scope"]))
       |> Enum.map(&aur_scopes(&1, claims["aur"]))
       |> Enum.map(&dollar_scopes(&1, Map.get(claims["aur"], "$")))
-      # |> Enum.map(fn({id, scopes}) -> {id, Enum.uniq(scopes)} end)
       |> Enum.map(&mapify_scopes/1)
       |> Enum.into(%{})
 
@@ -50,7 +49,11 @@ defmodule PrxAuth.User do
   defp global_scopes(id, scopes), do: {id, listify_strings(scopes)}
 
   defp aur_scopes({id, scopes}, aur) do
-    {id, scopes ++ listify_strings(Map.get(aur, id) || [])}
+    aur_scopes = Map.to_list(aur)
+      |> Enum.map(fn({id, scopes}) -> {stringify_numbers(id), scopes} end)
+      |> Enum.into(%{})
+      |> Map.get(id)
+    {id, scopes ++ listify_strings(aur_scopes || [])}
   end
 
   defp dollar_scopes(auth, nil), do: auth
