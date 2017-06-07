@@ -1,34 +1,24 @@
 defmodule Castle.Redis.Conn do
 
-  def get(keys) when is_list(keys) do
-    keys |> Enum.map(&(["GET", &1])) |> pipeline() |> decode()
+  def get(keys, opts) when is_list(keys) do
+    keys |> Enum.map(&(["GET", &1])) |> pipeline(opts) |> decode()
   end
-  def get(key) do
-    command(["GET", key]) |> decode()
+  def get(key, opts) do
+    ["GET", key] |> command(opts) |> decode()
   end
 
-  def set(sets) when is_map(sets) do
-    sets |> Enum.map(fn({key, val}) -> ["SET", key, encode(val)] end) |> pipeline()
-    sets
-  end
-  def set(sets) when is_list(sets) do
-    sets |> Enum.map(fn({key, ttl, val}) -> ["SETEX", key, ttl, encode(val)] end) |> pipeline()
-  end
-  def set(sets, ttl) when is_map(sets) do
-    sets |> Enum.map(fn({key, val}) -> ["SETEX", key, ttl, encode(val)] end) |> pipeline()
-    sets
-  end
-  def set(key, val) do
-    command ["SET", key, encode(val)]
-    val
-  end
-  def set(key, ttl, val) do
-    command ["SETEX", key, ttl, encode(val)]
+  def set(key, val, opts \\ []) do
+    set_cmd(key, Keyword.get(opts, :ttl), val) |> command(opts)
     val
   end
 
-  def del(key) do
-    case command(["DEL", key]) do
+  def setall(sets, opts \\ []) do
+    Enum.map(sets, &set_cmd/1) |> pipeline(opts)
+    Enum.map(sets, &set_vals/1)
+  end
+
+  def del(key, opts \\ []) do
+    case command(["DEL", key], opts) do
       num when num > 0 -> true
       _ -> false
     end
@@ -50,19 +40,35 @@ defmodule Castle.Redis.Conn do
     end
   end
 
-  def command(command) do
-    case Redix.command(:"redix_#{random_index()}", command) do
-      {:ok, val} -> val
-      _ -> nil
-    end
+  def command([operation | _args] = command, opts) do
+    NewRelixir.Plug.Instrumentation.instrument_db(:redis, operation, opts, fn() ->
+      case Redix.command(:"redix_#{random_index()}", command) do
+        {:ok, val} -> val
+        _ -> nil
+      end
+    end)
   end
 
-  def pipeline(commands) do
-    case Redix.pipeline(:"redix_#{random_index()}", commands) do
-      {:ok, vals} -> vals
-      _ -> Enum.map(commands, fn(_) -> nil end)
-    end
+  def pipeline(commands, opts) do
+    ops = commands |> Enum.map(&hd/1) |> Enum.uniq |> Enum.join("/")
+    NewRelixir.Plug.Instrumentation.instrument_db(:redis, "PIPELINE(#{ops})", opts, fn() ->
+      case Redix.pipeline(:"redix_#{random_index()}", commands) do
+        {:ok, vals} -> vals
+        _ -> Enum.map(commands, fn(_) -> nil end)
+      end
+    end)
   end
+
+  defp set_cmd(key, nil, val), do: set_cmd(key, val)
+  defp set_cmd(key, ttl, val), do: ["SETEX", key, ttl, encode(val)]
+  defp set_cmd(key, val), do: ["SET", key, encode(val)]
+  defp set_cmd([{key, ttl, val} | rest]), do: set_cmd(key, ttl, val) ++ set_cmd(rest)
+  defp set_cmd([{key, val} | rest]), do: set_cmd(key, val) ++ set_cmd(rest)
+  defp set_cmd(_), do: []
+
+  defp set_vals([{key, ttl, val} | rest]), do: val ++ set_vals(rest)
+  defp set_vals([{key, val} | rest]), do: val ++ set_vals(rest)
+  defp set_vals(_), do: []
 
   defp random_index() do
     rem(System.unique_integer([:positive]), 5)

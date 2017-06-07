@@ -1,7 +1,7 @@
 defmodule Castle.Redis.Api do
   @behaviour Castle.Redis
 
-  defdelegate cached(key, ttl, work_fn),
+  defdelegate cached(key, val, opts \\ []),
     to: Castle.Redis.ResponseCache,
     as: :cached
 
