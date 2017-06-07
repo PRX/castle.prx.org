@@ -28,6 +28,7 @@ defmodule Castle.Web do
 
       import Castle.Router.Helpers
       import Castle.Gettext
+      plug NewRelixir.Plug.Phoenix
     end
   end
 
