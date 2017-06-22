@@ -8,8 +8,7 @@ defmodule Castle do
 
     # Define workers and child supervisors to be supervised
     children = [
-      supervisor(Castle.Endpoint, []),
-      worker(PrxAuth.Certificate.Cache, [[name: PrxAuth.Certificate.Cache]])
+      supervisor(Castle.Endpoint, [])
     ]
 
     # Create the redix children list of workers:
