@@ -13,8 +13,9 @@ defmodule Castle.Router do
     plug :accepts, ["json", "hal"]
   end
 
+  def id_host, do: Env.get(:id_host)
   pipeline :authorized do
-    plug PrxAuth.Plug, required: true
+    plug PrxAuth.Plug, required: true, iss: &Castle.Router.id_host/0
   end
 
   pipeline :metrics do
