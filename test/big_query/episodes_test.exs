@@ -5,7 +5,7 @@ defmodule Castle.BigQueryEpisodesTest do
 
   @tag :external
   test "lists episodes" do
-    {result, _meta} = list(Timex.to_datetime(~D[2017-06-28]))
+    {result, _meta} = list(Timex.to_datetime(~D[2017-06-27]))
     assert is_list result
     assert length(result) > 10
     assert hd(result).feeder_episode
@@ -23,7 +23,7 @@ defmodule Castle.BigQueryEpisodesTest do
 
   @tag :external
   test "shows an episode" do
-    {result, _meta} = show("7acf74b8-7b0a-4e9e-90be-f69052064b77", Timex.to_datetime(~D[2017-06-28]))
+    {result, _meta} = show("7acf74b8-7b0a-4e9e-90be-f69052064b77", Timex.to_datetime(~D[2017-06-27]))
     assert is_map result
     assert result.feeder_episode == "7acf74b8-7b0a-4e9e-90be-f69052064b77"
 

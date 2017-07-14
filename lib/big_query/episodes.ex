@@ -2,7 +2,7 @@ defmodule BigQuery.Episodes do
   import BigQuery.Base.Query
 
   def list(now \\ Timex.now, limit \\ 20) do
-    """
+    sql = """
     SELECT #{outer_selects()} FROM
     (#{select(:bq_downloads_table)}) a
     FULL JOIN
@@ -10,7 +10,7 @@ defmodule BigQuery.Episodes do
     ON (a.feeder_episode = b.feeder_episode)
     LIMIT #{limit}
     """
-    |> query(params(now))
+    query params(now), sql
   end
 
   def show(episode_guid, now \\ Timex.now) do
@@ -22,7 +22,7 @@ defmodule BigQuery.Episodes do
       (#{select(:bq_impressions_table, episode_guid)}) b
       ON (a.feeder_episode = b.feeder_episode)
     """
-    query(sql, params) |> show_first()
+    query(params, sql) |> show_first()
   end
 
   defp show_first({[episode | _rest], meta}), do: {episode, meta}

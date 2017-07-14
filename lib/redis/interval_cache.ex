@@ -19,6 +19,11 @@ defmodule Castle.Redis.IntervalCache do
         {hits ++ data, Map.put(meta, :cache_hits, length(hits))}
     end
   end
+  def interval(key_prefix, interval, work_fn) do
+    interval key_prefix, interval.from, interval.to, interval.seconds, fn(new_from) ->
+      interval |> Map.put(:from, new_from) |> work_fn.()
+    end
+  end
 
   def interval_get(key_prefix, from, to, interval) do
     times = interval_times(from, to, interval)

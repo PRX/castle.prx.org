@@ -1,5 +1,10 @@
 defmodule BigQuery do
 
+  alias BigQuery.Podcasts, as: Podcasts
+  alias BigQuery.Episodes, as: Episodes
+  alias BigQuery.Downloads, as: Downloads
+  alias BigQuery.Impressions, as: Impressions
+
   defmodule Interval do
     @enforce_keys [:from, :to, :seconds]
     defstruct [:from, :to, :seconds]
@@ -10,23 +15,19 @@ defmodule BigQuery do
     defstruct [:name, :table, :key, :display, :fkey, limit: 10]
   end
 
-  defdelegate podcasts(), to: BigQuery.Podcasts, as: :list
-  defdelegate podcast(id), to: BigQuery.Podcasts, as: :show
+  defdelegate podcasts(), to: Podcasts, as: :list
+  defdelegate podcast(id), to: Podcasts, as: :show
 
-  defdelegate episodes(), to: BigQuery.Episodes, as: :list
-  defdelegate episode(guid), to: BigQuery.Episodes, as: :show
+  defdelegate episodes(), to: Episodes, as: :list
+  defdelegate episode(guid), to: Episodes, as: :show
 
-  defdelegate podcast_downloads(id, from, to, interval),
-    to: BigQuery.Downloads,
-    as: :for_podcast
-  defdelegate episode_downloads(guid, from, to, interval),
-    to: BigQuery.Downloads,
-    as: :for_episode
+  defdelegate podcast_downloads(id, interval), to: Downloads, as: :for_podcast
+  defdelegate podcast_downloads(id, interval, group), to: Downloads, as: :for_podcast
+  defdelegate podcast_impressions(id, interval), to: Impressions, as: :for_podcast
+  defdelegate podcast_impressions(id, interval, group), to: Impressions, as: :for_podcast
 
-  defdelegate podcast_impressions(id, from, to, interval),
-    to: BigQuery.Impressions,
-    as: :for_podcast
-  defdelegate episode_impressions(guid, from, to, interval),
-    to: BigQuery.Impressions,
-    as: :for_episode
+  defdelegate episode_downloads(guid, interval), to: Downloads, as: :for_episode
+  defdelegate episode_downloads(guid, interval, group), to: Downloads, as: :for_episode
+  defdelegate episode_impressions(id, interval), to: Impressions, as: :for_episode
+  defdelegate episode_impressions(id, interval, group), to: Impressions, as: :for_episode
 end
