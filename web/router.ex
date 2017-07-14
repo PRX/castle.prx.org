@@ -19,9 +19,8 @@ defmodule Castle.Router do
   end
 
   pipeline :metrics do
-    plug Castle.Plugs.TimeFrom
-    plug Castle.Plugs.TimeTo
     plug Castle.Plugs.Interval
+    plug Castle.Plugs.Group
   end
 
   scope "/", Castle do
