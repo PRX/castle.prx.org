@@ -1,5 +1,15 @@
 defmodule BigQuery do
 
+  defmodule Interval do
+    @enforce_keys [:from, :to, :seconds]
+    defstruct [:from, :to, :seconds]
+  end
+
+  defmodule Grouping do
+    @enforce_keys [:name, :table, :key, :display, :fkey, :limit]
+    defstruct [:name, :table, :key, :display, :fkey, limit: 10]
+  end
+
   defdelegate podcasts(), to: BigQuery.Podcasts, as: :list
   defdelegate podcast(id), to: BigQuery.Podcasts, as: :show
 

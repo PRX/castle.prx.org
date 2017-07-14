@@ -1,69 +1,39 @@
 defmodule Castle.Plugs.Interval do
   import Plug.Conn
 
-  @intervals %{
-    "1d"  => 86400,
-    "1h"  => 3600,
-    "15m" => 900,
-  }
-  @max_in_window 1000
-
   def init(default), do: default
 
   def call(conn, _default) do
     conn
-    |> set_interval()
+    |> assign(:interval, %{})
+    |> interval_part(:from, &Castle.Plugs.Interval.TimeFrom.parse/1)
+    |> interval_part(:to, &Castle.Plugs.Interval.TimeTo.parse/1)
+    |> interval_part(:seconds, &Castle.Plugs.Interval.Seconds.parse/1)
     |> round_time_window()
-    |> validate_window()
+    |> interval_struct()
   end
 
-  defp set_interval(%{status: nil, params: %{"interval" => interval}} = conn) do
-    if Map.has_key?(@intervals, interval) do
-      assign conn, :interval, @intervals[interval]
-    else
-      options = @intervals |> Map.keys() |> Enum.join(", ")
-      conn
-      |> send_resp(400, "Bad interval param: use one of #{options}")
-      |> halt()
+  defp interval_part(%{status: nil, assigns: %{interval: intv}} = conn, key, valfn) do
+    case valfn.(conn) do
+      {:ok, val} ->
+        conn |> assign(:interval, Map.put(intv, key, val))
+      {:error, err} ->
+        conn |> send_resp(400, err) |> halt()
     end
   end
-  defp set_interval(%{status: nil} = conn) do
-    {time_from, time_to} = interval_params(conn)
-    best_guess = case Timex.to_unix(time_to) - Timex.to_unix(time_from) do
-      s when s > 345600 -> "1d" # > 4 days
-      s when s > 28800 -> "1h"  # > 8 hours
-      _ -> "15m"
-    end
-    assign conn, :interval, @intervals[best_guess]
-  end
+  defp interval_part(conn, _key, _valfn), do: conn
 
-  defp round_time_window(%{status: nil} = conn) do
-    {time_from, time_to, interval} = interval_params(conn)
-    lower = Timex.to_unix(time_from)
-    upper = Timex.to_unix(time_to)
-    lower_down = Timex.from_unix(lower - rem(lower, interval))
-    upper_up = Timex.from_unix(round(Float.ceil(upper / interval) * interval))
-    conn
-    |> assign(:time_from, lower_down)
-    |> assign(:time_to, upper_up)
+  defp round_time_window(%{status: nil, assigns: %{interval: intv}} = conn) do
+    lower = Timex.to_unix(intv.from)
+    upper = Timex.to_unix(intv.to)
+    lower_down = Timex.from_unix(lower - rem(lower, intv.seconds))
+    upper_up = Timex.from_unix(round(Float.ceil(upper / intv.seconds) * intv.seconds))
+    assign(conn, :interval, %{from: lower_down, to: upper_up, seconds: intv.seconds})
   end
   defp round_time_window(conn), do: conn
 
-  defp validate_window(%{status: nil} = conn) do
-    {time_from, time_to, interval} = interval_params(conn)
-    window = Timex.to_unix(time_to) - Timex.to_unix(time_from)
-    if (window / interval) > @max_in_window do
-      conn
-      |> send_resp(400, "Time window too large for specified interval")
-      |> halt()
-    else
-      conn
-    end
+  defp interval_struct(%{status: nil, assigns: %{interval: intv}} = conn) do
+    conn |> assign(:interval, struct!(BigQuery.Interval, intv))
   end
-  defp validate_window(conn), do: conn
-
-  defp interval_params(%{assigns: %{time_from: time_from, time_to: time_to, interval: interval}}),
-    do: {time_from, time_to, interval}
-  defp interval_params(%{assigns: %{time_from: time_from, time_to: time_to}}),
-    do: {time_from, time_to}
+  defp interval_struct(conn), do: conn
 end
