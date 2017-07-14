@@ -3,13 +3,19 @@ defmodule Castle.Plugs.Group do
 
   @groups %{
     "city" => %{
-      key: "city_id",
+      name: "city",
+      table: "geonames",
+      key: "geoname_id",
       display: "city_name",
+      fkey: "city_id",
       limit: 10,
     },
     "country" => %{
-      key: "country_id",
+      name: "country",
+      table: "geonames",
+      key: "geoname_id",
       display: "country_name",
+      fkey: "country_id",
       limit: 10,
     },
   }
@@ -24,7 +30,7 @@ defmodule Castle.Plugs.Group do
 
   defp set_grouping(%{status: nil, params: %{"group" => grouping}} = conn) do
     if Map.has_key?(@groups, grouping) do
-      assign conn, :group, @groups[grouping]
+      assign conn, :group, struct!(BigQuery.Grouping, @groups[grouping])
     else
       options = @groups |> Map.keys() |> Enum.join(", ")
       conn
