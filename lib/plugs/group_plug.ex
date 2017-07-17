@@ -28,6 +28,15 @@ defmodule Castle.Plugs.Group do
     |> set_grouping_limit()
   end
 
+  def get(name, limit \\ nil) do
+    if Map.has_key?(@groups, name) do
+      struct!(BigQuery.Grouping, @groups[name])
+      |> Map.put(:limit, limit || @groups[name].limit)
+    else
+      nil
+    end
+  end
+
   defp set_grouping(%{status: nil, params: %{"group" => grouping}} = conn) do
     if Map.has_key?(@groups, grouping) do
       assign conn, :group, struct!(BigQuery.Grouping, @groups[grouping])

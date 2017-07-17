@@ -2,7 +2,7 @@ defmodule Castle.PlugsIntervalTimeToTest do
   use Castle.ConnCase, async: true
 
   test "sets a default slightly in the future", %{conn: conn} do
-    {:ok, time_to} = call_time_to(conn)
+    {:ok, time_to} = Castle.Plugs.Interval.TimeTo.parse(conn)
     now = Timex.now
     later = Timex.shift(now, seconds: 100)
 

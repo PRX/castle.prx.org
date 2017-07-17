@@ -17,7 +17,7 @@ defmodule Castle.BigQueryBaseTimestampGroupTest do
 
   test "selects the display column" do
     sql = group_sql("the_table", "foo = @bar", test_group())
-    assert sql =~ ~r/AS display/
+    assert sql =~ ~r/AS foo/
   end
 
   test "sets params" do

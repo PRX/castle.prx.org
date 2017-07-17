@@ -40,6 +40,12 @@ defmodule Castle.PlugsGroupTest do
     assert conn.resp_body =~ ~r/grouplimit is not an integer/i
   end
 
+  test "manually gets a grouping" do
+    group = Castle.Plugs.Group.get("city", 4)
+    assert group.name == "city"
+    assert group.limit == 4
+  end
+
   defp get_group(conn, group \\ nil, limit \\ nil) do
     conn |> call_group(group, limit) |> Map.get(:assigns) |> Map.get(:group)
   end
