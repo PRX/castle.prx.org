@@ -44,12 +44,12 @@ defmodule Castle.API.DownloadControllerTest do
 
   defp fake_data do
     [
-      podcast_downloads: &downloads/4,
-      episode_downloads: &downloads/4,
+      podcast_downloads: &downloads/2,
+      episode_downloads: &downloads/2,
     ]
   end
 
-  defp downloads(_id, _from, _to, _interval) do
+  defp downloads(_id, _interval) do
     {:ok, start, _} = DateTime.from_iso8601("2017-03-22T00:00:00Z")
     {Enum.map(0..19, &download(&1, start)), %{meta: "data"}}
   end

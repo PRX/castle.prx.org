@@ -44,12 +44,12 @@ defmodule Castle.API.ImpressionControllerTest do
 
   defp fake_data do
     [
-      podcast_impressions: &impressions/4,
-      episode_impressions: &impressions/4,
+      podcast_impressions: &impressions/2,
+      episode_impressions: &impressions/2,
     ]
   end
 
-  defp impressions(_id, _from, _to, _interval) do
+  defp impressions(_id, _interval) do
     {:ok, start, _} = DateTime.from_iso8601("2017-03-22T00:00:00Z")
     {Enum.map(0..19, &impression(&1, start)), %{meta: "data"}}
   end
