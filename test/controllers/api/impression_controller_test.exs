@@ -14,11 +14,32 @@ defmodule Castle.API.ImpressionControllerTest do
     end
   end
 
+  test "validates group params", %{conn: conn} do
+    with_mock BigQuery, fake_groups() do
+      resp = conn |> get_podcast(123, from: "2017-04-01", group: "city", grouplimit: "blah") |> response(400)
+      assert resp =~ ~r/grouplimit is not an integer/i
+      resp = conn |> get_podcast(123, from: "2017-04-01", group: "city", grouplimit: 11) |> json_response(200)
+      assert resp["id"] == 123
+    end
+  end
+
   test "responds with impressions for a podcast", %{conn: conn} do
     with_mock BigQuery, fake_data() do
       resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-02", interval: "15m") |> json_response(200)
       assert resp["id"] == 123
       assert resp["interval"] == 900
+      assert length(resp["impressions"]) == 20
+      assert hd(resp["impressions"]) == ["2017-03-22T00:00:00Z", 0]
+    end
+  end
+
+  test "responds with grouped impressions for a podcast", %{conn: conn} do
+    with_mock BigQuery, fake_groups() do
+      resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-02", interval: "15m", group: "city") |> json_response(200)
+      assert resp["id"] == 123
+      assert resp["interval"] == 900
+      assert length(resp["groups"]) == 1
+      assert hd(resp["groups"]) == "foo"
       assert length(resp["impressions"]) == 20
       assert hd(resp["impressions"]) == ["2017-03-22T00:00:00Z", 0]
     end
@@ -47,6 +68,33 @@ defmodule Castle.API.ImpressionControllerTest do
       podcast_impressions: &impressions/2,
       episode_impressions: &impressions/2,
     ]
+  end
+
+  defp fake_groups do
+    [
+      podcast_impressions: &impressions/3,
+      episode_impressions: &impressions/3,
+    ]
+  end
+
+  defp impressions(id, interval, _group) do
+    {data, meta} = impressions(id, interval)
+    {
+      Enum.map(data, &(Map.merge(&1, %{display: "foo", rank: 1}))),
+      meta
+    }
+  end
+
+  test "responds with grouped impressions for an episode", %{conn: conn} do
+    with_mock BigQuery, fake_groups() do
+      resp = conn |> get_episode("hello", from: "2017-04-01", to: "2017-04-02", interval: "15m", group: "country") |> json_response(200)
+      assert resp["guid"] == "hello"
+      assert resp["interval"] == 900
+      assert length(resp["groups"]) == 1
+      assert hd(resp["groups"]) == "foo"
+      assert length(resp["impressions"]) == 20
+      assert hd(resp["impressions"]) == ["2017-03-22T00:00:00Z", 0]
+    end
   end
 
   defp impressions(_id, _interval) do

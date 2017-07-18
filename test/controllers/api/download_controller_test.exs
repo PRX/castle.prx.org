@@ -14,6 +14,15 @@ defmodule Castle.API.DownloadControllerTest do
     end
   end
 
+  test "validates group params", %{conn: conn} do
+    with_mock BigQuery, fake_groups() do
+      resp = conn |> get_podcast(123, from: "2017-04-01", group: "blah") |> response(400)
+      assert resp =~ ~r/bad group param/i
+      resp = conn |> get_podcast(123, from: "2017-04-01", group: "city") |> json_response(200)
+      assert resp["id"] == 123
+    end
+  end
+
   test "responds with downloads for a podcast", %{conn: conn} do
     with_mock BigQuery, fake_data() do
       resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-02", interval: "15m") |> json_response(200)
@@ -24,11 +33,35 @@ defmodule Castle.API.DownloadControllerTest do
     end
   end
 
+  test "responds with grouped downloads for a podcast", %{conn: conn} do
+    with_mock BigQuery, fake_groups() do
+      resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-02", interval: "15m", group: "city") |> json_response(200)
+      assert resp["id"] == 123
+      assert resp["interval"] == 900
+      assert length(resp["groups"]) == 1
+      assert hd(resp["groups"]) == "foo"
+      assert length(resp["downloads"]) == 20
+      assert hd(resp["downloads"]) == ["2017-03-22T00:00:00Z", 0]
+    end
+  end
+
   test "responds with downloads for an episode", %{conn: conn} do
     with_mock BigQuery, fake_data() do
       resp = conn |> get_episode("hello", from: "2017-04-01", to: "2017-04-02", interval: "15m") |> json_response(200)
       assert resp["guid"] == "hello"
       assert resp["interval"] == 900
+      assert length(resp["downloads"]) == 20
+      assert hd(resp["downloads"]) == ["2017-03-22T00:00:00Z", 0]
+    end
+  end
+
+  test "responds with grouped downloads for an episode", %{conn: conn} do
+    with_mock BigQuery, fake_groups() do
+      resp = conn |> get_episode("hello", from: "2017-04-01", to: "2017-04-02", interval: "15m", group: "country") |> json_response(200)
+      assert resp["guid"] == "hello"
+      assert resp["interval"] == 900
+      assert length(resp["groups"]) == 1
+      assert hd(resp["groups"]) == "foo"
       assert length(resp["downloads"]) == 20
       assert hd(resp["downloads"]) == ["2017-03-22T00:00:00Z", 0]
     end
@@ -47,6 +80,21 @@ defmodule Castle.API.DownloadControllerTest do
       podcast_downloads: &downloads/2,
       episode_downloads: &downloads/2,
     ]
+  end
+
+  defp fake_groups do
+    [
+      podcast_downloads: &downloads/3,
+      episode_downloads: &downloads/3,
+    ]
+  end
+
+  defp downloads(id, interval, _group) do
+    {data, meta} = downloads(id, interval)
+    {
+      Enum.map(data, &(Map.merge(&1, %{display: "foo", rank: 1}))),
+      meta
+    }
   end
 
   defp downloads(_id, _interval) do
