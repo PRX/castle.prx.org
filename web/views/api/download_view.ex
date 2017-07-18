@@ -1,24 +1,21 @@
 defmodule Castle.API.DownloadView do
   use Castle.Web, :view
 
+  import Castle.API.Helpers
+
   def render("podcast.json", %{id: id} = data) do
-    download_json(%{id: id}, data)
+    %{id: id} |> meta_json(data) |> counts_json(data)
+  end
+
+  def render("podcast-group.json", %{id: id} = data) do
+    %{id: id} |> meta_json(data) |> groups_json(data)
   end
 
   def render("episode.json", %{guid: guid} = data) do
-    download_json(%{guid: guid}, data)
+    %{guid: guid} |> meta_json(data) |> counts_json(data)
   end
 
-  defp download_json(data, %{interval: interval, downloads: downloads, meta: meta}) do
-    %{
-      interval: interval,
-      downloads: Enum.map(downloads, &count_json/1),
-      meta: meta,
-    }
-    |> Map.merge(data)
-  end
-
-  defp count_json(download) do
-    [download.time, download.count]
+  def render("podcast-episode.json", %{guid: guid} = data) do
+    %{guid: guid} |> meta_json(data) |> groups_json(data)
   end
 end

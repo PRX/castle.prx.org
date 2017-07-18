@@ -3,34 +3,42 @@ defmodule Castle.API.ImpressionController do
 
   @redis Application.get_env(:castle, :redis)
   @bigquery Application.get_env(:castle, :bigquery)
+  @group_ttl 900
 
   plug Castle.Plugs.ParseInt, "podcast_id"
 
-  def index(conn, %{"podcast_id" => podcast_id}) do
-    %{assigns: %{interval: intv}} = conn
-
-    {data, meta} = @redis.interval "impressions.podcast.#{podcast_id}", intv, fn(new_intv) ->
-      @bigquery.podcast_impressions(podcast_id, new_intv)
+  def index(%{assigns: %{interval: intv, group: group}} = conn, %{"podcast_id" => id}) do
+    {data, meta} = @redis.cached key("podcast.#{id}", group), @group_ttl, fn() ->
+      @bigquery.podcast_impressions(id, intv, group)
     end
-
-    render conn, "podcast.json",
-      id: podcast_id,
-      interval: intv.seconds,
-      impressions: data,
-      meta: meta
+    render conn, "podcast-group.json", id: id, interval: intv.seconds,
+      group: group.name, impressions: data, meta: meta
   end
 
-  def index(conn, %{"episode_guid" => episode_guid}) do
-    %{assigns: %{interval: intv}} = conn
-
-    {data, meta} = @redis.interval "impressions.episode.#{episode_guid}", intv, fn(new_intv) ->
-      @bigquery.episode_impressions(episode_guid, new_intv)
+  def index(%{assigns: %{interval: intv}} = conn, %{"podcast_id" => id}) do
+    {data, meta} = @redis.interval key("podcast.#{id}"), intv, fn(new_intv) ->
+      @bigquery.podcast_impressions(id, new_intv)
     end
-
-    render conn, "episode.json",
-      guid: episode_guid,
-      interval: intv.seconds,
-      impressions: data,
-      meta: meta
+    render conn, "podcast.json", id: id, interval: intv.seconds,
+      impressions: data, meta: meta
   end
+
+  def index(%{assigns: %{interval: intv, group: group}} = conn, %{"episode_guid" => guid}) do
+    {data, meta} = @redis.cached key("episode.#{guid}", group), @group_ttl, fn() ->
+      @bigquery.episode_impressions(guid, intv, group)
+    end
+    render conn, "episode-group.json", guid: guid, interval: intv.seconds,
+      group: group.name, impressions: data, meta: meta
+  end
+
+  def index(%{assigns: %{interval: intv}} = conn, %{"episode_guid" => guid}) do
+    {data, meta} = @redis.interval key("episode.#{guid}"), intv, fn(new_intv) ->
+      @bigquery.episode_impressions(guid, new_intv)
+    end
+    render conn, "episode.json", guid: guid, interval: intv.seconds,
+      impressions: data, meta: meta
+  end
+
+  defp key(id), do: "impressions.#{id}"
+  defp key(id, group), do: "impressions.#{id}.group.#{group.name}.#{group.limit}"
 end
