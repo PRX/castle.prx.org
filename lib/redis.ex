@@ -4,6 +4,11 @@ defmodule Castle.Redis do
   """
   @type result :: {%{} | [%{}], %{}}
 
+  @typedoc """
+  An interval timeframe
+  """
+  @type interval :: %{from: %DateTime{}, to: %DateTime{}, seconds: pos_integer()}
+
   @doc """
   Cache the results of a function call.
   """
@@ -11,6 +16,15 @@ defmodule Castle.Redis do
     key     :: String.t,
     ttl     :: pos_integer(),
     work_fn :: (() -> result)
+  ) :: result
+
+  @doc """
+  Cache intervals with a from/to/seconds object, instead of explicit params.
+  """
+  @callback interval(
+    key_prefix :: String.t,
+    intv       :: interval,
+    work_fn    :: (new_from :: %DateTime{} -> result)
   ) :: result
 
   @doc """

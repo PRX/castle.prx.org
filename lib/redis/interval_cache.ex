@@ -5,6 +5,11 @@ defmodule Castle.Redis.IntervalCache do
   @current_interval_ttl 15
   @current_interval_buffer 3600
 
+  def interval(key_prefix, interval, work_fn) do
+    interval key_prefix, interval.from, interval.to, interval.seconds, fn(new_from) ->
+      interval |> Map.put(:from, new_from) |> work_fn.()
+    end
+  end
   def interval(key_prefix, from, to, interval, work_fn) do
     case interval_get(key_prefix, from, to, interval) do
       {[], _new_from} ->
@@ -17,11 +22,6 @@ defmodule Castle.Redis.IntervalCache do
         {data, meta} = work_fn.(new_from)
         interval_set(key_prefix, new_from, to, interval, Enum.map(data, &(&1.count)))
         {hits ++ data, Map.put(meta, :cache_hits, length(hits))}
-    end
-  end
-  def interval(key_prefix, interval, work_fn) do
-    interval key_prefix, interval.from, interval.to, interval.seconds, fn(new_from) ->
-      interval |> Map.put(:from, new_from) |> work_fn.()
     end
   end
 
