@@ -11,6 +11,7 @@ defmodule BigQuery.Downloads do
     )
   end
 
+  def for_podcast(podcast_id, interval, nil), do: for_podcast(podcast_id, interval)
   def for_podcast(podcast_id, interval, group) do
     group_query(
       Env.get(:bq_downloads_table),
@@ -30,11 +31,12 @@ defmodule BigQuery.Downloads do
     )
   end
 
-  def for_episode(podcast_id, interval, group) do
+  def for_episode(episode_guid, interval, nil), do: for_episode(episode_guid, interval)
+  def for_episode(episode_guid, interval, group) do
     group_query(
       Env.get(:bq_downloads_table),
-      "feeder_podcast = @podcast_id",
-      %{podcast_id: podcast_id},
+      "feeder_episode = @episode_guid",
+      %{episode_guid: episode_guid},
       interval,
       group
     )

@@ -11,6 +11,7 @@ defmodule BigQuery.Impressions do
     )
   end
 
+  def for_podcast(podcast_id, interval, nil), do: for_podcast(podcast_id, interval)
   def for_podcast(podcast_id, interval, group) do
     group_query(
       Env.get(:bq_impressions_table),
@@ -30,10 +31,11 @@ defmodule BigQuery.Impressions do
     )
   end
 
+  def for_episode(episode_guid, interval, nil), do: for_episode(episode_guid, interval)
   def for_episode(episode_guid, interval, group) do
     group_query(
       Env.get(:bq_impressions_table),
-      "feeder_podcast = @episode_guid",
+      "feeder_episode = @episode_guid",
       %{episode_guid: episode_guid},
       interval,
       group
