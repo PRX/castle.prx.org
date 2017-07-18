@@ -39,9 +39,9 @@ defmodule Castle.API.Helpers do
   defp grouped(raw_data) do
     ranks = group_ranks(raw_data)
     raw_data
-    |> Enum.group_by(&(&1.time), &(&1))
+    |> Enum.group_by(&("#{&1.time}"), &(&1))
     |> Enum.sort()
-    |> Enum.map(fn({time, data}) -> [time | group_fill_blanks(data, ranks)] end)
+    |> Enum.map(fn({_time, data}) -> [hd(data).time | group_fill_blanks(data, ranks)] end)
   end
 
   defp group_fill_blanks(data, ranks) do
