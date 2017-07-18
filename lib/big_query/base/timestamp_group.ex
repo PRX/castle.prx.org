@@ -18,7 +18,7 @@ defmodule BigQuery.Base.TimestampGroup do
     SELECT
       time,
       SUM(count) as count,
-      IF(rank IS NULL, NULL, ANY_VALUE(#{grouping.display})) AS #{grouping.name},
+      IF(rank IS NULL, NULL, ANY_VALUE(#{grouping.display})) AS display,
       rank
     FROM intervals
     LEFT JOIN top_groups USING (#{grouping.fkey})
