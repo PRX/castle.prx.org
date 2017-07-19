@@ -55,7 +55,8 @@ docker-compose run castle test test/controllers/api/root_controller_test.exs
 
 ## Dependencies
 
-Currently, just BigQuery.
+Currently, just BigQuery. Oh, and Redis. You should be running a `redis-server`
+if you're trying to develop/test locally and not in Docker.
 
 ## Usage
 
