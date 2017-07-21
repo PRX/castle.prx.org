@@ -33,11 +33,17 @@ defmodule Castle.API.IntervalView do
 
   defp count_json(data), do: [data.time, data.count]
 
-  defp groups_json(json, %{downloads: downloads}) do
-    json |> group_names(downloads) |> Map.put(:downloads, grouped(downloads))
+  defp groups_json(json, %{group: name, downloads: downloads}) do
+    json
+    |> group_names(downloads)
+    |> Map.put(:group, name)
+    |> Map.put(:downloads, grouped(downloads))
   end
-  defp groups_json(json, %{impressions: impressions}) do
-    json |> group_names(impressions) |> Map.put(:impressions, grouped(impressions))
+  defp groups_json(json, %{group: name, impressions: impressions}) do
+    json
+    |> group_names(impressions)
+    |> Map.put(:group, name)
+    |> Map.put(:impressions, grouped(impressions))
   end
 
   defp group_names(json, data) do
