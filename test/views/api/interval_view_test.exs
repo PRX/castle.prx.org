@@ -25,9 +25,10 @@ defmodule Castle.API.IntervalViewTest do
       %{time: time2, count: 21, rank: 1, display: "one"},
       %{time: time1, count: 12, rank: 2, display: "two"},
     ]
-    doc = render("podcast-group.json", %{id: 123, interval: 150, impressions: imps, meta: %{}})
+    doc = render("podcast-group.json", %{id: 123, group: "foos", interval: 150, impressions: imps, meta: %{}})
 
     assert doc.id == 123
+    assert doc.group == "foos"
     assert doc.interval == 150
     assert doc.groups == ["one", "two", "three"]
     assert length(doc.impressions) == 2
@@ -49,9 +50,10 @@ defmodule Castle.API.IntervalViewTest do
   test "episode-group.json" do
     {:ok, time, _} = DateTime.from_iso8601("2017-04-09T21:45:00Z")
     downs = [%{time: time, count: 98, rank: 1, display: "foo"}, %{time: time, count: 76, rank: 2, display: "bar"}]
-    doc = render("episode-group.json", %{guid: "456", interval: 150, downloads: downs, meta: %{}})
+    doc = render("episode-group.json", %{guid: "456", group: "bars", interval: 150, downloads: downs, meta: %{}})
 
     assert doc.guid == "456"
+    assert doc.group == "bars"
     assert doc.interval == 150
     assert doc.groups == ["foo", "bar"]
     assert length(doc.downloads) == 1
