@@ -1,7 +1,7 @@
-defmodule Castle.API.DownloadViewTest do
+defmodule Castle.API.IntervalViewTest do
   use Castle.ConnCase, async: true
 
-  import Castle.API.DownloadView
+  import Castle.API.IntervalView
 
   test "podcast.json" do
     {:ok, time, _} = DateTime.from_iso8601("2017-04-09T21:45:00Z")
@@ -17,7 +17,7 @@ defmodule Castle.API.DownloadViewTest do
   test "podcast-group.json" do
     {:ok, time1, _} = DateTime.from_iso8601("2017-04-09T21:45:00Z")
     {:ok, time2, _} = DateTime.from_iso8601("2017-04-09T22:00:00Z")
-    downs = [
+    imps = [
       %{time: time1, count: 11, rank: 1, display: "one"},
       %{time: time2, count: 22, rank: 2, display: "two"},
       %{time: time2, count: 23, rank: 3, display: "three"},
@@ -25,25 +25,25 @@ defmodule Castle.API.DownloadViewTest do
       %{time: time2, count: 21, rank: 1, display: "one"},
       %{time: time1, count: 12, rank: 2, display: "two"},
     ]
-    doc = render("podcast-group.json", %{id: 123, interval: 150, downloads: downs, meta: %{}})
+    doc = render("podcast-group.json", %{id: 123, interval: 150, impressions: imps, meta: %{}})
 
     assert doc.id == 123
     assert doc.interval == 150
     assert doc.groups == ["one", "two", "three"]
-    assert length(doc.downloads) == 2
-    assert Enum.at(doc.downloads, 0) == [time1, 11, 12, 13]
-    assert Enum.at(doc.downloads, 1) == [time2, 21, 22, 23]
+    assert length(doc.impressions) == 2
+    assert Enum.at(doc.impressions, 0) == [time1, 11, 12, 13]
+    assert Enum.at(doc.impressions, 1) == [time2, 21, 22, 23]
   end
 
   test "episode.json" do
     {:ok, time, _} = DateTime.from_iso8601("2017-04-09T21:45:00Z")
-    downs = [%{time: time, count: 98}, %{time: time, count: 76}, %{time: time, count: 54}]
-    doc = render("episode.json", %{guid: "456", interval: 150, downloads: downs, meta: %{}})
+    imps = [%{time: time, count: 98}, %{time: time, count: 76}, %{time: time, count: 54}]
+    doc = render("episode.json", %{guid: "456", interval: 150, impressions: imps, meta: %{}})
 
     assert doc.guid == "456"
     assert doc.interval == 150
-    assert length(doc.downloads) == 3
-    assert hd(doc.downloads) == [time, 98]
+    assert length(doc.impressions) == 3
+    assert hd(doc.impressions) == [time, 98]
   end
 
   test "episode-group.json" do

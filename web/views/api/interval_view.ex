@@ -1,25 +1,42 @@
-defmodule Castle.API.Helpers do
+defmodule Castle.API.IntervalView do
+  use Castle.Web, :view
 
-  def meta_json(json, %{interval: interval, meta: meta}) do
+  def render("podcast.json", %{id: id} = data) do
+    %{id: id} |> meta_json(data) |> counts_json(data)
+  end
+
+  def render("podcast-group.json", %{id: id} = data) do
+    %{id: id} |> meta_json(data) |> groups_json(data)
+  end
+
+  def render("episode.json", %{guid: guid} = data) do
+    %{guid: guid} |> meta_json(data) |> counts_json(data)
+  end
+
+  def render("episode-group.json", %{guid: guid} = data) do
+    %{guid: guid} |> meta_json(data) |> groups_json(data)
+  end
+
+  defp meta_json(json, %{interval: interval, meta: meta}) do
     json |> Map.merge(%{interval: interval, meta: meta})
   end
-  def meta_json(json, %{meta: meta}) do
+  defp meta_json(json, %{meta: meta}) do
     json |> Map.put(:meta, meta)
   end
 
-  def counts_json(json, %{downloads: downloads}) do
+  defp counts_json(json, %{downloads: downloads}) do
     json |> Map.put(:downloads, Enum.map(downloads, &count_json/1))
   end
-  def counts_json(json, %{impressions: impressions}) do
+  defp counts_json(json, %{impressions: impressions}) do
     json |> Map.put(:impressions, Enum.map(impressions, &count_json/1))
   end
 
   defp count_json(data), do: [data.time, data.count]
 
-  def groups_json(json, %{downloads: downloads}) do
+  defp groups_json(json, %{downloads: downloads}) do
     json |> group_names(downloads) |> Map.put(:downloads, grouped(downloads))
   end
-  def groups_json(json, %{impressions: impressions}) do
+  defp groups_json(json, %{impressions: impressions}) do
     json |> group_names(impressions) |> Map.put(:impressions, grouped(impressions))
   end
 

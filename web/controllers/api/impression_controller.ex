@@ -1,6 +1,8 @@
 defmodule Castle.API.ImpressionController do
   use Castle.Web, :controller
 
+  alias Castle.API.IntervalView, as: IntervalView
+
   @redis Application.get_env(:castle, :redis)
   @bigquery Application.get_env(:castle, :bigquery)
   @group_ttl 900
@@ -11,7 +13,7 @@ defmodule Castle.API.ImpressionController do
     {data, meta} = @redis.cached key("podcast.#{id}", group), @group_ttl, fn() ->
       @bigquery.podcast_impressions(id, intv, group)
     end
-    render conn, "podcast-group.json", id: id, interval: intv.seconds,
+    render conn, IntervalView, "podcast-group.json", id: id, interval: intv.seconds,
       group: group.name, impressions: data, meta: meta
   end
 
@@ -19,7 +21,7 @@ defmodule Castle.API.ImpressionController do
     {data, meta} = @redis.interval key("podcast.#{id}"), intv, fn(new_intv) ->
       @bigquery.podcast_impressions(id, new_intv)
     end
-    render conn, "podcast.json", id: id, interval: intv.seconds,
+    render conn, IntervalView, "podcast.json", id: id, interval: intv.seconds,
       impressions: data, meta: meta
   end
 
@@ -27,7 +29,7 @@ defmodule Castle.API.ImpressionController do
     {data, meta} = @redis.cached key("episode.#{guid}", group), @group_ttl, fn() ->
       @bigquery.episode_impressions(guid, intv, group)
     end
-    render conn, "episode-group.json", guid: guid, interval: intv.seconds,
+    render conn, IntervalView, "episode-group.json", guid: guid, interval: intv.seconds,
       group: group.name, impressions: data, meta: meta
   end
 
@@ -35,7 +37,7 @@ defmodule Castle.API.ImpressionController do
     {data, meta} = @redis.interval key("episode.#{guid}"), intv, fn(new_intv) ->
       @bigquery.episode_impressions(guid, new_intv)
     end
-    render conn, "episode.json", guid: guid, interval: intv.seconds,
+    render conn, IntervalView, "episode.json", guid: guid, interval: intv.seconds,
       impressions: data, meta: meta
   end
 
