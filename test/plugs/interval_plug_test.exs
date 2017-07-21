@@ -1,26 +1,36 @@
 defmodule Castle.PlugsIntervalTest do
   use Castle.ConnCase, async: true
 
-  @default_from "2017-04-01T14:04:00Z"
-  @default_to "2017-04-01T14:05:00Z"
+  @from "2017-04-01T14:04:00Z"
+  @to "2017-04-01T14:05:00Z"
+  @interval "15m"
 
-  test "sets interval values in seconds", %{conn: conn} do
-    assert get_interval(conn, "15m") == 900
-    assert get_interval(conn, "1h") == 3600
-    assert get_interval(conn, "1d") == 86400
+  test "parses intervals", %{conn: conn} do
+    intv = get_interval(conn, @from, @to, @interval)
+    assert Timex.to_unix(intv.from) == 1491055200
+    assert Timex.to_unix(intv.to) == 1491056100
+    assert intv.seconds == 900
   end
 
-  test "validates interval values", %{conn: conn} do
-    conn = call_interval(conn, "9a")
+  test "handles time_from errors", %{conn: conn} do
+    conn = call_interval(conn, nil, @to, @interval)
     assert conn.status == 400
     assert conn.halted == true
-    assert conn.resp_body =~ ~r/bad interval param/i
+    assert conn.resp_body =~ ~r/missing required param: from/i
   end
 
-  test "guesses interval from the time window", %{conn: conn} do
-    assert get_interval(conn, nil, "2017-04-01T00:01:00Z", "2017-04-01T00:02:00Z") == 900
-    assert get_interval(conn, nil, "2017-04-01T00:01:00Z", "2017-04-01T12:00:00Z") == 3600
-    assert get_interval(conn, nil, "2017-04-01T00:01:00Z", "2017-04-06T00:00:00Z") == 86400
+  test "handles time_to errors", %{conn: conn} do
+    conn = call_interval(conn, @from, "foo", "999")
+    assert conn.status == 400
+    assert conn.halted == true
+    assert conn.resp_body =~ ~r/bad to param/i
+  end
+
+  test "handles seconds errors", %{conn: conn} do
+    conn = call_interval(conn, @from, "2020-01-01T00:00:00Z", "15m")
+    assert conn.status == 400
+    assert conn.halted == true
+    assert conn.resp_body =~ ~r/time window too large/i
   end
 
   test "rounds the lower time window down", %{conn: conn} do
@@ -39,46 +49,30 @@ defmodule Castle.PlugsIntervalTest do
     assert get_upper(conn, "1d", "2017-04-01T12:12:12Z") == "2017-04-02T00:00:00+00:00"
   end
 
-  test "validates the intervals per time window", %{conn: conn} do
-    conn = call_interval(conn, "15m", "2017-03-01T00:00:00Z", "2017-04-01T00:00:00Z")
-    assert conn.status == 400
-    assert conn.halted == true
-    assert conn.resp_body =~ ~r/time window too large/i
-  end
-
-  defp get_interval(conn, val, from \\ nil, to \\ nil) do
-    conn |> get_assigns(val, from, to) |> Map.get(:interval)
-  end
-
-  defp get_lower(conn, val, from) do
-    {:ok, lower} = conn |> get_assigns(val, from, @default_to) |> Map.get(:time_from) |> Timex.format("{ISO:Extended}")
+  defp get_lower(conn, interval, from) do
+    {:ok, lower} = conn |> get_interval(from, @to, interval) |> Map.get(:from) |> Timex.format("{ISO:Extended}")
     lower
   end
 
-  defp get_upper(conn, val, to) do
-    {:ok, upper} = conn |> get_assigns(val, @default_from, to) |> Map.get(:time_to) |> Timex.format("{ISO:Extended}")
+  defp get_upper(conn, interval, to) do
+    {:ok, upper} = conn |> get_interval(@from, to, interval) |> Map.get(:to) |> Timex.format("{ISO:Extended}")
     upper
   end
 
-  defp get_assigns(conn, val, from, to) do
-    conn |> call_interval(val, from, to) |> Map.get(:assigns)
+  defp get_interval(conn, from, to, interval) do
+    conn |> call_interval(from, to, interval) |> Map.get(:assigns) |> Map.get(:interval)
   end
 
-  defp call_interval(conn, val, from \\ nil, to \\ nil) do
-    conn |> set_times(from, to) |> set_interval(val) |> Castle.Plugs.Interval.call(%{})
-  end
-
-  defp set_interval(conn, nil), do: conn
-  defp set_interval(conn, interval) do
-    conn |> Map.merge(%{params: %{"interval" => interval}})
-  end
-
-  defp set_times(conn, nil, nil), do: set_times(conn, @default_to, @default_from)
-  defp set_times(conn, from_str, to_str) do
-    {:ok, time_from} = Timex.parse(from_str, "{ISO:Extended}")
-    {:ok, time_to} = Timex.parse(to_str, "{ISO:Extended}")
+  defp call_interval(conn, from, to, interval) do
     conn
-    |> Plug.Conn.assign(:time_from, time_from)
-    |> Plug.Conn.assign(:time_to, time_to)
+    |> set_param("from", from)
+    |> set_param("to", to)
+    |> set_param("interval", interval)
+    |> Castle.Plugs.Interval.call(%{})
+  end
+
+  defp set_param(conn, _key, nil), do: conn
+  defp set_param(%{params: params} = conn, key, val) do
+    Map.put(conn, :params, Map.put(params, key, val))
   end
 end

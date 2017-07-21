@@ -23,11 +23,11 @@ defmodule Castle.BigQueryBaseQueryTest do
 
   @tag :external
   test "queries with parameters" do
-    {result, meta} = query("""
+    {result, meta} = query(%{is_dup: true, lim: 2}, """
       SELECT * FROM #{Env.get(:bq_impressions_table)}
       WHERE is_duplicate = @is_dup
       LIMIT @lim
-    """, %{is_dup: true, lim: 2})
+    """)
 
     assert is_list result
     assert length(result) == 2

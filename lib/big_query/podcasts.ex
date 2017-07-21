@@ -2,14 +2,14 @@ defmodule BigQuery.Podcasts do
   import BigQuery.Base.Query
 
   def list(now \\ Timex.now) do
-    """
+    sql = """
     SELECT #{outer_selects()} FROM
     (#{select(:bq_downloads_table)}) a
     FULL JOIN
     (#{select(:bq_impressions_table)}) b
     ON (a.feeder_podcast = b.feeder_podcast)
     """
-    |> query(params(now))
+    query params(now), sql
   end
 
   def show(podcast_id, now \\ Timex.now) do
@@ -21,7 +21,7 @@ defmodule BigQuery.Podcasts do
       (#{select(:bq_impressions_table, podcast_id)}) b
       ON (a.feeder_podcast = b.feeder_podcast)
     """
-    query(sql, params) |> show_first()
+    query(params, sql) |> show_first()
   end
 
   defp show_first({[podcast | _rest], meta}), do: {podcast, meta}

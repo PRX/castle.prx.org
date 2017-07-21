@@ -3,9 +3,9 @@ defmodule BigQuery.Base.Query do
   import BigQuery.Base.QueryParams
   import BigQuery.Base.QueryResult
 
-  def query(str), do: query(str, %{})
+  def query(str), do: query(%{}, str)
 
-  def query(str, queryParams) do
+  def query(queryParams, str) do
     params = %{
       "kind": "bigquery#queryRequest",
       "query": str,

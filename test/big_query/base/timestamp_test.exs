@@ -12,7 +12,8 @@ defmodule Castle.BigQueryBaseTimestampTest do
   test "sets params" do
     {:ok, start, _} = DateTime.from_iso8601("2017-03-22T21:54:52Z")
     {:ok, finish, _} = DateTime.from_iso8601("2017-03-28T04:12:00Z")
-    params = timestamp_params(start, finish, 900)
+    interval = %BigQuery.Interval{from: start, to: finish, seconds: 900}
+    params = timestamp_params(%{}, interval)
 
     assert Timex.to_unix(params.from_dtim) == 1490219692
     assert Timex.to_unix(params.to_dtim) == 1490674320

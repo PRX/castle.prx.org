@@ -37,19 +37,19 @@ defmodule Castle.API.RootView do
           templated: true,
         }],
         "prx:podcast-downloads": [%{
-          href: fix_path(api_podcast_download_path(conn, :index, "{id}") <> "{?interval,from,to}"),
+          href: fix_path(api_podcast_download_path(conn, :index, "{id}") <> "{?interval,from,to,group,grouplimit}"),
           templated: true,
         }],
         "prx:episode-downloads": [%{
-          href: fix_path(api_episode_download_path(conn, :index, "{guid}") <> "{?interval,from,to}"),
+          href: fix_path(api_episode_download_path(conn, :index, "{guid}") <> "{?interval,from,to,group,grouplimit}"),
           templated: true,
         }],
         "prx:podcast-impressions": [%{
-          href: fix_path(api_podcast_impression_path(conn, :index, "{id}") <> "{?interval,from,to}"),
+          href: fix_path(api_podcast_impression_path(conn, :index, "{id}") <> "{?interval,from,to,group,grouplimit}"),
           templated: true,
         }],
         "prx:episode-impressions": [%{
-          href: fix_path(api_episode_impression_path(conn, :index, "{guid}") <> "{?interval,from,to}"),
+          href: fix_path(api_episode_impression_path(conn, :index, "{guid}") <> "{?interval,from,to,group,grouplimit}"),
           templated: true,
         }],
       }
