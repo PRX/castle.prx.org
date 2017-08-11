@@ -17,7 +17,12 @@ erl_crash.dump
 
 # Configuration
 .env*
+.*.env
 
 # Docker-compose mounts
 /_build_docker_compose
 /deps_docker_compose
+
+# Bigquery scripts
+/scripts/tmp
+/scripts/.credentials.json
