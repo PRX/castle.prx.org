@@ -10,7 +10,7 @@ defmodule Castle.API.ImpressionController do
   plug Castle.Plugs.ParseInt, "podcast_id"
 
   def index(%{assigns: %{interval: intv, group: group}} = conn, %{"podcast_id" => id}) do
-    {data, meta} = @redis.cached key("podcast.#{id}", group), @group_ttl, fn() ->
+    {data, meta} = @redis.cached key("podcast.#{id}", intv, group), @group_ttl, fn() ->
       @bigquery.podcast_impressions(id, intv, group)
     end
     render conn, IntervalView, "podcast-group.json", id: id, interval: intv.seconds,
@@ -26,7 +26,7 @@ defmodule Castle.API.ImpressionController do
   end
 
   def index(%{assigns: %{interval: intv, group: group}} = conn, %{"episode_guid" => guid}) do
-    {data, meta} = @redis.cached key("episode.#{guid}", group), @group_ttl, fn() ->
+    {data, meta} = @redis.cached key("episode.#{guid}", intv, group), @group_ttl, fn() ->
       @bigquery.episode_impressions(guid, intv, group)
     end
     render conn, IntervalView, "episode-group.json", guid: guid, interval: intv.seconds,
@@ -42,5 +42,13 @@ defmodule Castle.API.ImpressionController do
   end
 
   defp key(id), do: "impressions.#{id}"
-  defp key(id, group), do: "impressions.#{id}.group.#{group.name}.#{group.limit}"
+  defp key(id, intv, group) do
+    "impressions.#{id}.#{key_interval(intv)}.group.#{group.name}.#{group.limit}"
+  end
+
+  defp key_interval(intv) do
+    {:ok, from} = Timex.format(intv.from, "{ISO:Extended:Z}")
+    {:ok, to} = Timex.format(intv.to, "{ISO:Extended:Z}")
+    "#{intv.seconds}.#{from}.#{to}"
+  end
 end

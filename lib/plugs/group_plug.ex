@@ -18,6 +18,30 @@ defmodule Castle.Plugs.Group do
       fkey: "country_id",
       limit: 10,
     },
+    "agentname" => %{
+      name: "agentname",
+      table: "agentnames",
+      key: "agentname_id",
+      display: "tag",
+      fkey: "agent_name_id",
+      limit: 10
+    },
+    "agenttype" => %{
+      name: "agenttype",
+      table: "agentnames",
+      key: "agentname_id",
+      display: "tag",
+      fkey: "agent_type_id",
+      limit: 10
+    },
+    "agentos" => %{
+      name: "agentos",
+      table: "agentnames",
+      key: "agentname_id",
+      display: "tag",
+      fkey: "agent_os_id",
+      limit: 10
+    },
   }
 
   def init(default), do: default

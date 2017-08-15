@@ -84,6 +84,17 @@ mix test test/big_query/base/http_test.exs
 mix test --include external
 ```
 
+## Scripts
+
+The `/scripts/` directory contains some useful utilities for load/reloading
+3rd party data (Geolite, User-Agents, etc).  These are not intended to be run
+often, so buyer beware.  You will need to install some global ruby gems to get
+the scripts to work, but that's all manual at this point.
+
+You'll also need to [set up a Google API key](https://support.google.com/googleapi/answer/6158862).
+Create a Service Account key with write access to the project/tables you want to
+alter, and save it to `/scripts/.credentials.json`.
+
 ## License
 
 [AGPL License](https://www.gnu.org/licenses/agpl-3.0.html)
