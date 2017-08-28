@@ -116,4 +116,23 @@ defmodule Castle.RedisPartitionCacheTest do
     assert data == ["foo1", "foo2", "bar3", "bar4"]
     assert redis_count("#{@prefix}.*") == 4
   end
+
+  test "gets data without the worker functions", %{date1: date1, date2: date2} do
+    {data, meta} = partition_get(@prefix, 4)
+    assert data == []
+    assert meta == %{cached: true}
+
+    partition @prefix, [
+      fn() -> {date1, ["foo1"], %{}} end,
+      fn(_) -> {date2, ["foo2"], %{}} end,
+      fn(_) -> {nil, ["foo3"], %{}} end]
+
+    {data, meta} = partition_get(@prefix, 3)
+    assert data == ["foo1", "foo2", "foo3"]
+    assert meta == %{cached: true}
+
+    {data, meta} = partition_get(@prefix, 2)
+    assert data == ["foo1", "foo2"]
+    assert meta == %{cached: true}
+  end
 end

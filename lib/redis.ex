@@ -68,4 +68,21 @@ defmodule Castle.Redis do
     combiner_fn :: (results :: [%{}] -> [%{}]),
     worker_fns  :: [partition_worker]
   ) :: result
+
+  @doc """
+  Get partition data only from redis - will return empty result on cache miss
+  """
+  @callback partition(
+    key_prefix :: String.t,
+    num_parts  :: pos_integer()
+  ) :: result
+
+  @doc """
+  Get partition data with a custom combiner
+  """
+  @callback partition(
+    key_prefix :: String.t,
+    num_parts  :: pos_integer(),
+    combiner_fn :: (results :: [%{}] -> [%{}])
+  ) :: result
 end

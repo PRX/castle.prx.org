@@ -2,17 +2,20 @@ defmodule Castle.Redis.PartitionCache do
   alias Castle.Redis.Conn, as: Conn
 
   def partition(key, combiner_fn, worker_fns) do
-    parts = get_parts(key, 0, nil, worker_fns)
-    data = parts
-      |> Enum.map(fn({result, _meta}) -> result end)
-      |> Enum.concat()
-      |> combiner_fn.()
-    meta = parts
-      |> Enum.map(fn({_result, meta}) -> meta end)
-      |> combine_meta()
-    {data, meta}
+    get_parts(key, 0, nil, worker_fns) |> combine(combiner_fn)
   end
   def partition(key, fns), do: partition(key, fn(parts) -> parts end, fns)
+
+  def partition_get(key, num_parts, combiner_fn) do
+    parts = Enum.map 0..(num_parts - 1), fn(index) ->
+      case Conn.get("#{key}.#{index}") do
+        nil -> {[], %{cached: true}}
+        [_, _, val] -> {val, %{cached: true}}
+      end
+    end
+    combine(parts, combiner_fn)
+  end
+  def partition_get(key, num), do: partition_get(key, num, fn(parts) -> parts end)
 
   defp get_parts(key, index, date, [_part | rest] = parts) do
     case Conn.get("#{key}.#{index}") do
@@ -61,6 +64,17 @@ defmodule Castle.Redis.PartitionCache do
 
   defp expired?(nil), do: false
   defp expired?(expiration_str), do: Timex.compare(Timex.now(), parse(expiration_str)) > 0
+
+  defp combine(parts, combiner_fn) do
+    data = parts
+      |> Enum.map(fn({result, _meta}) -> result end)
+      |> Enum.concat()
+      |> combiner_fn.()
+    meta = parts
+      |> Enum.map(fn({_result, meta}) -> meta end)
+      |> combine_meta()
+    {data, meta}
+  end
 
   defp combine_meta(metas) do
     metas
