@@ -22,6 +22,7 @@ defmodule Castle.Redis.Conn do
     command ["SET", key, encode(val)]
     val
   end
+  def set(key, nil, val), do: set(key, val)
   def set(key, ttl, val) do
     command ["SETEX", key, ttl, encode(val)]
     val
