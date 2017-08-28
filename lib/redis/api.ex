@@ -13,11 +13,11 @@ defmodule Castle.Redis.Api do
     to: Castle.Redis.IntervalCache,
     as: :interval
 
-  defdelegate partition(key, part_work_fns),
+  defdelegate partition(key_prefix, worker_fns),
     to: Castle.Redis.PartitionCache,
     as: :partition
 
-  defdelegate partition(key, combiner_fn, part_work_fns),
+  defdelegate partition(key_prefix, combiner_fn, worker_fns),
     to: Castle.Redis.PartitionCache,
     as: :partition
 end

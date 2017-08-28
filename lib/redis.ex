@@ -5,6 +5,18 @@ defmodule Castle.Redis do
   @type result :: {%{} | [%{}], %{}}
 
   @typedoc """
+  A result prefixed with a datetime
+  """
+  @type dated_result :: {%DateTime{}, %{} | [%{}], %{}}
+
+  @typedoc """
+  The worker function for a partition, called with the datetime returned by the
+  previous partition, and returning the datetime for the next partition to
+  start on.
+  """
+  @type partition_worker :: (date :: %DateTime{} -> dated_result)
+
+  @typedoc """
   An interval timeframe
   """
   @type interval :: %{from: %DateTime{}, to: %DateTime{}, seconds: pos_integer()}
@@ -37,5 +49,23 @@ defmodule Castle.Redis do
     to         :: %DateTime{},
     interval   :: pos_integer(),
     work_fn    :: (new_from :: %DateTime{} -> result)
+  ) :: result
+
+  @doc """
+  Cache multiple partitions, passing the start-date of the next partition to
+  the next worker function.
+  """
+  @callback partition(
+    key_prefix :: String.t,
+    worker_fns :: [partition_worker]
+  ) :: result
+
+  @doc """
+  Cache multiple partitions with a custom function to combine result data.
+  """
+  @callback partition(
+    key_prefix  :: String.t,
+    combiner_fn :: (results :: [%{}] -> [%{}]),
+    worker_fns  :: [partition_worker]
   ) :: result
 end

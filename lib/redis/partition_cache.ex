@@ -1,8 +1,8 @@
 defmodule Castle.Redis.PartitionCache do
   alias Castle.Redis.Conn, as: Conn
 
-  def partition(key, combiner_fn, part_work_fns) do
-    parts = get_parts(key, 0, nil, part_work_fns)
+  def partition(key, combiner_fn, worker_fns) do
+    parts = get_parts(key, 0, nil, worker_fns)
     data = parts
       |> Enum.map(fn({result, _meta}) -> result end)
       |> Enum.concat()
