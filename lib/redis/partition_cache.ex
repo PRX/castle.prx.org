@@ -18,8 +18,12 @@ defmodule Castle.Redis.PartitionCache do
     case Conn.get("#{key}.#{index}") do
       nil ->
         get_parts_uncached(key, index, date, parts)
-      [next_date, val] ->
-        [{val, %{cached: true}}] ++ get_parts(key, index + 1, parse(next_date), rest)
+      [expires, next_date, val] ->
+        if expired?(expires) do
+          get_parts_uncached(key, index, date, parts)
+        else
+          [{val, %{cached: true}}] ++ get_parts(key, index + 1, parse(next_date), rest)
+        end
     end
   end
   defp get_parts(_key, _index, _date, []), do: []
@@ -32,7 +36,7 @@ defmodule Castle.Redis.PartitionCache do
       {v, m} -> {nil, v, m}
       {k, v, m} -> {k, v, m}
     end
-    Conn.set("#{key}.#{index}", ttl, [format(next_date), val])
+    Conn.set("#{key}.#{index}", [expiration(ttl), format(next_date), val])
     [{val, meta}] ++ get_parts_uncached(key, index + 1, next_date, rest)
   end
   defp get_parts_uncached(_key, _index, _date, []), do: []
@@ -51,6 +55,12 @@ defmodule Castle.Redis.PartitionCache do
     {:ok, dtim} = Timex.parse(dtim_str, "{ISO:Extended:Z}")
     dtim
   end
+
+  defp expiration(nil), do: nil
+  defp expiration(ttl), do: Timex.now |> Timex.shift(seconds: ttl) |> format()
+
+  defp expired?(nil), do: false
+  defp expired?(expiration_str), do: Timex.compare(Timex.now(), parse(expiration_str)) > 0
 
   defp combine_meta(metas) do
     metas

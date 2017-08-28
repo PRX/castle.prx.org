@@ -92,16 +92,28 @@ defmodule Castle.RedisPartitionCacheTest do
   end
 
   test "expires partitions", %{date1: date1, date2: date2, date3: date3} do
-    partition @prefix, [
+    {data, _} = partition @prefix, [
       {20, fn() -> {date1, ["foo1"], %{}} end},
-      fn(_) -> {date2, ["foo2"], %{}} end,
-      {nil, fn(_) -> {date3, ["foo3"], %{}} end},
-      {1, fn(_) -> {nil, ["foo4"], %{}} end}]
-    [k1, k2, k3, k4] = redis_keys("#{@prefix}.*") |> Enum.sort()
+      {1, fn(_) -> {date2, ["foo2"], %{}} end},
+      {0, fn(_) -> {date3, ["foo3"], %{}} end},
+      fn(_) -> {nil, ["foo4"], %{}} end]
+    assert data == ["foo1", "foo2", "foo3", "foo4"]
+    assert redis_count("#{@prefix}.*") == 4
 
-    assert Castle.Redis.Conn.command(["ttl", k1]) == 20
-    assert Castle.Redis.Conn.command(["ttl", k2]) == -1
-    assert Castle.Redis.Conn.command(["ttl", k3]) == -1
-    assert Castle.Redis.Conn.command(["ttl", k4]) == 1
+    {data, _} = partition @prefix, [
+      fn() -> {date1, ["bar1"], %{}} end,
+      fn(_) -> {date2, ["bar2"], %{}} end,
+      fn(_) -> {date3, ["bar3"], %{}} end,
+      fn(_) -> {nil, ["bar4"], %{}} end]
+    assert data == ["foo1", "foo2", "bar3", "bar4"]
+    assert redis_count("#{@prefix}.*") == 4
+
+    {data, _} = partition @prefix, [
+      fn() -> throw("should not have gotten here") end,
+      fn() -> throw("should not have gotten here") end,
+      fn() -> throw("should not have gotten here") end,
+      fn() -> throw("should not have gotten here") end]
+    assert data == ["foo1", "foo2", "bar3", "bar4"]
+    assert redis_count("#{@prefix}.*") == 4
   end
 end
