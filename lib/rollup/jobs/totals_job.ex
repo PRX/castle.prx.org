@@ -3,10 +3,14 @@ defmodule Castle.Rollup.Jobs.Totals do
 
   # cache for 15d/24h/5m
   def run() do
-    partition "rollups.total", &Castle.Rollup.Jobs.Totals.combine/1, [
+    partition "rollup.totals", &Castle.Rollup.Jobs.Totals.combine/1, [
       {1296000, &Castle.Rollup.Jobs.Totals.old_part/0},
       {86400, &Castle.Rollup.Jobs.Totals.mid_part/1},
       {300, &Castle.Rollup.Jobs.Totals.new_part/1}]
+  end
+
+  def get() do
+    partition_get "rollup.totals", 3, &Castle.Rollup.Jobs.Totals.combine/1
   end
 
   def combine(parts) do
