@@ -84,7 +84,11 @@ defmodule Castle.Redis.PartitionCache do
       Map.merge acc, Map.put(%{}, key, val), fn k, v1, v2 ->
         case k do
           :cached -> v1 && v2
-          _ -> v1 + v2
+          _ when is_number(v1) and is_number(v2) -> v1 + v2
+          _ when is_list(v1) and is_list(v2) -> v1 ++ v2
+          _ when is_list(v1) and not is_list(v2) -> v1 ++ [v2]
+          _ when is_list(v2) and not is_list(v1) -> [v1] ++ v2
+          _ -> [v1, v2]
         end
       end
     end)

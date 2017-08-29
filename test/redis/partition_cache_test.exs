@@ -37,13 +37,14 @@ defmodule Castle.RedisPartitionCacheTest do
 
   test "combines the metadata", %{date1: date1, date2: date2} do
     {_result, meta} = partition @prefix, [
-      fn() -> {date1, [], %{cached: true}} end,
+      fn() -> {date1, [], %{cached: true, foo: "bar1"}} end,
       fn(_date) -> {date2, [], %{cached: true, megabytes: 1, total: 2}} end,
-      fn(_date) -> {nil, [], %{bytes: 3, cached: false, megabytes: 999, total: 1}} end]
+      fn(_date) -> {nil, [], %{bytes: 3, cached: false, megabytes: 999, total: 1, foo: "bar3"}} end]
     assert meta.cached == false
     assert meta.bytes == 3
     assert meta.megabytes == 1000
     assert meta.total == 3
+    assert meta.foo == ["bar1", "bar3"]
   end
 
   test "caches function results in redis", %{date1: date1, date2: date2} do
