@@ -2,7 +2,9 @@ defmodule Castle.Rollup.Jobs.Totals do
   # TODO: import "public" redis api from the application
   import Castle.Redis.PartitionCache
 
-  # cache for 15d/24h/5m
+  # old - all non-today partitions from the beginning of time - 15 day cache
+  # mid - intermediate query to pick up the slack - 1 day cache
+  # new - always the current-date-partition - 5 minute cache
   def run() do
     partition "rollup.totals", &Castle.Rollup.Jobs.Totals.combine/1, [
       {1296000, &Castle.Rollup.Jobs.Totals.old_part/0},
