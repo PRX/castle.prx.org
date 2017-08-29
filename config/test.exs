@@ -12,3 +12,7 @@ config :logger, level: :warn
 # External clients
 config :castle, :redis, Castle.FakeRedis
 config :castle, :bigquery, BigQuery
+
+# Don't run workers during testing
+config :castle, :rollup_initial_delay, nil
+config :castle, :rollup_delay, nil

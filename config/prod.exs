@@ -22,6 +22,10 @@ config :logger, level: :info
 config :castle, :redis, Castle.Redis.Api
 config :castle, :bigquery, BigQuery
 
+# Worker intervals
+config :castle, :rollup_initial_delay, 60
+config :castle, :rollup_delay, 300
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
