@@ -6,7 +6,7 @@ defmodule Castle.Rollup.Jobs.Totals do
     partition "rollups.total", &Castle.Rollup.Jobs.Totals.combine/1, [
       {1296000, &Castle.Rollup.Jobs.Totals.old_part/0},
       {86400, &Castle.Rollup.Jobs.Totals.mid_part/1},
-      {30, &Castle.Rollup.Jobs.Totals.new_part/1}]
+      {300, &Castle.Rollup.Jobs.Totals.new_part/1}]
   end
 
   def combine(parts) do
