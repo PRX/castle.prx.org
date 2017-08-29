@@ -1,4 +1,5 @@
 defmodule Castle.Rollup.Jobs.Totals do
+  # TODO: import "public" redis api from the application
   import Castle.Redis.PartitionCache
 
   # cache for 15d/24h/5m
@@ -47,7 +48,8 @@ defmodule Castle.Rollup.Jobs.Totals do
     """
       SELECT feeder_podcast, feeder_episode, COUNT(*) AS count
       FROM #{Env.get(:bq_downloads_table)}
-      WHERE is_duplicate = false AND #{where_sql}
+      WHERE is_duplicate = false AND feeder_podcast IS NOT NULL
+      AND feeder_episode IS NOT NULL AND #{where_sql}
       GROUP BY feeder_podcast, feeder_episode
     """
   end
