@@ -1,21 +1,18 @@
 defmodule Castle.API.PodcastController do
   use Castle.Web, :controller
 
-  @redis Application.get_env(:castle, :redis)
-  @bigquery Application.get_env(:castle, :bigquery)
+  alias Castle.Rollup.Data.Totals, as: Totals
 
   plug Castle.Plugs.ParseInt, "id" when action == :show
 
-  @index_ttl 900
-  @show_ttl 300
-
   def index(conn, _params) do
-    {podcasts, meta} = @redis.cached "podcast.index", @index_ttl, fn() -> @bigquery.podcasts() end
-    render conn, "index.json", conn: conn, podcasts: podcasts, meta: meta
+    render conn, "index.json", conn: conn, podcasts: Totals.podcasts(), meta: %{cached: true}
   end
 
   def show(conn, %{"id" => id}) do
-    {podcast, meta} = @redis.cached "podcast.show.#{id}", @show_ttl, fn() -> @bigquery.podcast(id) end
-    render conn, "show.json", conn: conn, podcast: podcast, meta: meta
+    case Totals.podcast(id) do
+      nil -> send_resp conn, 404, "Podcast #{id} not found"
+      pod -> render conn, "show.json", conn: conn, podcast: pod, meta: %{cached: true}
+    end
   end
 end

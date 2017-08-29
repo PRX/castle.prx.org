@@ -1,11 +1,13 @@
 defmodule Castle.API.EpisodeControllerTest do
   use Castle.ConnCase, async: false
 
+  alias Castle.Rollup.Data.Totals, as: Totals
+
   import Mock
 
   describe "index/2" do
     test "responds with a list of episodes", %{conn: conn} do
-      with_mock BigQuery, fake_datas() do
+      with_mock Totals, fake_datas() do
         resp = conn |> get(api_episode_path(conn, :index)) |> json_response(200)
         assert resp["count"] == 2
         assert resp["total"] == 2
@@ -16,25 +18,34 @@ defmodule Castle.API.EpisodeControllerTest do
 
   describe "show/2" do
     test "responds with a single episode", %{conn: conn} do
-      with_mock BigQuery, fake_data() do
+      with_mock Totals, fake_data() do
         resp = conn |> get(api_episode_path(conn, :show, "foo")) |> json_response(200)
         assert resp["guid"] == "foo"
         assert "_links" in Map.keys(resp)
       end
     end
+
+    test "renders 404s", %{conn: conn} do
+      with_mock Totals, fake_empty() do
+        resp = conn |> get(api_episode_path(conn, :show, "foo"))
+        assert resp.status == 404
+      end
+    end
   end
 
   defp fake_data do
-    [episode: fn(id) -> {episode_json(id), %{meta: "data"}} end]
+    [episode: fn(id) -> episode_json(id) end]
+  end
+
+  defp fake_empty do
+    [episode: fn(_id) -> nil end]
   end
 
   defp fake_datas do
-    [episodes: fn() -> {[episode_json("foo"), episode_json("bar")], %{meta: "data"}} end]
+    [episodes: fn() -> [episode_json("foo"), episode_json("bar")] end]
   end
 
   defp episode_json(guid) do
-    %{feeder_episode: guid,
-      downloads_past1: 10, downloads_past12: 20, downloads_past24: 30, downloads_past48: 40,
-      impressions_past1: 1, impressions_past12: 2, impressions_past24: 3, impressions_past48: 4}
+    %{feeder_episode: guid, feeder_podcast: 123, count: 999}
   end
 end
