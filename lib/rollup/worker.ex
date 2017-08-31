@@ -21,6 +21,7 @@ defmodule Castle.Rollup.Worker do
     Application.get_env(:castle, :rollup_delay) |> reschedule()
     {:noreply, state}
   end
+  def handle_info(_, state), do: {:noreply, state}
 
   def run_jobs(state) do
     Enum.each @jobs, fn(job) -> run_job(job, state) end
