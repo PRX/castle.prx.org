@@ -1,7 +1,7 @@
 defmodule BigQuery.Base.TimestampGroup do
   import BigQuery.Base.Query
   import BigQuery.Base.Timestamp,
-    only: [timestamp_intervals: 3, timestamp_params: 2]
+    only: [timestamp_intervals: 4, timestamp_params: 2]
 
   def group_query(tbl, where_sql, params, interval, grouping) do
     params
@@ -11,18 +11,18 @@ defmodule BigQuery.Base.TimestampGroup do
   end
 
   def group_sql(tbl, where_sql, grouping) do
+    intervals = timestamp_intervals(tbl, where_sql, grouping.groupby, "JOIN #{grouping.join}")
     """
     WITH
-      intervals AS (#{timestamp_intervals(tbl, where_sql, grouping.fkey)}),
-      top_groups AS (#{top_groups("intervals", grouping.fkey)})
+      intervals AS (#{intervals}),
+      top_groups AS (#{top_groups("intervals", grouping.groupby)})
     SELECT
       time,
       SUM(count) as count,
-      IF(rank IS NULL, NULL, ANY_VALUE(#{grouping.display})) AS display,
+      IF(rank IS NULL, NULL, ANY_VALUE(#{grouping.groupby})) AS display,
       rank
     FROM intervals
-    LEFT JOIN top_groups USING (#{grouping.fkey})
-    LEFT JOIN #{grouping.table} ON (#{grouping.fkey} = #{grouping.key})
+    LEFT JOIN top_groups USING (#{grouping.groupby})
     GROUP BY time, rank
     ORDER BY time asc, rank asc
     """

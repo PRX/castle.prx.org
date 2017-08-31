@@ -4,42 +4,56 @@ defmodule Castle.Plugs.Group do
   @groups %{
     "city" => %{
       name: "city",
-      table: "geonames",
-      key: "geoname_id",
-      display: "city_name",
-      fkey: "city_id",
+      join: "geonames on (city_id = geoname_id)",
+      groupby: "city_name",
+      limit: 10,
+    },
+    "metrocode" => %{
+      name: "metrocode",
+      join: "geonames on (city_id = geoname_id)",
+      groupby: "metro_code",
+      limit: 10,
+    },
+    "subdiv1" => %{
+      name: "subdiv1",
+      join: "geonames on (city_id = geoname_id)",
+      groupby: "subdivision_1_iso_code",
+      limit: 10,
+    },
+    "subdiv2" => %{
+      name: "subdiv2",
+      join: "geonames on (city_id = geoname_id)",
+      groupby: "subdivision_2_iso_code",
       limit: 10,
     },
     "country" => %{
       name: "country",
-      table: "geonames",
-      key: "geoname_id",
-      display: "country_name",
-      fkey: "country_id",
+      join: "geonames on (country_id = geoname_id)",
+      groupby: "country_name",
+      limit: 10,
+    },
+    "countryiso" => %{
+      name: "country",
+      join: "geonames on (country_id = geoname_id)",
+      groupby: "country_iso_code",
       limit: 10,
     },
     "agentname" => %{
       name: "agentname",
-      table: "agentnames",
-      key: "agentname_id",
-      display: "tag",
-      fkey: "agent_name_id",
+      join: "agentnames on (agent_name_id = agentname_id)",
+      groupby: "tag",
       limit: 10
     },
     "agenttype" => %{
       name: "agenttype",
-      table: "agentnames",
-      key: "agentname_id",
-      display: "tag",
-      fkey: "agent_type_id",
+      join: "agentnames on (agent_type_id = agentname_id)",
+      groupby: "tag",
       limit: 10
     },
     "agentos" => %{
       name: "agentos",
-      table: "agentnames",
-      key: "agentname_id",
-      display: "tag",
-      fkey: "agent_os_id",
+      join: "agentnames on (agent_os_id = agentname_id)",
+      groupby: "tag",
       limit: 10
     },
   }

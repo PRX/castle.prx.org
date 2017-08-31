@@ -16,13 +16,13 @@ defmodule BigQuery.Base.Timestamp do
   end
 
   def timestamp_intervals(tbl, where_sql), do: timestamp_intervals(tbl, where_sql, nil)
-  def timestamp_intervals(tbl, where_sql, extra_fld) do
+  def timestamp_intervals(tbl, where_sql, extra_fld, joiner \\ "") do
     """
     SELECT
       TIMESTAMP_SECONDS(UNIX_SECONDS(timestamp) - MOD(UNIX_SECONDS(timestamp), @interval_s)) as time,
       #{comma_after(extra_fld)}
       COUNT(*) as count
-    FROM #{tbl}
+    FROM #{tbl} #{joiner}
     WHERE
       is_duplicate = false
       AND #{timestamp_partition()}

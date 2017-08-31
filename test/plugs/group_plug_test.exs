@@ -3,17 +3,17 @@ defmodule Castle.PlugsGroupTest do
 
   test "groups by country", %{conn: conn} do
     group = get_group(conn, "country")
-    assert group.key == "geoname_id"
-    assert group.fkey == "country_id"
-    assert group.display == "country_name"
+    assert group.name == "country"
+    assert group.join == "geonames on (country_id = geoname_id)"
+    assert group.groupby == "country_name"
     assert group.limit == 10
   end
 
   test "groups by city", %{conn: conn} do
     group = get_group(conn, "city")
-    assert group.key == "geoname_id"
-    assert group.fkey == "city_id"
-    assert group.display == "city_name"
+    assert group.name == "city"
+    assert group.join == "geonames on (city_id = geoname_id)"
+    assert group.groupby == "city_name"
     assert group.limit == 10
   end
 

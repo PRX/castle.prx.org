@@ -11,8 +11,8 @@ defmodule BigQuery do
   end
 
   defmodule Grouping do
-    @enforce_keys [:name, :table, :key, :display, :fkey, :limit]
-    defstruct [:name, :table, :key, :display, :fkey, limit: 10]
+    @enforce_keys [:name, :join, :groupby, :limit]
+    defstruct [:name, :join, :groupby, limit: 10]
   end
 
   defdelegate podcasts(), to: Podcasts, as: :list
