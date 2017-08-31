@@ -71,6 +71,15 @@ iex -S mix phoenix.server
 iex -S mix
 ```
 
+## Rollups
+
+Certain queries can be expensive to run against BigQuery, so we cache these to
+Redis in a background worker.  The interval at which the worker runs in prod is
+configured in `config/prod.exs`.  But in dev/test, these queries will never run
+by default.
+
+To manually get rollups in your development Redis, just run `mix castle.rollup`.
+
 ## Testing
 
 ```

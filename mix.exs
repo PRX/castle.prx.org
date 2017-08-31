@@ -9,7 +9,8 @@ defmodule Castle.Mixfile do
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps()]
+     deps: deps(),
+     docs: docs()]
   end
 
   # Configuration for the OTP application.
@@ -39,6 +40,7 @@ defmodule Castle.Mixfile do
      {:phoenix_pubsub, "~> 1.0"},
      {:phoenix_html, "~> 2.6"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},
+     {:ex_doc, "~> 0.14", only: :dev, runtime: false},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:jose, "~> 1.8"},
@@ -50,5 +52,10 @@ defmodule Castle.Mixfile do
      {:prx_auth, "~> 0.0.1"},
      {:dotenv, "~> 2.1", only: [:dev, :test]},
      {:mock, "~> 0.2.0", only: :test}]
+  end
+
+  defp docs do
+    [main: "readme",
+     extras: ["README.md"]]
   end
 end

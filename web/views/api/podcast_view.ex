@@ -1,12 +1,16 @@
 defmodule Castle.API.PodcastView do
   use Castle.Web, :view
 
+  @limit 100
+
   def render("index.json", %{conn: conn, podcasts: podcasts, meta: meta}) do
+    limit = Enum.min [@limit, length(podcasts)]
+    items = podcasts |> Enum.slice(0, limit) |> Enum.map(&(podcast_json(&1, conn)))
     %{
-      count: length(podcasts),
+      count: limit,
       total: length(podcasts),
       _embedded: %{
-        "prx:items": Enum.map(podcasts, fn(p) -> podcast_json(p, conn) end)
+        "prx:items": items
       },
       meta: meta,
     }
@@ -16,36 +20,27 @@ defmodule Castle.API.PodcastView do
     podcast_json(podcast, conn) |> Map.put(:meta, meta)
   end
 
-  defp podcast_json(podcast, conn) do
+  defp podcast_json(%{feeder_podcast: id, count: count}, conn) do
     %{
-      id: podcast.feeder_podcast,
-      name: podcast.feeder_podcast,
+      id: id,
+      name: id,
       downloads: %{
-        past1: podcast.downloads_past1 || 0,
-        past12: podcast.downloads_past12 || 0,
-        past24: podcast.downloads_past24 || 0,
-        past48: podcast.downloads_past48 || 0,
-      },
-      impressions: %{
-        past1: podcast.impressions_past1 || 0,
-        past12: podcast.impressions_past12 || 0,
-        past24: podcast.impressions_past24 || 0,
-        past48: podcast.impressions_past48 || 0,
+        total: count,
       },
       _links: %{
         self: %{
-          href: api_podcast_path(conn, :show, podcast.feeder_podcast),
+          href: api_podcast_path(conn, :show, id),
           templated: true,
         },
         alternate: %{
-          href: "http://feeder.prx.org/api/v1/podcasts/#{podcast.feeder_podcast}"
+          href: "https://feeder.prx.org/api/v1/podcasts/#{id}"
         },
         "prx:downloads": %{
-          href: api_podcast_download_path(conn, :index, podcast.feeder_podcast) <> "{?interval,from,to,group,grouplimit}",
+          href: api_podcast_download_path(conn, :index, id) <> "{?interval,from,to,group,grouplimit}",
           templated: true,
         },
         "prx:impressions": %{
-          href: api_podcast_impression_path(conn, :index, podcast.feeder_podcast) <> "{?interval,from,to,group,grouplimit}",
+          href: api_podcast_impression_path(conn, :index, id) <> "{?interval,from,to,group,grouplimit}",
           templated: true,
         },
       }

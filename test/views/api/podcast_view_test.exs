@@ -11,20 +11,13 @@ defmodule Castle.API.PodcastViewTest do
     assert doc.total == 2
     assert length(embedded) == 2
     assert hd(embedded).id == "foo"
-    assert hd(embedded).downloads.past1 == 10
+    assert hd(embedded).downloads.total == 999
   end
 
   test "show.json", %{conn: conn} do
     doc = render("show.json", %{conn: conn, podcast: test_podcast("foo"), meta: %{}})
     assert doc.id == "foo"
-    assert doc.downloads.past1 == 10
-    assert doc.downloads.past12 == 20
-    assert doc.downloads.past24 == 30
-    assert doc.downloads.past48 == 40
-    assert doc.impressions.past1 == 0
-    assert doc.impressions.past12 == 0
-    assert doc.impressions.past24 == 7
-    assert doc.impressions.past48 == 9
+    assert doc.downloads.total == 999
   end
 
   defp test_podcasts do
@@ -32,8 +25,6 @@ defmodule Castle.API.PodcastViewTest do
   end
 
   defp test_podcast(id) do
-    %{feeder_podcast: id,
-      downloads_past1: 10, downloads_past12: 20, downloads_past24: 30, downloads_past48: 40,
-      impressions_past1: nil, impressions_past12: 0, impressions_past24: 7, impressions_past48: 9}
+    %{feeder_podcast: id, feeder_episodes: ["guid1", "guid2"], count: 999}
   end
 end

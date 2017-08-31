@@ -8,7 +8,8 @@ defmodule Castle do
 
     # Define workers and child supervisors to be supervised
     children = [
-      supervisor(Castle.Endpoint, [])
+      supervisor(Castle.Endpoint, []),
+      worker(Castle.Rollup.Worker, [])
     ]
 
     # Create the redix children list of workers:
