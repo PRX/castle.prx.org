@@ -44,8 +44,12 @@ defmodule Castle.Rollup.Worker do
 
   defp run_job({module, name, args}, _state) do
     {_result, meta} = apply(module, name, args)
-    if Map.has_key?(meta, :job) do
-      Logger.debug "ROLLUP #{module} #{format_meta(meta)}"
+    case meta do
+      %{job: _, total: _, megabytes: _} ->
+        Logger.info "ROLLUP #{module} #{format_meta(meta)}"
+      %{job: _} ->
+        Logger.debug "ROLLUP #{module} #{format_meta(meta)}"
+      _ -> nil
     end
   end
 
