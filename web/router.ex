@@ -12,6 +12,9 @@ defmodule Castle.Router do
   pipeline :api do
     plug :accepts, ["json", "hal"]
   end
+  pipeline :logged do
+    plug Plug.Logger
+  end
 
   def id_host, do: Env.get(:id_host)
   pipeline :authorized do
@@ -33,6 +36,7 @@ defmodule Castle.Router do
 
   scope "/api/v1", Castle.API, as: :api do
     pipe_through :api
+    pipe_through :logged
     pipe_through :authorized
 
     resources "/podcasts", PodcastController, only: [:index, :show]
