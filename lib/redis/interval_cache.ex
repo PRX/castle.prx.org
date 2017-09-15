@@ -13,13 +13,13 @@ defmodule Castle.Redis.IntervalCache do
   def interval(key_prefix, from, to, interval, work_fn) do
     case interval_get(key_prefix, from, to, interval) do
       {[], _new_from} ->
-        {data, meta} = work_fn.(from)
+        {data, meta} = work_fn.(from) |> interval_fill_zeros(from, to, interval)
         interval_set(key_prefix, from, to, interval, Enum.map(data, &(&1.count)))
         {data, Map.put(meta, :cache_hits, 0)}
       {hits, nil} ->
         {hits, %{cached: true, cache_hits: length(hits)}}
       {hits, new_from} ->
-        {data, meta} = work_fn.(new_from)
+        {data, meta} = work_fn.(new_from) |> interval_fill_zeros(new_from, to, interval)
         interval_set(key_prefix, new_from, to, interval, Enum.map(data, &(&1.count)))
         {hits ++ data, Map.put(meta, :cache_hits, length(hits))}
     end
@@ -67,6 +67,21 @@ defmodule Castle.Redis.IntervalCache do
       [from] ++ interval_times(Timex.shift(from, seconds: interval), to, interval)
     end
   end
+
+  def interval_fill_zeros({data, meta}, from, to, interval) do
+    times = interval_times(from, to, interval)
+    {fill_zeros(data, times), meta}
+  end
+
+  defp fill_zeros([result | rest_results] = data, [dtim | rest_dtims]) do
+    if dtim == result.time do
+      [result] ++ fill_zeros(rest_results, rest_dtims)
+    else
+      [%{count: 0, time: dtim}] ++ fill_zeros(data, rest_dtims)
+    end
+  end
+  defp fill_zeros([], [dtim | rest]), do: [%{count: 0, time: dtim}] ++ fill_zeros([], rest)
+  defp fill_zeros([], []), do: []
 
   defp cache_hits(times, counts), do: cache_hits(times, counts, [])
   defp cache_hits([time | _times], [nil | _counts], accumulator), do: {accumulator, time}

@@ -97,8 +97,8 @@ defmodule Castle.RedisIntervalCacheTest do
       assert format_dtim(new_from) == "2017-03-22T01:15:00Z"
       {[], %{meta: "data"}}
     end
-    assert redis_count("#{@prefix}*") == 0
-    assert data == []
+    assert redis_count("#{@prefix}*") == 6
+    assert Enum.uniq(Enum.map(data, &(&1.count))) == [0]
     assert meta.meta == "data"
     assert meta.cache_hits == 0
   end
@@ -142,6 +142,36 @@ defmodule Castle.RedisIntervalCacheTest do
     assert format_dtim(hd(data).time) == "2017-03-22T01:15:00Z"
     assert meta.cached == true
     assert meta.cache_hits == 6
+  end
+
+  test "fills zeros into results", %{from: from, to: to} do
+    result = [
+      %{count: 11, time: get_dtim("2017-03-22T01:45:00Z")},
+      %{count: 22, time: get_dtim("2017-03-22T02:15:00Z")},
+    ]
+    {data, _} = interval_fill_zeros({result, %{}}, from, to, 900)
+    assert Enum.map(data, &(&1.time)) == interval_times(from, to, 900)
+    assert Enum.map(data, &(&1.count)) == [0, 0, 11, 0, 22, 0]
+  end
+
+  test "caches empty response intervals", %{from: from, partial_to: partial_to, to: to} do
+    data1 = [
+      %{count: 66, time: get_dtim("2017-03-22T01:30:00Z")},
+    ]
+    data2 = [
+      %{count: 88, time: get_dtim("2017-03-22T02:00:00Z")},
+      %{count: 111, time: get_dtim("2017-03-22T02:30:00Z")},
+    ]
+
+    {data, _} = interval @prefix, from, partial_to, 900, fn(_) -> {data1, %{}} end
+    assert redis_count("#{@prefix}*") == 3
+    assert Enum.map(data, &(&1.count)) == [0, 66, 0]
+    assert format_dtim(hd(data).time) == "2017-03-22T01:15:00Z"
+
+    {data, _} = interval @prefix, from, to, 900, fn(_) -> {data2, %{}} end
+    assert redis_count("#{@prefix}*") == 6
+    assert Enum.map(data, &(&1.count)) == [0, 66, 0, 88, 0, 111]
+    assert format_dtim(hd(data).time) == "2017-03-22T01:15:00Z"
   end
 
   def get_dtim(dtim_str) do
