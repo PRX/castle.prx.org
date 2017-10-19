@@ -4,22 +4,22 @@ defmodule BigQuery.Base.Timestamp do
   def timestamp_query(tbl, where_sql, params, interval) do
     params
     |> timestamp_params(interval)
-    |> query(timestamp_sql(tbl, where_sql))
+    |> query(timestamp_sql(tbl, interval, where_sql))
   end
 
-  def timestamp_sql(tbl, where_sql) do
+  def timestamp_sql(tbl, interval, where_sql) do
     """
-    WITH intervals AS (#{timestamp_intervals(tbl, where_sql)})
+    WITH intervals AS (#{timestamp_intervals(tbl, interval, where_sql)})
     SELECT time, count FROM intervals
     ORDER BY time ASC
     """
   end
 
-  def timestamp_intervals(tbl, where_sql), do: timestamp_intervals(tbl, where_sql, nil)
-  def timestamp_intervals(tbl, where_sql, extra_fld, joiner \\ "") do
+  def timestamp_intervals(tbl, interval, where_sql), do: timestamp_intervals(tbl, interval, where_sql, nil)
+  def timestamp_intervals(tbl, interval, where_sql, extra_fld, joiner \\ "") do
     """
     SELECT
-      TIMESTAMP_SECONDS(UNIX_SECONDS(timestamp) - MOD(UNIX_SECONDS(timestamp), @interval_s)) as time,
+      #{timestamp_rollup(interval)} as time,
       #{comma_after(extra_fld)}
       COUNT(*) as count
     FROM #{tbl} #{joiner}
@@ -31,7 +31,10 @@ defmodule BigQuery.Base.Timestamp do
     """
   end
 
-  def timestamp_seconds do
+  def timestamp_rollup(%{rollup: "MONTH"}), do: "TIMESTAMP_TRUNC(timestamp, MONTH)"
+  def timestamp_rollup(%{rollup: "WEEK"}), do: "TIMESTAMP_TRUNC(timestamp, WEEK)"
+  def timestamp_rollup(%{rollup: "DAY"}), do: "TIMESTAMP_TRUNC(timestamp, DAY)"
+  def timestamp_rollup(%{rollup: _seconds}) do
     "TIMESTAMP_SECONDS(UNIX_SECONDS(timestamp) - MOD(UNIX_SECONDS(timestamp), @interval_s))"
   end
 
@@ -41,7 +44,7 @@ defmodule BigQuery.Base.Timestamp do
 
   def timestamp_params(params, interval) do
     params
-    |> Map.put(:interval_s, interval.seconds)
+    |> Map.put(:interval_s, interval.rollup)
     |> Map.put(:from_dtim, interval.from)
     |> Map.put(:to_dtim, interval.to)
     |> Map.put(:pstart, Timex.beginning_of_day(interval.from))
