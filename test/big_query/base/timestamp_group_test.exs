@@ -9,14 +9,14 @@ defmodule Castle.BigQueryBaseTimestampGroupTest do
   end
 
   test "joins the table" do
-    sql = group_sql("the_table", "foo = @bar", test_group())
+    sql = group_sql("the_table", %{rollup: 100}, "foo = @bar", test_group())
     assert sql =~ ~r/FROM the_table/
     assert sql =~ ~r/JOIN whatever on \(hello = world\)/
     assert sql =~ ~r/AND foo = @bar/
   end
 
   test "selects the display column" do
-    sql = group_sql("the_table", "foo = @bar", test_group())
+    sql = group_sql("the_table", %{rollup: "WEEK"}, "foo = @bar", test_group())
     assert sql =~ ~r/AS display/
   end
 
