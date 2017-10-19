@@ -4,10 +4,12 @@ defmodule Castle.PlugsIntervalSecondsTest do
   @default_from "2017-04-01T14:04:00Z"
   @default_to "2017-04-01T14:05:00Z"
 
-  test "sets interval values in seconds", %{conn: conn} do
+  test "sets interval rollup values", %{conn: conn} do
     assert call_parse(conn, "15m") == {:ok, 900}
     assert call_parse(conn, "1h") == {:ok, 3600}
-    assert call_parse(conn, "1d") == {:ok, 86400}
+    assert call_parse(conn, "1d") == {:ok, "DAY"}
+    assert call_parse(conn, "1w") == {:ok, "WEEK"}
+    assert call_parse(conn, "1M") == {:ok, "MONTH"}
   end
 
   test "validates interval values", %{conn: conn} do
@@ -18,7 +20,9 @@ defmodule Castle.PlugsIntervalSecondsTest do
   test "guesses interval from the time window", %{conn: conn} do
     assert call_parse(conn, nil, "2017-04-01T00:01:00Z", "2017-04-01T00:02:00Z") == {:ok, 900}
     assert call_parse(conn, nil, "2017-04-01T00:01:00Z", "2017-04-01T12:00:00Z") == {:ok, 3600}
-    assert call_parse(conn, nil, "2017-04-01T00:01:00Z", "2017-04-06T00:00:00Z") == {:ok, 86400}
+    assert call_parse(conn, nil, "2017-04-01T00:01:00Z", "2017-04-06T00:00:00Z") == {:ok, "DAY"}
+    assert call_parse(conn, nil, "2017-04-01T00:01:00Z", "2017-09-06T00:00:00Z") == {:ok, "WEEK"}
+    assert call_parse(conn, nil, "2017-04-01T00:01:00Z", "2018-04-06T00:00:00Z") == {:ok, "MONTH"}
   end
 
   test "validates the intervals per time window", %{conn: conn} do
