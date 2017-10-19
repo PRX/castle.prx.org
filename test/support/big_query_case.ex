@@ -3,10 +3,10 @@ defmodule Castle.BigQueryCase do
 
   using do
     quote do
-      defp interval(from_str, to_str, seconds) do
+      defp interval(from_str, to_str, rollup) do
         {:ok, start, _} = DateTime.from_iso8601(from_str)
         {:ok, finish, _} = DateTime.from_iso8601(to_str)
-        %{from: start, to: finish, seconds: seconds}
+        %{from: start, to: finish, rollup: rollup}
       end
 
       defp assert_time(result, index, expected_str) do
