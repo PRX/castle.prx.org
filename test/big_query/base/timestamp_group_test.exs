@@ -3,20 +3,23 @@ defmodule Castle.BigQueryBaseTimestampGroupTest do
 
   import BigQuery.Base.TimestampGroup
 
+  @fifteen %{rollup: BigQuery.TimestampRollups.QuarterHourly}
+  @weekly %{rollup: BigQuery.TimestampRollups.Weekly}
+
   defp test_group() do
     %BigQuery.Grouping{name: "foo", join: "whatever on (hello = world)",
       groupby: "your_group", limit: 1234}
   end
 
   test "joins the table" do
-    sql = group_sql("the_table", %{rollup: 100}, "foo = @bar", test_group())
+    sql = group_sql("the_table", @fifteen, "foo = @bar", test_group())
     assert sql =~ ~r/FROM the_table/
     assert sql =~ ~r/JOIN whatever on \(hello = world\)/
     assert sql =~ ~r/AND foo = @bar/
   end
 
   test "selects the display column" do
-    sql = group_sql("the_table", %{rollup: "WEEK"}, "foo = @bar", test_group())
+    sql = group_sql("the_table", @weekly, "foo = @bar", test_group())
     assert sql =~ ~r/AS display/
   end
 

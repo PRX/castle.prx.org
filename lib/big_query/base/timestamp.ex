@@ -19,7 +19,7 @@ defmodule BigQuery.Base.Timestamp do
   def timestamp_intervals(tbl, interval, where_sql, extra_fld, joiner \\ "") do
     """
     SELECT
-      #{timestamp_rollup(interval)} as time,
+      #{interval.rollup.rollup()} as time,
       #{comma_after(extra_fld)}
       COUNT(*) as count
     FROM #{tbl} #{joiner}
@@ -31,20 +31,12 @@ defmodule BigQuery.Base.Timestamp do
     """
   end
 
-  def timestamp_rollup(%{rollup: "MONTH"}), do: "TIMESTAMP_TRUNC(timestamp, MONTH)"
-  def timestamp_rollup(%{rollup: "WEEK"}), do: "TIMESTAMP_TRUNC(timestamp, WEEK)"
-  def timestamp_rollup(%{rollup: "DAY"}), do: "TIMESTAMP_TRUNC(timestamp, DAY)"
-  def timestamp_rollup(%{rollup: _seconds}) do
-    "TIMESTAMP_SECONDS(UNIX_SECONDS(timestamp) - MOD(UNIX_SECONDS(timestamp), @interval_s))"
-  end
-
   def timestamp_partition do
     "timestamp >= @from_dtim AND timestamp < @to_dtim AND _PARTITIONTIME >= @pstart AND _PARTITIONTIME <= @pend"
   end
 
   def timestamp_params(params, interval) do
     params
-    |> Map.put(:interval_s, interval.rollup)
     |> Map.put(:from_dtim, interval.from)
     |> Map.put(:to_dtim, interval.to)
     |> Map.put(:pstart, Timex.beginning_of_day(interval.from))
