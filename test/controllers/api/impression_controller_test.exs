@@ -27,7 +27,7 @@ defmodule Castle.API.ImpressionControllerTest do
     with_mock BigQuery, fake_data() do
       resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-02", interval: "15m") |> json_response(200)
       assert resp["id"] == 123
-      assert resp["interval"] == 900
+      assert resp["interval"] == "15MIN"
       assert length(resp["impressions"]) == 20
       assert hd(resp["impressions"]) == ["2017-03-22T00:00:00Z", 0]
     end
@@ -37,7 +37,7 @@ defmodule Castle.API.ImpressionControllerTest do
     with_mock BigQuery, fake_groups() do
       resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-02", interval: "15m", group: "city") |> json_response(200)
       assert resp["id"] == 123
-      assert resp["interval"] == 900
+      assert resp["interval"] == "15MIN"
       assert length(resp["groups"]) == 1
       assert hd(resp["groups"]) == "foo"
       assert length(resp["impressions"]) == 20
@@ -49,7 +49,7 @@ defmodule Castle.API.ImpressionControllerTest do
     with_mock BigQuery, fake_data() do
       resp = conn |> get_episode("hello", from: "2017-04-01", to: "2017-04-02", interval: "15m") |> json_response(200)
       assert resp["guid"] == "hello"
-      assert resp["interval"] == 900
+      assert resp["interval"] == "15MIN"
       assert length(resp["impressions"]) == 20
       assert hd(resp["impressions"]) == ["2017-03-22T00:00:00Z", 0]
     end
@@ -89,7 +89,7 @@ defmodule Castle.API.ImpressionControllerTest do
     with_mock BigQuery, fake_groups() do
       resp = conn |> get_episode("hello", from: "2017-04-01", to: "2017-04-02", interval: "15m", group: "country") |> json_response(200)
       assert resp["guid"] == "hello"
-      assert resp["interval"] == 900
+      assert resp["interval"] == "15MIN"
       assert length(resp["groups"]) == 1
       assert hd(resp["groups"]) == "foo"
       assert length(resp["impressions"]) == 20

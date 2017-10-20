@@ -11,7 +11,7 @@ defmodule Castle.API.IntervalViewTest do
     assert doc.id == 123
     assert doc.interval == 150
     assert length(doc.downloads) == 3
-    assert hd(doc.downloads) == [time, 98]
+    assert hd(doc.downloads) == ["2017-04-09T21:45:00Z", 98]
   end
 
   test "podcast-group.json" do
@@ -44,7 +44,7 @@ defmodule Castle.API.IntervalViewTest do
     assert doc.guid == "456"
     assert doc.interval == 150
     assert length(doc.impressions) == 3
-    assert hd(doc.impressions) == [time, 98]
+    assert hd(doc.impressions) == ["2017-04-09T21:45:00Z", 98]
   end
 
   test "episode-group.json" do
