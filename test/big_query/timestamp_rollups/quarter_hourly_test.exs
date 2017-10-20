@@ -6,6 +6,7 @@ defmodule Castle.BigQueryTimestampRollupsQuarterHourlyTest do
   defp format_floor(str), do: mutate_dtim(str, &floor/1)
   defp format_ceiling(str), do: mutate_dtim(str, &ceiling/1)
   defp format_range(s1, s2), do: mutate_dtims(s1, s2, &range/2)
+  defp get_count(s1, s2), do: call_dtims(s1, s2, &count_range/2)
 
   test "has basic data" do
     assert name() == "15MIN"
@@ -42,5 +43,11 @@ defmodule Castle.BigQueryTimestampRollupsQuarterHourlyTest do
     assert Enum.at(range, 1) == "2017-03-22T01:30:00Z"
     assert Enum.at(range, 2) == "2017-03-22T01:45:00Z"
     assert Enum.at(range, 3) == "2017-03-22T02:00:00Z"
+  end
+
+  test "count range" do
+    assert get_count("2017-03-22T01:15:00Z", "2017-03-22T02:00:01Z") == 4
+    assert get_count("2017-03-22T01:14:00Z", "2017-03-22T02:00:01Z") == 5
+    assert get_count("2017-03-22T01:14:59Z", "2017-03-22T02:00:00Z") == 4
   end
 end

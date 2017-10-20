@@ -5,4 +5,5 @@ defmodule BigQuery.TimestampRollup do
   @callback floor(%DateTime{}) :: %DateTime{}
   @callback ceiling(%DateTime{}) :: %DateTime{}
   @callback range(%DateTime{}, %DateTime{}) :: [%DateTime{}]
+  @callback count_range(%DateTime{}, %DateTime{}) :: pos_integer()
 end

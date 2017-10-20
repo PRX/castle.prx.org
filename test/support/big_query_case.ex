@@ -30,6 +30,12 @@ defmodule Castle.BigQueryCase do
           formatted
         end)
       end
+
+      defp call_dtims(dtim_str1, dtim_str2, call_fn) do
+        {:ok, dtim1, _} = DateTime.from_iso8601(dtim_str1)
+        {:ok, dtim2, _} = DateTime.from_iso8601(dtim_str2)
+        call_fn.(dtim1, dtim2)
+      end
     end
   end
 end

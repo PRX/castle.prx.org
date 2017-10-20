@@ -30,4 +30,11 @@ defmodule BigQuery.TimestampRollups.Monthly do
       range(next_from, to, acc ++ [from])
     end
   end
+
+  # this is an estimate, since days-per-month varies
+  def count_range(from, to) do
+    start = floor(from) |> Timex.to_unix()
+    stop = ceiling(to) |> Timex.to_unix()
+    Float.ceil(max(stop - start, 0) / 2592000) |> round
+  end
 end

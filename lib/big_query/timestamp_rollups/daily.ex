@@ -30,4 +30,10 @@ defmodule BigQuery.TimestampRollups.Daily do
       range(next_from, to, acc ++ [from])
     end
   end
+
+  def count_range(from, to) do
+    start = floor(from) |> Timex.to_unix()
+    stop = ceiling(to) |> Timex.to_unix()
+    Float.ceil(max(stop - start, 0) / 86400) |> round
+  end
 end
