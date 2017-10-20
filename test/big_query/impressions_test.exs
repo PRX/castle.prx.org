@@ -6,7 +6,7 @@ defmodule Castle.BigQueryImpressionsTest do
   import BigQuery.Impressions
 
   test "lists impressions for a podcast" do
-    intv = interval("2017-06-27T21:45:00Z", "2017-06-28T04:15:00Z", 900)
+    intv = interval("2017-06-27T21:45:00Z", "2017-06-28T04:15:00Z", BigQuery.TimestampRollups.QuarterHourly)
     {result, _meta} = for_podcast(57, intv)
 
     assert is_list result
@@ -17,7 +17,7 @@ defmodule Castle.BigQueryImpressionsTest do
   end
 
   test "groups impressions by city for a podcast" do
-    intv = interval("2017-07-10T21:45:00Z", "2017-07-11T04:15:00Z", 900)
+    intv = interval("2017-07-10T21:45:00Z", "2017-07-11T04:15:00Z", BigQuery.TimestampRollups.QuarterHourly)
     group = Castle.Plugs.Group.get("city", 3)
     {result, _meta} = for_podcast(57, intv, group)
     assert is_list result
