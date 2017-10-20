@@ -9,7 +9,7 @@ defmodule Castle.PlugsIntervalTest do
     intv = get_interval(conn, @from, @to, @interval)
     assert Timex.to_unix(intv.from) == 1491055200
     assert Timex.to_unix(intv.to) == 1491056100
-    assert intv.rollup == 900
+    assert intv.rollup.name == "15MIN"
   end
 
   test "handles time_from errors", %{conn: conn} do
