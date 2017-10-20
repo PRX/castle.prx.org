@@ -15,6 +15,21 @@ defmodule Castle.BigQueryCase do
         {:ok, format_result} = Timex.format(Enum.at(result, index).time, "{ISO:Extended:Z}")
         assert format_result == format_expected
       end
+
+      defp mutate_dtim(dtim_str, mutate_fn) do
+        {:ok, dtim, _} = DateTime.from_iso8601(dtim_str)
+        {:ok, formatted} = Timex.format(mutate_fn.(dtim), "{ISO:Extended:Z}")
+        formatted
+      end
+
+      defp mutate_dtims(dtim_str1, dtim_str2, mutate_fn) do
+        {:ok, dtim1, _} = DateTime.from_iso8601(dtim_str1)
+        {:ok, dtim2, _} = DateTime.from_iso8601(dtim_str2)
+        mutate_fn.(dtim1, dtim2) |> Enum.map(fn(dtim) ->
+          {:ok, formatted} = Timex.format(dtim, "{ISO:Extended:Z}")
+          formatted
+        end)
+      end
     end
   end
 end
