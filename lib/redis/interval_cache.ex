@@ -1,80 +1,69 @@
 defmodule Castle.Redis.IntervalCache do
   alias Castle.Redis.Conn, as: Conn
 
-  @past_interval_ttl 43200
-  @current_interval_ttl 15
+  @past_interval_ttl 2592000 # 30 days
+  @current_interval_ttl 300
   @current_interval_buffer 3600
 
   def interval(key_prefix, interval, work_fn) do
-    interval key_prefix, interval.from, interval.to, interval.seconds, fn(new_from) ->
+    interval key_prefix, interval.from, interval.to, interval.rollup, fn(new_from) ->
       interval |> Map.put(:from, new_from) |> work_fn.()
     end
   end
-  def interval(key_prefix, from, to, interval, work_fn) do
-    case interval_get(key_prefix, from, to, interval) do
+  def interval(key_prefix, from, to, rollup, work_fn) do
+    case interval_get(key_prefix, from, to, rollup) do
       {[], _new_from} ->
-        {data, meta} = work_fn.(from) |> interval_fill_zeros(from, to, interval)
-        interval_set(key_prefix, from, to, interval, Enum.map(data, &(&1.count)))
+        {data, meta} = work_fn.(from) |> interval_fill_zeros(from, to, rollup)
+        interval_set(key_prefix, from, to, rollup, Enum.map(data, &(&1.count)))
         {data, Map.put(meta, :cache_hits, 0)}
       {hits, nil} ->
         {hits, %{cached: true, cache_hits: length(hits)}}
       {hits, new_from} ->
-        {data, meta} = work_fn.(new_from) |> interval_fill_zeros(new_from, to, interval)
-        interval_set(key_prefix, new_from, to, interval, Enum.map(data, &(&1.count)))
+        {data, meta} = work_fn.(new_from) |> interval_fill_zeros(new_from, to, rollup)
+        interval_set(key_prefix, new_from, to, rollup, Enum.map(data, &(&1.count)))
         {hits ++ data, Map.put(meta, :cache_hits, length(hits))}
     end
   end
 
-  def interval_get(key_prefix, from, to, interval) do
-    times = interval_times(from, to, interval)
-    counts = interval_keys(key_prefix, from, to, interval) |> Conn.get()
-    cache_hits(times, counts)
+  def interval_get(key_prefix, from, to, rollup) do
+    counts = interval_keys(key_prefix, from, to, rollup) |> Conn.get()
+    cache_hits(rollup.range(from, to), counts)
   end
 
-  def interval_set(_key_prefix, _from, _to, _interval, []), do: []
-  def interval_set(key_prefix, from, to, interval, counts) do
+  def interval_set(_key_prefix, _from, _to, _rollup, []), do: []
+  def interval_set(key_prefix, from, to, rollup, counts) do
     Enum.zip([
-      interval_keys(key_prefix, from, to, interval),
-      interval_ttls(from, to, interval),
+      interval_keys(key_prefix, from, to, rollup),
+      interval_ttls(from, to, rollup),
       counts,
     ]) |> Conn.set()
   end
 
-  def interval_keys(prefix, from, to, interval) do
-    interval_times(from, to, interval)
+  def interval_keys(prefix, from, to, rollup) do
+    rollup.range(from, to)
     |> Enum.map(&format/1)
-    |> Enum.map(&("#{prefix}.#{interval}.#{&1}"))
+    |> Enum.map(&("#{prefix}.#{rollup.name()}.#{&1}"))
   end
 
-  def interval_ttls(from, to, interval) do
-    now = Timex.now()
-    Enum.map interval_times(from, to, interval), fn(dtim) ->
-      interval_end = Timex.shift(dtim, seconds: interval + @current_interval_buffer)
+  def interval_ttls(from, to, rollup) do
+    now = Timex.now() |> Timex.shift(seconds: -@current_interval_buffer)
+    Enum.map rollup.range(from, to), fn(dtim) ->
+      interval_end = rollup.ceiling(Timex.shift(dtim, seconds: 1))
       if Timex.compare(now, interval_end) < 0 do
-        # IO.puts "CURRENT - #{now} #{interval_end}"
         @current_interval_ttl
       else
-        # IO.puts "PAST - #{now} #{interval_end}"
         @past_interval_ttl
       end
     end
   end
 
-  def interval_times(from, to, interval) do
-    if Timex.compare(from, to) >= 0 do
-      []
-    else
-      [from] ++ interval_times(Timex.shift(from, seconds: interval), to, interval)
-    end
-  end
-
-  def interval_fill_zeros({data, meta}, from, to, interval) do
-    times = interval_times(from, to, interval)
+  def interval_fill_zeros({data, meta}, from, to, rollup) do
+    times = rollup.range(from, to)
     {fill_zeros(data, times), meta}
   end
 
   defp fill_zeros([result | rest_results] = data, [dtim | rest_dtims]) do
-    if dtim == result.time do
+    if Timex.equal?(dtim, result.time) do
       [result] ++ fill_zeros(rest_results, rest_dtims)
     else
       [%{count: 0, time: dtim}] ++ fill_zeros(data, rest_dtims)
