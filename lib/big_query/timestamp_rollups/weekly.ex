@@ -19,8 +19,11 @@ defmodule BigQuery.TimestampRollups.Weekly do
     end
   end
 
-  def range(from, to) do
+  def range(from, to, _inclusive_to=false) do
     range(floor(from), ceiling(to), [])
+  end
+  def range(from, to, _inclusive_to=true) do
+    range(floor(from), ceiling(Timex.shift(to, seconds: 1)), [])
   end
   def range(from, to, acc) do
     if Timex.compare(from, to) >= 0 do

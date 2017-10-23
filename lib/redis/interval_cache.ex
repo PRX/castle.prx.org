@@ -27,7 +27,7 @@ defmodule Castle.Redis.IntervalCache do
 
   def interval_get(key_prefix, from, to, rollup) do
     counts = interval_keys(key_prefix, from, to, rollup) |> Conn.get()
-    cache_hits(rollup.range(from, to), counts)
+    cache_hits(rollup.range(from, to, false), counts)
   end
 
   def interval_set(_key_prefix, _from, _to, _rollup, []), do: []
@@ -40,14 +40,14 @@ defmodule Castle.Redis.IntervalCache do
   end
 
   def interval_keys(prefix, from, to, rollup) do
-    rollup.range(from, to)
+    rollup.range(from, to, false)
     |> Enum.map(&format/1)
     |> Enum.map(&("#{prefix}.#{rollup.name()}.#{&1}"))
   end
 
   def interval_ttls(from, to, rollup) do
     now = Timex.now() |> Timex.shift(seconds: -@current_interval_buffer)
-    Enum.map rollup.range(from, to), fn(dtim) ->
+    Enum.map rollup.range(from, to, false), fn(dtim) ->
       interval_end = rollup.ceiling(Timex.shift(dtim, seconds: 1))
       if Timex.compare(now, interval_end) < 0 do
         @current_interval_ttl
@@ -58,7 +58,7 @@ defmodule Castle.Redis.IntervalCache do
   end
 
   def interval_fill_zeros({data, meta}, from, to, rollup) do
-    times = rollup.range(from, to)
+    times = rollup.range(from, to, false)
     {fill_zeros(data, times), meta}
   end
 

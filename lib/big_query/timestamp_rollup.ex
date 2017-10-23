@@ -4,6 +4,6 @@ defmodule BigQuery.TimestampRollup do
   @callback is_a?(String.t) :: boolean
   @callback floor(%DateTime{}) :: %DateTime{}
   @callback ceiling(%DateTime{}) :: %DateTime{}
-  @callback range(%DateTime{}, %DateTime{}) :: [%DateTime{}]
+  @callback range(%DateTime{}, %DateTime{}, boolean) :: [%DateTime{}]
   @callback count_range(%DateTime{}, %DateTime{}) :: pos_integer()
 end

@@ -156,7 +156,7 @@ defmodule Castle.RedisIntervalCacheTest do
       %{count: 22, time: get_dtim("2017-03-22T02:15:00Z")},
     ]
     {data, _} = interval_fill_zeros({result, %{}}, from, to, QuarterHourly)
-    assert Enum.map(data, &(&1.time)) == QuarterHourly.range(from, to)
+    assert Enum.map(data, &(&1.time)) == QuarterHourly.range(from, to, false)
     assert Enum.map(data, &(&1.count)) == [0, 0, 11, 0, 22, 0]
   end
 

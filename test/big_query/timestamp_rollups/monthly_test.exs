@@ -5,7 +5,7 @@ defmodule Castle.BigQueryTimestampRollupsMonthlyTest do
 
   defp format_floor(str), do: mutate_dtim(str, &floor/1)
   defp format_ceiling(str), do: mutate_dtim(str, &ceiling/1)
-  defp format_range(s1, s2), do: mutate_dtims(s1, s2, &range/2)
+  defp format_range(s1, s2, ex), do: mutate_dtims(s1, s2, ex, &range/3)
   defp get_count(s1, s2), do: call_dtims(s1, s2, &count_range/2)
 
   test "has basic data" do
@@ -29,17 +29,25 @@ defmodule Castle.BigQueryTimestampRollupsMonthlyTest do
     assert format_ceiling("2017-04-01T00:00:01Z") == "2017-05-01T00:00:00Z"
   end
 
-  test "range" do
-    range = format_range("2017-03-22T01:15:00Z", "2017-05-01T12:00:00Z")
+  test "exclusive range" do
+    range = format_range("2017-03-22T01:15:00Z", "2017-05-01T12:00:00Z", false)
     assert length(range) == 3
     assert Enum.at(range, 0) == "2017-03-01T00:00:00Z"
     assert Enum.at(range, 1) == "2017-04-01T00:00:00Z"
     assert Enum.at(range, 2) == "2017-05-01T00:00:00Z"
 
-    range = format_range("2017-03-01T00:00:00Z", "2017-05-01T00:00:00Z")
+    range = format_range("2017-03-01T00:00:00Z", "2017-05-01T00:00:00Z", false)
     assert length(range) == 2
     assert Enum.at(range, 0) == "2017-03-01T00:00:00Z"
     assert Enum.at(range, 1) == "2017-04-01T00:00:00Z"
+  end
+
+  test "inclusive range" do
+    range = format_range("2017-03-01T00:00:00Z", "2017-05-01T00:00:00Z", true)
+    assert length(range) == 3
+    assert Enum.at(range, 0) == "2017-03-01T00:00:00Z"
+    assert Enum.at(range, 1) == "2017-04-01T00:00:00Z"
+    assert Enum.at(range, 2) == "2017-05-01T00:00:00Z"
   end
 
   test "count range" do
