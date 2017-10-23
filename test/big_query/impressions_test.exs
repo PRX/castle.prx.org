@@ -40,7 +40,7 @@ defmodule Castle.BigQueryImpressionsTest do
   end
 
   test "lists impressions for an episode" do
-    intv = interval("2017-06-27T21:45:00Z", "2017-06-28T04:15:00Z", 3600)
+    intv = interval("2017-06-27T21:45:00Z", "2017-06-28T04:15:00Z", BigQuery.TimestampRollups.Hourly)
     {result, _meta} = for_episode("7acf74b8-7b0a-4e9e-90be-f69052064b77", intv)
 
     assert is_list result
