@@ -3,6 +3,7 @@ defmodule Castle.RedisIntervalCacheTest do
 
   @moduletag :redis
 
+  import Mock
   import Castle.Redis.IntervalCache
   alias BigQuery.TimestampRollups.{Daily, Hourly, Monthly, QuarterHourly, Weekly}
 
@@ -24,10 +25,12 @@ defmodule Castle.RedisIntervalCacheTest do
     assert List.last(keys) == "#{@prefix}.15MIN.2017-03-22T02:30:00Z"
   end
 
-  test "sets a separate ttl for current intervals" do
-    now = Timex.now
-    past = Timex.shift(now, seconds: -7200)
-    later = Timex.shift(now, seconds: 901)
+  test_with_mock "sets a separate ttl for current intervals", Timex, [:passthrough], [
+    now: fn() -> get_dtim("2017-10-23T11:55:00Z") end
+  ] do
+    past  = get_dtim("2017-10-23T09:55:00Z")
+    now   = get_dtim("2017-10-23T11:55:00Z")
+    later = get_dtim("2017-10-23T12:10:01Z")
 
     assert interval_ttls(past, now, QuarterHourly) == [2592000, 2592000, 2592000, 2592000, 300, 300, 300, 300, 300]
     assert interval_ttls(past, now, Hourly) == [2592000, 300, 300]
@@ -36,7 +39,7 @@ defmodule Castle.RedisIntervalCacheTest do
     assert interval_ttls(past, now, Monthly) == [300]
 
     assert interval_ttls(past, later, QuarterHourly) == [2592000, 2592000, 2592000, 2592000, 300, 300, 300, 300, 300, 300]
-    assert interval_ttls(past, later, Hourly) == [2592000, 300, 300]
+    assert interval_ttls(past, later, Hourly) == [2592000, 300, 300, 300]
     assert interval_ttls(past, later, Daily) == [300]
   end
 
