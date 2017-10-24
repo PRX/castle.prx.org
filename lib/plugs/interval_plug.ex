@@ -8,7 +8,7 @@ defmodule Castle.Plugs.Interval do
     |> assign(:interval, %{})
     |> interval_part(:from, &Castle.Plugs.Interval.TimeFrom.parse/1)
     |> interval_part(:to, &Castle.Plugs.Interval.TimeTo.parse/1)
-    |> interval_part(:seconds, &Castle.Plugs.Interval.Seconds.parse/1)
+    |> interval_part(:rollup, &Castle.Plugs.Interval.Rollups.parse/1)
     |> round_time_window()
     |> interval_struct()
   end
@@ -24,11 +24,11 @@ defmodule Castle.Plugs.Interval do
   defp interval_part(conn, _key, _valfn), do: conn
 
   defp round_time_window(%{status: nil, assigns: %{interval: intv}} = conn) do
-    lower = Timex.to_unix(intv.from)
-    upper = Timex.to_unix(intv.to)
-    lower_down = Timex.from_unix(lower - rem(lower, intv.seconds))
-    upper_up = Timex.from_unix(round(Float.ceil(upper / intv.seconds) * intv.seconds))
-    assign(conn, :interval, %{from: lower_down, to: upper_up, seconds: intv.seconds})
+    assign(conn, :interval, %{
+      from: intv.rollup.floor(intv.from),
+      to: intv.rollup.ceiling(intv.to),
+      rollup: intv.rollup,
+    })
   end
   defp round_time_window(conn), do: conn
 

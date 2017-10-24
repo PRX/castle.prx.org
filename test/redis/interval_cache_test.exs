@@ -3,7 +3,9 @@ defmodule Castle.RedisIntervalCacheTest do
 
   @moduletag :redis
 
+  import Mock
   import Castle.Redis.IntervalCache
+  alias BigQuery.TimestampRollups.{Daily, Hourly, Monthly, QuarterHourly, Weekly}
 
   @prefix "interval.cache.test"
 
@@ -17,36 +19,40 @@ defmodule Castle.RedisIntervalCacheTest do
   end
 
   test "assembles keys for timestamps", %{from: from, to: to} do
-    keys = interval_keys(@prefix, from, to, 900)
+    keys = interval_keys(@prefix, from, to, QuarterHourly)
     assert length(keys) == 6
-    assert hd(keys) == "#{@prefix}.900.2017-03-22T01:15:00Z"
-    assert List.last(keys) == "#{@prefix}.900.2017-03-22T02:30:00Z"
+    assert hd(keys) == "#{@prefix}.15MIN.2017-03-22T01:15:00Z"
+    assert List.last(keys) == "#{@prefix}.15MIN.2017-03-22T02:30:00Z"
   end
 
-  test "sets a separate ttl for current intervals" do
-    now = Timex.now
-    past = Timex.shift(Timex.now, seconds: -7200)
-    later = Timex.shift(Timex.now, seconds: 100)
+  test_with_mock "sets a separate ttl for current intervals", Timex, [:passthrough], [
+    now: fn() -> get_dtim("2017-10-23T11:55:00Z") end
+  ] do
+    past  = get_dtim("2017-10-23T09:55:00Z")
+    now   = get_dtim("2017-10-23T11:55:00Z")
+    later = get_dtim("2017-10-23T12:10:01Z")
 
-    assert interval_ttls(past, now, 900) == [43200, 43200, 43200, 43200, 15, 15, 15, 15]
-    assert interval_ttls(past, now, 3600) == [43200, 15]
-    assert interval_ttls(past, now, 86400) == [15]
+    assert interval_ttls(past, now, QuarterHourly) == [2592000, 2592000, 2592000, 2592000, 300, 300, 300, 300, 300]
+    assert interval_ttls(past, now, Hourly) == [2592000, 300, 300]
+    assert interval_ttls(past, now, Daily) == [300]
+    assert interval_ttls(past, now, Weekly) == [300]
+    assert interval_ttls(past, now, Monthly) == [300]
 
-    assert interval_ttls(past, later, 900) == [43200, 43200, 43200, 43200, 15, 15, 15, 15, 15]
-    assert interval_ttls(past, later, 3600) == [43200, 15, 15]
-    assert interval_ttls(past, later, 86400) == [15]
+    assert interval_ttls(past, later, QuarterHourly) == [2592000, 2592000, 2592000, 2592000, 300, 300, 300, 300, 300, 300]
+    assert interval_ttls(past, later, Hourly) == [2592000, 300, 300, 300]
+    assert interval_ttls(past, later, Daily) == [300]
   end
 
   test "gets an entire time interval", %{from: from, to: to} do
     Castle.Redis.Conn.set(%{
-      "#{@prefix}.900.2017-03-22T01:15:00Z" => 10,
-      "#{@prefix}.900.2017-03-22T01:30:00Z" => 9,
-      "#{@prefix}.900.2017-03-22T01:45:00Z" => 8,
-      "#{@prefix}.900.2017-03-22T02:00:00Z" => 7,
-      "#{@prefix}.900.2017-03-22T02:15:00Z" => 6,
-      "#{@prefix}.900.2017-03-22T02:30:00Z" => 5,
+      "#{@prefix}.15MIN.2017-03-22T01:15:00Z" => 10,
+      "#{@prefix}.15MIN.2017-03-22T01:30:00Z" => 9,
+      "#{@prefix}.15MIN.2017-03-22T01:45:00Z" => 8,
+      "#{@prefix}.15MIN.2017-03-22T02:00:00Z" => 7,
+      "#{@prefix}.15MIN.2017-03-22T02:15:00Z" => 6,
+      "#{@prefix}.15MIN.2017-03-22T02:30:00Z" => 5,
     })
-    {hits, new_from} = interval_get(@prefix, from, to, 900)
+    {hits, new_from} = interval_get(@prefix, from, to, QuarterHourly)
 
     assert length(hits) == 6
     assert hd(hits).count == 10
@@ -57,12 +63,12 @@ defmodule Castle.RedisIntervalCacheTest do
 
   test "gets a partial time interval", %{from: from, to: to} do
     Castle.Redis.Conn.set(%{
-      "#{@prefix}.900.2017-03-22T01:15:00Z" => 10,
-      "#{@prefix}.900.2017-03-22T01:30:00Z" => 9,
-      "#{@prefix}.900.2017-03-22T02:00:00Z" => 7,
-      "#{@prefix}.900.2017-03-22T02:15:00Z" => 6,
+      "#{@prefix}.15MIN.2017-03-22T01:15:00Z" => 10,
+      "#{@prefix}.15MIN.2017-03-22T01:30:00Z" => 9,
+      "#{@prefix}.15MIN.2017-03-22T02:00:00Z" => 7,
+      "#{@prefix}.15MIN.2017-03-22T02:15:00Z" => 6,
     })
-    {hits, new_from} = interval_get(@prefix, from, to, 900)
+    {hits, new_from} = interval_get(@prefix, from, to, QuarterHourly)
 
     assert length(hits) == 2
     assert hd(hits).count == 10
@@ -73,10 +79,10 @@ defmodule Castle.RedisIntervalCacheTest do
 
   test "misses the whole time interval", %{from: from, to: to} do
     Castle.Redis.Conn.set(%{
-      "#{@prefix}.900.2017-03-22T01:30:00Z" => 9,
-      "#{@prefix}.900.2017-03-22T01:45:00Z" => 8,
+      "#{@prefix}.15MIN.2017-03-22T01:30:00Z" => 9,
+      "#{@prefix}.15MIN.2017-03-22T01:45:00Z" => 8,
     })
-    {hits, new_from} = interval_get(@prefix, from, to, 900)
+    {hits, new_from} = interval_get(@prefix, from, to, QuarterHourly)
 
     assert length(hits) == 0
     refute is_nil(new_from)
@@ -84,16 +90,16 @@ defmodule Castle.RedisIntervalCacheTest do
   end
 
   test "sets the time interval", %{from: from, partial_to: partial_to} do
-    interval_set(@prefix, from, partial_to, 900, [55, 66, 77])
+    interval_set(@prefix, from, partial_to, QuarterHourly, [55, 66, 77])
 
     assert redis_count("#{@prefix}*") == 3
-    assert Enum.member? redis_keys("#{@prefix}*"), "#{@prefix}.900.2017-03-22T01:15:00Z"
-    assert Enum.member? redis_keys("#{@prefix}*"), "#{@prefix}.900.2017-03-22T01:30:00Z"
-    assert Enum.member? redis_keys("#{@prefix}*"), "#{@prefix}.900.2017-03-22T01:45:00Z"
+    assert Enum.member? redis_keys("#{@prefix}*"), "#{@prefix}.15MIN.2017-03-22T01:15:00Z"
+    assert Enum.member? redis_keys("#{@prefix}*"), "#{@prefix}.15MIN.2017-03-22T01:30:00Z"
+    assert Enum.member? redis_keys("#{@prefix}*"), "#{@prefix}.15MIN.2017-03-22T01:45:00Z"
   end
 
   test "handles blank responses", %{from: from, to: to} do
-    {data, meta} = interval @prefix, from, to, 900, fn(new_from) ->
+    {data, meta} = interval @prefix, from, to, QuarterHourly, fn(new_from) ->
       assert format_dtim(new_from) == "2017-03-22T01:15:00Z"
       {[], %{meta: "data"}}
     end
@@ -115,7 +121,7 @@ defmodule Castle.RedisIntervalCacheTest do
       %{count: 111, time: get_dtim("2017-03-22T02:30:00Z")},
     ]
 
-    {data, meta} = interval @prefix, from, partial_to, 900, fn(new_from) ->
+    {data, meta} = interval @prefix, from, partial_to, QuarterHourly, fn(new_from) ->
       assert format_dtim(new_from) == "2017-03-22T01:15:00Z"
       {data1, %{meta: "data"}}
     end
@@ -125,7 +131,7 @@ defmodule Castle.RedisIntervalCacheTest do
     assert meta.meta == "data"
     assert meta.cache_hits == 0
 
-    {data, meta} = interval @prefix, from, to, 900, fn(new_from) ->
+    {data, meta} = interval @prefix, from, to, QuarterHourly, fn(new_from) ->
       assert format_dtim(new_from) == "2017-03-22T02:00:00Z"
       {data2, %{meta: "stuff"}}
     end
@@ -135,7 +141,7 @@ defmodule Castle.RedisIntervalCacheTest do
     assert meta.meta == "stuff"
     assert meta.cache_hits == 3
 
-    {data, meta} = interval @prefix, from, to, 900, fn(_new_from) ->
+    {data, meta} = interval @prefix, from, to, QuarterHourly, fn(_new_from) ->
       raise "should not have called this"
     end
     assert Enum.map(data, &(&1.count)) == [55, 66, 77, 88, 99, 111]
@@ -149,8 +155,8 @@ defmodule Castle.RedisIntervalCacheTest do
       %{count: 11, time: get_dtim("2017-03-22T01:45:00Z")},
       %{count: 22, time: get_dtim("2017-03-22T02:15:00Z")},
     ]
-    {data, _} = interval_fill_zeros({result, %{}}, from, to, 900)
-    assert Enum.map(data, &(&1.time)) == interval_times(from, to, 900)
+    {data, _} = interval_fill_zeros({result, %{}}, from, to, QuarterHourly)
+    assert Enum.map(data, &(&1.time)) == QuarterHourly.range(from, to, false)
     assert Enum.map(data, &(&1.count)) == [0, 0, 11, 0, 22, 0]
   end
 
@@ -163,12 +169,12 @@ defmodule Castle.RedisIntervalCacheTest do
       %{count: 111, time: get_dtim("2017-03-22T02:30:00Z")},
     ]
 
-    {data, _} = interval @prefix, from, partial_to, 900, fn(_) -> {data1, %{}} end
+    {data, _} = interval @prefix, from, partial_to, QuarterHourly, fn(_) -> {data1, %{}} end
     assert redis_count("#{@prefix}*") == 3
     assert Enum.map(data, &(&1.count)) == [0, 66, 0]
     assert format_dtim(hd(data).time) == "2017-03-22T01:15:00Z"
 
-    {data, _} = interval @prefix, from, to, 900, fn(_) -> {data2, %{}} end
+    {data, _} = interval @prefix, from, to, QuarterHourly, fn(_) -> {data2, %{}} end
     assert redis_count("#{@prefix}*") == 6
     assert Enum.map(data, &(&1.count)) == [0, 66, 0, 88, 0, 111]
     assert format_dtim(hd(data).time) == "2017-03-22T01:15:00Z"

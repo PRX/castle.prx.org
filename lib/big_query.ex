@@ -6,8 +6,8 @@ defmodule BigQuery do
   alias BigQuery.Impressions, as: Impressions
 
   defmodule Interval do
-    @enforce_keys [:from, :to, :seconds]
-    defstruct [:from, :to, :seconds]
+    @enforce_keys [:from, :to, :rollup]
+    defstruct [:from, :to, :rollup]
   end
 
   defmodule Grouping do

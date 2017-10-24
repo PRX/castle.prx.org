@@ -1,17 +1,17 @@
 defmodule BigQuery.Base.TimestampGroup do
   import BigQuery.Base.Query
   import BigQuery.Base.Timestamp,
-    only: [timestamp_intervals: 4, timestamp_params: 2]
+    only: [timestamp_intervals: 5, timestamp_params: 2]
 
   def group_query(tbl, where_sql, params, interval, grouping) do
     params
     |> timestamp_params(interval)
     |> group_params(grouping)
-    |> query(group_sql(tbl, where_sql, grouping))
+    |> query(group_sql(tbl, interval, where_sql, grouping))
   end
 
-  def group_sql(tbl, where_sql, grouping) do
-    intervals = timestamp_intervals(tbl, where_sql, grouping.groupby, "JOIN #{grouping.join}")
+  def group_sql(tbl, interval, where_sql, grouping) do
+    intervals = timestamp_intervals(tbl, interval, where_sql, grouping.groupby, "JOIN #{grouping.join}")
     """
     WITH
       intervals AS (#{intervals}),

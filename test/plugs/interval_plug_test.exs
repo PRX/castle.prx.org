@@ -9,7 +9,7 @@ defmodule Castle.PlugsIntervalTest do
     intv = get_interval(conn, @from, @to, @interval)
     assert Timex.to_unix(intv.from) == 1491055200
     assert Timex.to_unix(intv.to) == 1491056100
-    assert intv.seconds == 900
+    assert intv.rollup.name == "15MIN"
   end
 
   test "handles time_from errors", %{conn: conn} do
@@ -39,6 +39,8 @@ defmodule Castle.PlugsIntervalTest do
     assert get_lower(conn, "1h", "2017-04-01T00:59:59Z") == "2017-04-01T00:00:00+00:00"
     assert get_lower(conn, "1h", "2017-04-01T23:22:44Z") == "2017-04-01T23:00:00+00:00"
     assert get_lower(conn, "1d", "2017-04-01T23:22:44Z") == "2017-04-01T00:00:00+00:00"
+    assert get_lower(conn, "1w", "2017-04-01T23:22:44Z") == "2017-03-26T00:00:00+00:00"
+    assert get_lower(conn, "1M", "2017-04-04T23:22:44Z") == "2017-04-01T00:00:00+00:00"
   end
 
   test "rounds the upper time window up", %{conn: conn} do
@@ -47,6 +49,8 @@ defmodule Castle.PlugsIntervalTest do
     assert get_upper(conn, "1h", "2017-04-01T00:59:59Z") == "2017-04-01T01:00:00+00:00"
     assert get_upper(conn, "1h", "2017-04-01T23:00:00Z") == "2017-04-01T23:00:00+00:00"
     assert get_upper(conn, "1d", "2017-04-01T12:12:12Z") == "2017-04-02T00:00:00+00:00"
+    assert get_upper(conn, "1w", "2017-04-02T12:12:12Z") == "2017-04-09T00:00:00+00:00"
+    assert get_upper(conn, "1M", "2017-04-02T12:12:12Z") == "2017-05-01T00:00:00+00:00"
   end
 
   defp get_lower(conn, interval, from) do

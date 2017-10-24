@@ -1,13 +1,15 @@
-defmodule Castle.PlugsIntervalSecondsTest do
+defmodule Castle.PlugsIntervalRollupsTest do
   use Castle.ConnCase, async: true
 
   @default_from "2017-04-01T14:04:00Z"
   @default_to "2017-04-01T14:05:00Z"
 
-  test "sets interval values in seconds", %{conn: conn} do
-    assert call_parse(conn, "15m") == {:ok, 900}
-    assert call_parse(conn, "1h") == {:ok, 3600}
-    assert call_parse(conn, "1d") == {:ok, 86400}
+  test "sets interval rollup values", %{conn: conn} do
+    assert parse_name(conn, "15m") == "15MIN"
+    assert parse_name(conn, "1h") == "HOUR"
+    assert parse_name(conn, "1d") == "DAY"
+    assert parse_name(conn, "1w") == "WEEK"
+    assert parse_name(conn, "1M") == "MONTH"
   end
 
   test "validates interval values", %{conn: conn} do
@@ -16,14 +18,21 @@ defmodule Castle.PlugsIntervalSecondsTest do
   end
 
   test "guesses interval from the time window", %{conn: conn} do
-    assert call_parse(conn, nil, "2017-04-01T00:01:00Z", "2017-04-01T00:02:00Z") == {:ok, 900}
-    assert call_parse(conn, nil, "2017-04-01T00:01:00Z", "2017-04-01T12:00:00Z") == {:ok, 3600}
-    assert call_parse(conn, nil, "2017-04-01T00:01:00Z", "2017-04-06T00:00:00Z") == {:ok, 86400}
+    assert parse_name(conn, nil, "2017-04-01T00:01:00Z", "2017-04-01T00:02:00Z") == "15MIN"
+    assert parse_name(conn, nil, "2017-04-01T00:01:00Z", "2017-04-01T12:00:00Z") == "HOUR"
+    assert parse_name(conn, nil, "2017-04-01T00:01:00Z", "2017-04-06T00:00:00Z") == "DAY"
+    assert parse_name(conn, nil, "2017-04-01T00:01:00Z", "2017-09-06T00:00:00Z") == "WEEK"
+    assert parse_name(conn, nil, "2017-04-01T00:01:00Z", "2018-04-06T00:00:00Z") == "MONTH"
   end
 
   test "validates the intervals per time window", %{conn: conn} do
     {:error, err} = call_parse(conn, "15m", "2017-03-01T00:00:00Z", "2017-04-01T00:00:00Z")
     assert err =~ ~r/time window too large/i
+  end
+
+  defp parse_name(conn, interval, from_str \\ @default_from, to_str \\ @default_to) do
+    {:ok, rollup} = call_parse(conn, interval, from_str, to_str)
+    rollup.name
   end
 
   defp call_parse(conn, interval, from_str, to_str) do
@@ -32,7 +41,7 @@ defmodule Castle.PlugsIntervalSecondsTest do
     conn
     |> set_interval(interval)
     |> Plug.Conn.assign(:interval, %{from: time_from, to: time_to})
-    |> Castle.Plugs.Interval.Seconds.parse()
+    |> Castle.Plugs.Interval.Rollups.parse()
   end
   defp call_parse(conn, interval), do: call_parse(conn, interval, @default_from, @default_to)
 

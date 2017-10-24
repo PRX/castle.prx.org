@@ -31,7 +31,12 @@ defmodule Castle.API.IntervalView do
     json |> Map.put(:impressions, Enum.map(impressions, &count_json/1))
   end
 
-  defp count_json(data), do: [data.time, data.count]
+  defp count_json(data), do: [format_dtim(data.time), data.count]
+
+  defp format_dtim(dtim) do
+    {:ok, formatted} = Timex.format(dtim, "{ISO:Extended:Z}")
+    formatted
+  end
 
   defp groups_json(json, %{group: name, downloads: downloads}) do
     json
