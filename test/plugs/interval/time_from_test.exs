@@ -11,6 +11,13 @@ defmodule Castle.PlugsIntervalTimeFromTest do
     assert Timex.to_unix(time_from) == 1491004800
   end
 
+  test "converts to utc", %{conn: conn} do
+    {:ok, time_from} = call_time_from(conn, "2017-04-01T08:04:11-06:00 Etc/GMT+6")
+    {:ok, offset} = Timex.format(time_from, "{Z}")
+    assert Timex.to_unix(time_from) == 1491055451
+    assert offset == "+0000"
+  end
+
   test "handles invalid params", %{conn: conn} do
     {:error, err} = call_time_from(conn, "3888385885")
     assert err =~ ~r/bad from param/i
