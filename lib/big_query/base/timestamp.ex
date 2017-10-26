@@ -2,7 +2,9 @@ defmodule BigQuery.Base.Timestamp do
   import BigQuery.Base.Query
 
   def timestamp_query(tbl, interval, group_by) do
-    timestamp_params(interval) |> query(timestamp_sql(tbl, interval, group_by))
+    timestamp_params(interval)
+    |> query(timestamp_sql(tbl, interval, group_by))
+    |> group(interval, group_by)
   end
 
   def timestamp_sql(tbl, interval, group_by) do
@@ -37,5 +39,19 @@ defmodule BigQuery.Base.Timestamp do
 
   def clean_sql(str) do
     Regex.replace(~r/[ \n\r\t]+/, str, " ")
+  end
+
+  def group({data, meta}, intv, group_by) do
+    data = intv.rollup.range(intv.from, intv.to, false)
+           |> Enum.map(&({&1, find_times(&1, data, group_by)}))
+    {data, meta}
+  end
+
+  defp find_times(time, data, "" <> group_by), do: find_times(time, data, String.to_atom(group_by))
+  defp find_times(time, data, group_by) do
+    time_unix = Timex.to_unix(time)
+    Enum.filter(data, fn(%{time: t}) -> Timex.to_unix(t) == time_unix end)
+    |> Enum.map(fn(d) -> {Map.get(d, group_by), d.count} end)
+    |> Map.new()
   end
 end
