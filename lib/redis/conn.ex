@@ -15,6 +15,9 @@ defmodule Castle.Redis.Conn do
     |> decode()
     |> Enum.chunk(2)
   end
+  def hget(key, field) do
+    command(["HGET", key, field]) |> decode()
+  end
 
   def set(sets) when is_map(sets) do
     sets |> Enum.map(fn({key, val}) -> ["SET", key, encode(val)] end) |> pipeline()
@@ -37,12 +40,16 @@ defmodule Castle.Redis.Conn do
     val
   end
 
+  def hset(key, field, val) do
+    command ["HSET", key, field, encode(val)]
+  end
+
   def hsetall(key, sets), do: hsetall(key, sets, 0)
   def hsetall(key, sets, ttl) when is_map(sets) do
     [
       ["MULTI"],
       ["DEL", key],
-      ["HMSET", key, "_", 0] ++ Enum.map(sets, &Tuple.to_list/1) |> List.flatten(),
+      ["HMSET", key, "_", 0] ++ encode_multiple(sets),
       expire_cmd(key, ttl),
       ["EXEC"]
     ]
@@ -61,6 +68,13 @@ defmodule Castle.Redis.Conn do
   defp encode(value) do
     {:ok, encoded} = Poison.encode(value)
     encoded
+  end
+
+  defp encode_multiple(values) when is_map(values) do
+    values
+    |> Enum.map(fn({fld, val}) -> {"#{fld}", encode(val)} end)
+    |> Enum.map(&Tuple.to_list/1)
+    |> List.flatten()
   end
 
   defp decode(nil), do: nil
