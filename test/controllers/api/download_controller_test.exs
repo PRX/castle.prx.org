@@ -77,32 +77,33 @@ defmodule Castle.API.DownloadControllerTest do
 
   defp fake_data do
     [
-      podcast_downloads: &downloads/2,
-      episode_downloads: &downloads/2,
+      podcast_downloads: &downloads/1,
+      episode_downloads: &downloads/1,
     ]
   end
 
   defp fake_groups do
     [
-      podcast_downloads: &downloads/3,
-      episode_downloads: &downloads/3,
+      podcast_downloads: &group_downloads/3,
+      episode_downloads: &group_downloads/3,
     ]
   end
 
-  defp downloads(id, interval, _group) do
-    {data, meta} = downloads(id, interval)
-    {
-      Enum.map(data, &(Map.merge(&1, %{display: "foo", rank: 1}))),
-      meta
-    }
+  defp group_downloads(_id, _interval, _group) do
+    {:ok, start, _} = DateTime.from_iso8601("2017-03-22T00:00:00Z")
+    {Enum.map(0..19, &group_download(&1, start)), %{meta: "data"}}
   end
 
-  defp downloads(_id, _interval) do
+  defp group_download(num, start_dtim) do
+    %{count: num, time: Timex.shift(start_dtim, minutes: num * 900), display: "foo", rank: 1}
+  end
+
+  defp downloads(_interval) do
     {:ok, start, _} = DateTime.from_iso8601("2017-03-22T00:00:00Z")
     {Enum.map(0..19, &download(&1, start)), %{meta: "data"}}
   end
 
   defp download(num, start_dtim) do
-    %{count: num, time: Timex.shift(start_dtim, minutes: num * 900)}
+    {Timex.shift(start_dtim, minutes: num * 900), %{123 => num, "hello" => num}}
   end
 end

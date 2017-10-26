@@ -18,8 +18,8 @@ defmodule Castle.API.DownloadController do
   end
 
   def index(%{assigns: %{interval: intv}} = conn, %{"podcast_id" => id}) do
-    {data, meta} = @redis.interval key("podcast.#{id}"), intv, fn(new_intv) ->
-      @bigquery.podcast_downloads(id, new_intv)
+    {data, meta} = @redis.interval "downloads.podcasts", intv, id, fn(new_intv) ->
+      @bigquery.podcast_downloads(new_intv)
     end
     render conn, IntervalView, "podcast.json", id: id, interval: intv.rollup.name,
       downloads: data, meta: meta
@@ -34,14 +34,13 @@ defmodule Castle.API.DownloadController do
   end
 
   def index(%{assigns: %{interval: intv}} = conn, %{"episode_guid" => guid}) do
-    {data, meta} = @redis.interval key("episode.#{guid}"), intv, fn(new_intv) ->
-      @bigquery.episode_downloads(guid, new_intv)
+    {data, meta} = @redis.interval "downloads.episodes", intv, guid, fn(new_intv) ->
+      @bigquery.episode_downloads(new_intv)
     end
     render conn, IntervalView, "episode.json", guid: guid, interval: intv.rollup.name,
       downloads: data, meta: meta
   end
 
-  defp key(id), do: "downloads.#{id}"
   defp key(id, intv, group) do
     "downloads.#{id}.#{key_interval(intv)}.group.#{group.name}.#{group.limit}"
   end

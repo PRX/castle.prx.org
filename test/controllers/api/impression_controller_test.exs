@@ -55,36 +55,6 @@ defmodule Castle.API.ImpressionControllerTest do
     end
   end
 
-  defp get_podcast(conn, id, query_params \\ %{}) do
-    conn |> get(api_podcast_impression_path(conn, :index, id, query_params))
-  end
-
-  defp get_episode(conn, guid, query_params) do
-    conn |> get(api_episode_impression_path(conn, :index, guid, query_params))
-  end
-
-  defp fake_data do
-    [
-      podcast_impressions: &impressions/2,
-      episode_impressions: &impressions/2,
-    ]
-  end
-
-  defp fake_groups do
-    [
-      podcast_impressions: &impressions/3,
-      episode_impressions: &impressions/3,
-    ]
-  end
-
-  defp impressions(id, interval, _group) do
-    {data, meta} = impressions(id, interval)
-    {
-      Enum.map(data, &(Map.merge(&1, %{display: "foo", rank: 1}))),
-      meta
-    }
-  end
-
   test "responds with grouped impressions for an episode", %{conn: conn} do
     with_mock BigQuery, fake_groups() do
       resp = conn |> get_episode("hello", from: "2017-04-01", to: "2017-04-02", interval: "15m", group: "country") |> json_response(200)
@@ -97,12 +67,43 @@ defmodule Castle.API.ImpressionControllerTest do
     end
   end
 
-  defp impressions(_id, _interval) do
+  defp get_podcast(conn, id, query_params \\ %{}) do
+    conn |> get(api_podcast_impression_path(conn, :index, id, query_params))
+  end
+
+  defp get_episode(conn, guid, query_params) do
+    conn |> get(api_episode_impression_path(conn, :index, guid, query_params))
+  end
+
+  defp fake_data do
+    [
+      podcast_impressions: &impressions/1,
+      episode_impressions: &impressions/1,
+    ]
+  end
+
+  defp fake_groups do
+    [
+      podcast_impressions: &group_impressions/3,
+      episode_impressions: &group_impressions/3,
+    ]
+  end
+
+  defp group_impressions(_id, _interval, _group) do
+    {:ok, start, _} = DateTime.from_iso8601("2017-03-22T00:00:00Z")
+    {Enum.map(0..19, &group_impression(&1, start)), %{meta: "data"}}
+  end
+
+  defp group_impression(num, start_dtim) do
+    %{count: num, time: Timex.shift(start_dtim, minutes: num * 900), display: "foo", rank: 1}
+  end
+
+  defp impressions(_interval) do
     {:ok, start, _} = DateTime.from_iso8601("2017-03-22T00:00:00Z")
     {Enum.map(0..19, &impression(&1, start)), %{meta: "data"}}
   end
 
   defp impression(num, start_dtim) do
-    %{count: num, time: Timex.shift(start_dtim, minutes: num * 900)}
+    {Timex.shift(start_dtim, minutes: num * 900), %{123 => num, "hello" => num}}
   end
 end
