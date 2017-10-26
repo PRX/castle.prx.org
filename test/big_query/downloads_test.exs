@@ -5,25 +5,72 @@ defmodule Castle.BigQueryDownloadsTest do
 
   import BigQuery.Downloads
 
-  test "lists downloads for a podcast" do
+  test "lists downloads for all podcasts" do
     intv = interval("2017-06-27T21:45:00Z", "2017-06-28T04:15:00Z", BigQuery.TimestampRollups.QuarterHourly)
-    {result, _meta} = for_podcast(57, intv)
+    {result, _meta} = for_podcasts(intv)
 
     assert is_list result
-    assert length(result) == 26
+    assert length(result) > 400
     assert hd(result).time
     assert_time result, 0, "2017-06-27T21:45:00Z"
+    assert hd(result).feeder_podcast == 3
     assert hd(result).count > 0
   end
 
-  test "lists downloads for an episode" do
-    intv = interval("2017-06-27T21:45:00Z", "2017-06-28T04:15:00Z", BigQuery.TimestampRollups.Hourly)
-    {result, _meta} = for_episode("7acf74b8-7b0a-4e9e-90be-f69052064b77", intv)
+  test "groups downloads for a podcast" do
+    intv = interval("2017-07-10T21:45:00Z", "2017-07-11T04:15:00Z", BigQuery.TimestampRollups.QuarterHourly)
+    group = Castle.Plugs.Group.get("city", 3)
+    {result, _meta} = group_podcast(57, intv, group)
 
     assert is_list result
-    assert length(result) == 8
+    assert length(result) == 26 * 4
+
+    assert_time result, 0, "2017-07-10T21:45:00Z"
+    assert_time result, 1, "2017-07-10T21:45:00Z"
+    assert_time result, 2, "2017-07-10T21:45:00Z"
+    assert_time result, 3, "2017-07-10T21:45:00Z"
+    assert_time result, 4, "2017-07-10T22:00:00Z"
+
+    assert Enum.at(result, 0).display == nil
+    assert Enum.at(result, 1).display != nil
+    assert Enum.at(result, 2).display != nil
+    assert Enum.at(result, 3).display != nil
+    assert Enum.at(result, 4).display == nil
+    assert Enum.at(result, 5).display == Enum.at(result, 1).display
+    assert Enum.at(result, 6).display == Enum.at(result, 2).display
+    assert Enum.at(result, 7).display == Enum.at(result, 3).display
+  end
+
+  test "lists downloads for all episodes" do
+    intv = interval("2017-06-27T21:45:00Z", "2017-06-28T04:15:00Z", BigQuery.TimestampRollups.QuarterHourly)
+    {result, _meta} = for_episodes(intv)
+
+    assert is_list result
+    assert length(result) > 400
     assert hd(result).time
-    assert_time result, 0, "2017-06-27T21:00:00Z"
+    assert_time result, 0, "2017-06-27T21:45:00Z"
+    assert hd(result).feeder_episode == "003854ff-a28e-4ebd-a6de-31df914f7f60"
     assert hd(result).count > 0
+  end
+
+  test "groups downloads for an episode" do
+    intv = interval("2017-07-10T21:45:00Z", "2017-07-11T04:15:00Z", BigQuery.TimestampRollups.QuarterHourly)
+    group = Castle.Plugs.Group.get("country", 2)
+    {result, _meta} = group_episode("7acf74b8-7b0a-4e9e-90be-f69052064b77", intv, group)
+
+    assert is_list result
+    assert length(result) == 26 * 3
+
+    assert_time result, 0, "2017-07-10T21:45:00Z"
+    assert_time result, 1, "2017-07-10T21:45:00Z"
+    assert_time result, 2, "2017-07-10T21:45:00Z"
+    assert_time result, 3, "2017-07-10T22:00:00Z"
+
+    assert Enum.at(result, 0).display == nil
+    assert Enum.at(result, 1).display != nil
+    assert Enum.at(result, 2).display != nil
+    assert Enum.at(result, 3).display == nil
+    assert Enum.at(result, 4).display == Enum.at(result, 1).display
+    assert Enum.at(result, 5).display == Enum.at(result, 2).display
   end
 end
