@@ -7,6 +7,15 @@ defmodule Castle.Redis.Conn do
     command(["GET", key]) |> decode()
   end
 
+  def hget(keys, field) when is_list(keys) do
+    Enum.map(keys, &([{"EXISTS", &1}, {"HGET", &1, field}]))
+    |> List.flatten()
+    |> Enum.map(&Tuple.to_list/1)
+    |> pipeline()
+    |> decode()
+    |> Enum.chunk(2)
+  end
+
   def set(sets) when is_map(sets) do
     sets |> Enum.map(fn({key, val}) -> ["SET", key, encode(val)] end) |> pipeline()
     sets
@@ -28,6 +37,16 @@ defmodule Castle.Redis.Conn do
     val
   end
 
+  def hsetall(key, sets) when is_map(sets) do
+    [
+      ["MULTI"],
+      ["DEL", key],
+      ["HMSET", key] ++ Enum.map(sets, &Tuple.to_list/1) |> List.flatten(),
+      ["EXEC"]
+    ]
+    |> pipeline()
+  end
+
   def del(key) do
     case command(["DEL", key]) do
       num when num > 0 -> true
@@ -42,6 +61,8 @@ defmodule Castle.Redis.Conn do
   end
 
   defp decode(nil), do: nil
+  defp decode(0), do: false
+  defp decode(1), do: true
   defp decode(values) when is_list(values), do: Enum.map(values, &decode/1)
   defp decode(value) do
     # TODO: probably switch back to string keys, to avoid atom exhaustion

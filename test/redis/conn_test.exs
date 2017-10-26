@@ -26,6 +26,17 @@ defmodule Castle.RedisConnTest do
     assert get(keys) == ["someval", %{other: "val"}, nil]
   end
 
+  test "gets and sets hashes" do
+    assert hget(["conn_test_key1"], "f1") == [[false, nil]]
+    hsetall("conn_test_key1", %{f1: 999, f3: 777})
+    assert hget(["conn_test_key1"], "f1") == [[true, 999]]
+    assert hget(["conn_test_key1"], "f2") == [[true, nil]]
+    assert hget(["conn_test_key1", "conn_test_key2"], "f1") == [[true, 999], [false, nil]]
+    assert hget(["conn_test_key1", "conn_test_key2"], "f2") == [[true, nil], [false, nil]]
+    hsetall("conn_test_key1", %{f3: 777})
+    assert hget(["conn_test_key1"], "f1") == [[true, nil]]
+  end
+
   test "deletes objects" do
     assert set("conn_test_key1", 1234) == 1234
     assert get("conn_test_key1") == 1234
