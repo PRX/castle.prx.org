@@ -9,16 +9,6 @@ defmodule Castle.BigQueryCase do
         %{from: start, to: finish, rollup: rollup}
       end
 
-      defp assert_time(result, index, expected_str) do
-        assert_time(Enum.at(result, index).time, expected_str)
-      end
-      defp assert_time(time, expected_str) do
-        {:ok, expected, _} = DateTime.from_iso8601(expected_str)
-        {:ok, format_expected} = Timex.format(expected, "{ISO:Extended:Z}")
-        {:ok, format_time} = Timex.format(time, "{ISO:Extended:Z}")
-        assert format_time == format_expected
-      end
-
       defp mutate_dtim(dtim_str, mutate_fn) do
         {:ok, dtim, _} = DateTime.from_iso8601(dtim_str)
         {:ok, formatted} = Timex.format(mutate_fn.(dtim), "{ISO:Extended:Z}")

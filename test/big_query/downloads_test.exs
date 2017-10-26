@@ -1,5 +1,6 @@
 defmodule Castle.BigQueryDownloadsTest do
   use Castle.BigQueryCase, async: true
+  use Castle.TimeHelpers
 
   @moduletag :external
 

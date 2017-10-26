@@ -1,5 +1,6 @@
 defmodule Castle.BigQueryBaseTimestampTest do
   use Castle.BigQueryCase, async: true
+  use Castle.TimeHelpers
 
   import BigQuery.Base.Timestamp
 
@@ -50,13 +51,14 @@ defmodule Castle.BigQueryBaseTimestampTest do
     {data, _meta} = group({raw, %{}}, interval, "feeder_podcast")
 
     assert length(data) == 7
-    assert_time Enum.at(data, 0), "2017-03-28T04:00:00Z"
-    assert_time Enum.at(data, 1), "2017-03-28T05:00:00Z"
-    assert_time Enum.at(data, 2), "2017-03-28T06:00:00Z"
-    assert_time Enum.at(data, 3), "2017-03-28T07:00:00Z"
-    assert_time Enum.at(data, 4), "2017-03-28T08:00:00Z"
-    assert_time Enum.at(data, 5), "2017-03-28T09:00:00Z"
-    assert_time Enum.at(data, 6), "2017-03-28T10:00:00Z"
+    times = Enum.map(data, fn(d) -> List.first(Tuple.to_list(d)) end)
+    assert_time times, 0, "2017-03-28T04:00:00Z"
+    assert_time times, 1, "2017-03-28T05:00:00Z"
+    assert_time times, 2, "2017-03-28T06:00:00Z"
+    assert_time times, 3, "2017-03-28T07:00:00Z"
+    assert_time times, 4, "2017-03-28T08:00:00Z"
+    assert_time times, 5, "2017-03-28T09:00:00Z"
+    assert_time times, 6, "2017-03-28T10:00:00Z"
 
     assert get_counts(data, 0) == %{}
     assert get_counts(data, 1) == %{123 => 11}
@@ -65,17 +67,6 @@ defmodule Castle.BigQueryBaseTimestampTest do
     assert get_counts(data, 4) == %{}
     assert get_counts(data, 5) == %{456 => 55, 789 => 66}
     assert get_counts(data, 6) == %{}
-  end
-
-  defp get_dtim(dtim_str) do
-    {:ok, dtim, _} = DateTime.from_iso8601(dtim_str)
-    dtim
-  end
-
-  defp assert_time({dtim, _map}, expected_str), do: assert_time(dtim, expected_str)
-  defp assert_time(dtim, expected_str) do
-    {:ok, formatted} = Timex.format(dtim, "{ISO:Extended:Z}")
-    assert formatted == expected_str
   end
 
   defp get_counts(data, at) do
