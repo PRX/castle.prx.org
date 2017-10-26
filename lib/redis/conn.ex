@@ -37,13 +37,16 @@ defmodule Castle.Redis.Conn do
     val
   end
 
-  def hsetall(key, sets) when is_map(sets) do
+  def hsetall(key, sets), do: hsetall(key, sets, 0)
+  def hsetall(key, sets, ttl) when is_map(sets) do
     [
       ["MULTI"],
       ["DEL", key],
-      ["HMSET", key] ++ Enum.map(sets, &Tuple.to_list/1) |> List.flatten(),
+      ["HMSET", key, "_", 0] ++ Enum.map(sets, &Tuple.to_list/1) |> List.flatten(),
+      expire_cmd(key, ttl),
       ["EXEC"]
     ]
+    |> Enum.filter(&(!is_nil(&1)))
     |> pipeline()
   end
 
@@ -89,4 +92,8 @@ defmodule Castle.Redis.Conn do
   defp random_index() do
     rem(System.unique_integer([:positive]), 5)
   end
+
+  defp expire_cmd(_key, 0), do: nil
+  defp expire_cmd(_key, nil), do: nil
+  defp expire_cmd(key, ttl), do: ["EXPIRE", key, ttl]
 end
