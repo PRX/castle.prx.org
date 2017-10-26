@@ -1,86 +1,38 @@
 defmodule Castle.Redis.IntervalCache do
   alias Castle.Redis.Conn, as: Conn
+  alias Castle.Redis.Interval.{Getter, Setter}
 
-  @past_interval_ttl 2592000 # 30 days
-  @current_interval_ttl 300
-  @current_interval_buffer 3600
-
-  def interval(key_prefix, interval, work_fn) do
-    interval key_prefix, interval.from, interval.to, interval.rollup, fn(new_from) ->
-      interval |> Map.put(:from, new_from) |> work_fn.()
-    end
-  end
-  def interval(key_prefix, from, to, rollup, work_fn) do
-    case interval_get(key_prefix, from, to, rollup) do
+  def interval(key_prefix, intv, ident, work_fn) do
+    key_prefix = "#{key_prefix}.#{intv.rollup.name()}"
+    case Getter.get(key_prefix, ident, intv.from, intv.to, intv.rollup) do
       {[], _new_from} ->
-        {data, meta} = work_fn.(from) |> interval_fill_zeros(from, to, rollup)
-        interval_set(key_prefix, from, to, rollup, Enum.map(data, &(&1.count)))
+        {data, meta} = run_work(work_fn, intv, key_prefix, ident)
         {data, Map.put(meta, :cache_hits, 0)}
       {hits, nil} ->
         {hits, %{cached: true, cache_hits: length(hits)}}
       {hits, new_from} ->
-        {data, meta} = work_fn.(new_from) |> interval_fill_zeros(new_from, to, rollup)
-        interval_set(key_prefix, new_from, to, rollup, Enum.map(data, &(&1.count)))
+        new_intv = Map.put(intv, :from, new_from)
+        {data, meta} = run_work(work_fn, new_intv, key_prefix, ident)
         {hits ++ data, Map.put(meta, :cache_hits, length(hits))}
     end
   end
 
-  def interval_get(key_prefix, from, to, rollup) do
-    counts = interval_keys(key_prefix, from, to, rollup) |> Conn.get()
-    cache_hits(rollup.range(from, to, false), counts)
+  defp run_work(work_fn, intv, key_prefix, ident) do
+    {data, meta} = work_fn.(intv)
+
+    # bulk set all the %{ident => counts}
+    Enum.each(data, fn({time, ids_to_counts}) ->
+      next_time = intv.rollup.ceiling(Timex.shift(time, seconds: 1))
+      Setter.set(key_prefix, time, next_time, ids_to_counts)
+    end)
+
+    # filter down to the specific ident we want to return
+    {filter_work(data, ident), meta}
   end
 
-  def interval_set(_key_prefix, _from, _to, _rollup, []), do: []
-  def interval_set(key_prefix, from, to, rollup, counts) do
-    Enum.zip([
-      interval_keys(key_prefix, from, to, rollup),
-      interval_ttls(from, to, rollup),
-      counts,
-    ]) |> Conn.set()
+  defp filter_work([{time, ids_to_counts} | rest], ident) do
+    count = Map.get(ids_to_counts, ident, 0)
+    [%{time: time, count: count}] ++ filter_work(rest, ident)
   end
-
-  def interval_keys(prefix, from, to, rollup) do
-    rollup.range(from, to, false)
-    |> Enum.map(&format/1)
-    |> Enum.map(&("#{prefix}.#{rollup.name()}.#{&1}"))
-  end
-
-  def interval_ttls(from, to, rollup) do
-    now = Timex.now() |> Timex.shift(seconds: -@current_interval_buffer)
-    Enum.map rollup.range(from, to, false), fn(dtim) ->
-      interval_end = rollup.ceiling(Timex.shift(dtim, seconds: 1))
-      if Timex.compare(now, interval_end) < 0 do
-        @current_interval_ttl
-      else
-        @past_interval_ttl
-      end
-    end
-  end
-
-  def interval_fill_zeros({data, meta}, from, to, rollup) do
-    times = rollup.range(from, to, false)
-    {fill_zeros(data, times), meta}
-  end
-
-  defp fill_zeros([result | rest_results] = data, [dtim | rest_dtims]) do
-    if Timex.equal?(dtim, result.time) do
-      [result] ++ fill_zeros(rest_results, rest_dtims)
-    else
-      [%{count: 0, time: dtim}] ++ fill_zeros(data, rest_dtims)
-    end
-  end
-  defp fill_zeros([], [dtim | rest]), do: [%{count: 0, time: dtim}] ++ fill_zeros([], rest)
-  defp fill_zeros([], []), do: []
-
-  defp cache_hits(times, counts), do: cache_hits(times, counts, [])
-  defp cache_hits([time | _times], [nil | _counts], accumulator), do: {accumulator, time}
-  defp cache_hits([time | rest_times], [count | rest_counts], accumulator) do
-    cache_hits rest_times, rest_counts, accumulator ++ [%{time: time, count: count}]
-  end
-  defp cache_hits(_out_of_times, _out_of_counts, accumulator), do: {accumulator, nil}
-
-  defp format(dtim) do
-    {:ok, formatted} = Timex.format(dtim, "{ISO:Extended:Z}")
-    formatted
-  end
+  defp filter_work([], ident), do: []
 end
