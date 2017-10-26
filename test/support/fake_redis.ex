@@ -2,8 +2,11 @@ defmodule Castle.FakeRedis do
   @behaviour Castle.Redis
 
   def cached(_key, _ttl, work_fn), do: work_fn.()
-  def interval(_key_prefix, from, _to, _interval, work_fn), do: work_fn.(from)
-  def interval(_key_prefix, intv, work_fn), do: work_fn.(intv)
+
+  def interval(_key_prefix, intv, ident, work_fn) do
+    {data, meta} = work_fn.(intv)
+    {Castle.Redis.IntervalCache.filter_work(data, ident), meta}
+  end
 
   # TODO: these aren't as easy
   def partition(_key_prefix, _worker_fns), do: {[], %{fake: true}}

@@ -31,23 +31,13 @@ defmodule Castle.Redis do
   ) :: result
 
   @doc """
-  Cache intervals with a from/to/seconds object, instead of explicit params.
-  """
-  @callback interval(
-    key_prefix :: String.t,
-    intv       :: interval,
-    work_fn    :: (new_from :: %DateTime{} -> result)
-  ) :: result
-
-  @doc """
   Cache a list of intervals for a time range. The worker function will be called
   with a different from-dtim if there were any cache hits.
   """
   @callback interval(
     key_prefix :: String.t,
-    from       :: %DateTime{},
-    to         :: %DateTime{},
-    interval   :: pos_integer(),
+    intv       :: interval,
+    identifier :: String.t,
     work_fn    :: (new_from :: %DateTime{} -> result)
   ) :: result
 

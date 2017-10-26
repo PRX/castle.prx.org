@@ -1,5 +1,4 @@
 defmodule Castle.Redis.IntervalCache do
-  alias Castle.Redis.Conn, as: Conn
   alias Castle.Redis.Interval.{Getter, Setter}
 
   def interval(key_prefix, intv, ident, work_fn) do
@@ -17,7 +16,7 @@ defmodule Castle.Redis.IntervalCache do
     end
   end
 
-  defp run_work(work_fn, intv, key_prefix, ident) do
+  def run_work(work_fn, intv, key_prefix, ident) do
     {data, meta} = work_fn.(intv)
 
     # bulk set all the %{ident => counts}
@@ -30,9 +29,9 @@ defmodule Castle.Redis.IntervalCache do
     {filter_work(data, ident), meta}
   end
 
-  defp filter_work([{time, ids_to_counts} | rest], ident) do
+  def filter_work([{time, ids_to_counts} | rest], ident) do
     count = Map.get(ids_to_counts, ident, 0)
     [%{time: time, count: count}] ++ filter_work(rest, ident)
   end
-  defp filter_work([], ident), do: []
+  def filter_work([], _ident), do: []
 end
