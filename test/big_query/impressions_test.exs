@@ -10,11 +10,13 @@ defmodule Castle.BigQueryImpressionsTest do
     {result, _meta} = for_podcasts(intv)
 
     assert is_list result
-    assert length(result) > 400
-    assert hd(result).time
-    assert_time result, 0, "2017-06-27T21:45:00Z"
-    assert hd(result).feeder_podcast == 3
-    assert hd(result).count > 0
+    assert length(result) == 26
+
+    {time, counts} = Enum.at(result, 0)
+    assert_time time, "2017-06-27T21:45:00Z"
+    assert length(Map.keys(counts)) > 10
+    assert Map.has_key?(counts, 57)
+    assert Map.get(counts, 57) == 7134
   end
 
   test "groups impressions for a podcast" do
@@ -45,11 +47,13 @@ defmodule Castle.BigQueryImpressionsTest do
     {result, _meta} = for_episodes(intv)
 
     assert is_list result
-    assert length(result) > 400
-    assert hd(result).time
-    assert_time result, 0, "2017-06-27T21:00:00Z"
-    assert hd(result).feeder_episode == "003854ff-a28e-4ebd-a6de-31df914f7f60"
-    assert hd(result).count > 0
+    assert length(result) == 8
+
+    {time, counts} = Enum.at(result, 0)
+    assert_time time, "2017-06-27T21:00:00Z"
+    assert length(Map.keys(counts)) > 10
+    assert Map.has_key?(counts, "7acf74b8-7b0a-4e9e-90be-f69052064b77")
+    assert Map.get(counts, "7acf74b8-7b0a-4e9e-90be-f69052064b77") == 1056
   end
 
   test "groups impressions for an episode" do

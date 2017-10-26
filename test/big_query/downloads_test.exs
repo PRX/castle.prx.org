@@ -10,11 +10,13 @@ defmodule Castle.BigQueryDownloadsTest do
     {result, _meta} = for_podcasts(intv)
 
     assert is_list result
-    assert length(result) > 400
-    assert hd(result).time
-    assert_time result, 0, "2017-06-27T21:45:00Z"
-    assert hd(result).feeder_podcast == 3
-    assert hd(result).count > 0
+    assert length(result) == 26
+
+    {time, counts} = Enum.at(result, 0)
+    assert_time time, "2017-06-27T21:45:00Z"
+    assert length(Map.keys(counts)) > 10
+    assert Map.has_key?(counts, 57)
+    assert Map.get(counts, 57) == 1710
   end
 
   test "groups downloads for a podcast" do
@@ -46,11 +48,15 @@ defmodule Castle.BigQueryDownloadsTest do
     {result, _meta} = for_episodes(intv)
 
     assert is_list result
-    assert length(result) > 400
-    assert hd(result).time
-    assert_time result, 0, "2017-06-27T21:45:00Z"
-    assert hd(result).feeder_episode == "003854ff-a28e-4ebd-a6de-31df914f7f60"
-    assert hd(result).count > 0
+    assert length(result) == 26
+
+    {time1, counts} = Enum.at(result, 0)
+    {time2, _counts} = Enum.at(result, 1)
+    assert_time time1, "2017-06-27T21:45:00Z"
+    assert_time time2, "2017-06-27T22:00:00Z"
+    assert length(Map.keys(counts)) > 10
+    assert Map.has_key?(counts, "e4f5a88b-b383-493a-b7f3-8b8ea52cbf35")
+    assert Map.get(counts, "e4f5a88b-b383-493a-b7f3-8b8ea52cbf35") == 234
   end
 
   test "groups downloads for an episode" do
