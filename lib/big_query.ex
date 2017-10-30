@@ -21,13 +21,13 @@ defmodule BigQuery do
   defdelegate episodes(), to: Episodes, as: :list
   defdelegate episode(guid), to: Episodes, as: :show
 
-  defdelegate podcast_downloads(id, interval), to: Downloads, as: :for_podcast
-  defdelegate podcast_downloads(id, interval, group), to: Downloads, as: :for_podcast
-  defdelegate podcast_impressions(id, interval), to: Impressions, as: :for_podcast
-  defdelegate podcast_impressions(id, interval, group), to: Impressions, as: :for_podcast
+  defdelegate podcast_downloads(interval), to: Downloads, as: :for_podcasts
+  defdelegate podcast_downloads(id, interval, group), to: Downloads, as: :group_podcast
+  defdelegate podcast_impressions(interval), to: Impressions, as: :for_podcasts
+  defdelegate podcast_impressions(id, interval, group), to: Impressions, as: :group_podcast
 
-  defdelegate episode_downloads(guid, interval), to: Downloads, as: :for_episode
-  defdelegate episode_downloads(guid, interval, group), to: Downloads, as: :for_episode
-  defdelegate episode_impressions(id, interval), to: Impressions, as: :for_episode
-  defdelegate episode_impressions(id, interval, group), to: Impressions, as: :for_episode
+  defdelegate episode_downloads(interval), to: Downloads, as: :for_episodes
+  defdelegate episode_downloads(guid, interval, group), to: Downloads, as: :group_episode
+  defdelegate episode_impressions(interval), to: Impressions, as: :for_episodes
+  defdelegate episode_impressions(guid, interval, group), to: Impressions, as: :group_episode
 end

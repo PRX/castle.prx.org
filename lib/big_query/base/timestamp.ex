@@ -1,33 +1,26 @@
 defmodule BigQuery.Base.Timestamp do
   import BigQuery.Base.Query
 
-  def timestamp_query(tbl, where_sql, params, interval) do
-    params
-    |> timestamp_params(interval)
-    |> query(timestamp_sql(tbl, interval, where_sql))
+  def timestamp_query(tbl, interval, group_by) do
+    timestamp_params(interval)
+    |> query(timestamp_sql(tbl, interval, group_by))
+    |> group(interval, group_by)
   end
 
-  def timestamp_sql(tbl, interval, where_sql) do
+  def timestamp_sql(tbl, interval, group_by) do
     """
-    WITH intervals AS (#{timestamp_intervals(tbl, interval, where_sql)})
-    SELECT time, count FROM intervals
-    ORDER BY time ASC
-    """
+    WITH intervals AS (#{timestamp_intervals(tbl, interval, group_by)})
+    SELECT time, #{group_by}, count FROM intervals
+    ORDER BY time ASC, #{group_by} ASC
+    """ |> clean_sql()
   end
 
-  def timestamp_intervals(tbl, interval, where_sql), do: timestamp_intervals(tbl, interval, where_sql, nil)
-  def timestamp_intervals(tbl, interval, where_sql, extra_fld, joiner \\ "") do
+  def timestamp_intervals(tbl, interval, group_by) do
     """
-    SELECT
-      #{interval.rollup.rollup()} as time,
-      #{comma_after(extra_fld)}
-      COUNT(*) as count
-    FROM #{tbl} #{joiner}
-    WHERE
-      is_duplicate = false
-      AND #{timestamp_partition()}
-      AND #{where_sql}
-    GROUP BY time#{comma_before(extra_fld)}
+    SELECT #{interval.rollup.rollup()} as time, #{group_by}, COUNT(*) as count
+    FROM #{tbl}
+    WHERE is_duplicate = false AND #{timestamp_partition()}
+    GROUP BY time, #{group_by}
     """
   end
 
@@ -35,17 +28,30 @@ defmodule BigQuery.Base.Timestamp do
     "timestamp >= @from_dtim AND timestamp < @to_dtim AND _PARTITIONTIME >= @pstart AND _PARTITIONTIME <= @pend"
   end
 
-  def timestamp_params(params, interval) do
-    params
-    |> Map.put(:from_dtim, interval.from)
-    |> Map.put(:to_dtim, interval.to)
-    |> Map.put(:pstart, Timex.beginning_of_day(interval.from))
-    |> Map.put(:pend, Timex.end_of_day(interval.to))
+  def timestamp_params(interval) do
+    %{
+      from_dtim: interval.from,
+      to_dtim: interval.to,
+      pstart: Timex.beginning_of_day(interval.from),
+      pend: Timex.end_of_day(interval.to),
+    }
   end
 
-  defp comma_after(nil), do: ""
-  defp comma_after(fld), do: "#{fld},"
+  def clean_sql(str) do
+    Regex.replace(~r/[ \n\r\t]+/, str, " ")
+  end
 
-  defp comma_before(nil), do: ""
-  defp comma_before(fld), do: ", #{fld}"
+  def group({data, meta}, intv, group_by) do
+    data = intv.rollup.range(intv.from, intv.to, false)
+           |> Enum.map(&({&1, find_times(&1, data, group_by)}))
+    {data, meta}
+  end
+
+  defp find_times(time, data, "" <> group_by), do: find_times(time, data, String.to_atom(group_by))
+  defp find_times(time, data, group_by) do
+    time_unix = Timex.to_unix(time)
+    Enum.filter(data, fn(%{time: t}) -> Timex.to_unix(t) == time_unix end)
+    |> Enum.map(fn(d) -> {Map.get(d, group_by), d.count} end)
+    |> Map.new()
+  end
 end
