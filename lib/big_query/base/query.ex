@@ -5,19 +5,52 @@ defmodule BigQuery.Base.Query do
 
   def query(str), do: query(%{}, str)
 
-  def query(queryParams, str) do
-    params = %{
+  def query(queryParams, sql, pageLimit \\ nil) do
+    sql
+    |> post_params(queryParams, pageLimit)
+    |> post("queries")
+    |> page_result()
+    |> from_response()
+  end
+
+  defp post_params(sql, queryParams) do
+    %{
       "kind": "bigquery#queryRequest",
-      "query": str,
+      "query": sql,
       "defaultDataset": %{
         "datasetId": Env.get(:bq_dataset),
         "projectId": Env.get(:bq_project_id)
       },
       "useLegacySql": false,
       "parameterMode": "NAMED",
-      "queryParameters": parameterize(queryParams)
+      "queryParameters": parameterize(queryParams),
     }
-    post("queries", params) |> from_response
+  end
+  defp post_params(sql, queryParams, nil) do
+    post_params(sql, queryParams)
+  end
+  defp post_params(sql, queryParams, pageLimit) do
+    post_params(sql, queryParams) |> Map.put("maxResults", pageLimit)
   end
 
+  defp page_result(%{"pageToken" => token, "jobReference" => %{"jobId" => job}} = data) do
+    %{"pageToken" => token}
+    |> get("queries/#{job}")
+    |> merge_pages(data)
+    |> page_result()
+  end
+  defp page_result(data) do
+    data
+  end
+
+  defp merge_pages(%{"rows" => rows, "pageToken" => token}, %{"rows" => original_rows} = original_data) do
+    original_data
+    |> Map.put("rows", original_rows ++ rows)
+    |> Map.put("pageToken", token)
+  end
+  defp merge_pages(%{"rows" => rows}, %{"rows" => original_rows} = original_data) do
+    original_data
+    |> Map.put("rows", original_rows ++ rows)
+    |> Map.delete("pageToken")
+  end
 end
