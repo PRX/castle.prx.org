@@ -51,6 +51,15 @@ defmodule BigQuery.Base.QueryResult do
           else: String.to_integer(value)
         {:ok, dtim} = DateTime.from_unix(num)
         dtim
+      {"RECORD", %{"v" => v}} -> parse_value(v, "RECORD")
+      {"RECORD", %{"f" => f}} -> parse_value(f, "RECORD")
+      {"RECORD", _} when is_list(value) ->
+        Enum.map(value, &(parse_value(&1, "RECORD")))
+      {"RECORD", _} ->
+        case Integer.parse(value) do
+           {i, ""} -> i
+           _ -> value
+        end
     end
   end
 

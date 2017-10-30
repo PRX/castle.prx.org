@@ -83,6 +83,31 @@ defmodule Castle.BigQueryBaseQueryResultTest do
     assert hd(result).stamp == nil
   end
 
+  test "handles nested int/string records" do
+    {result, _meta} = from_response(%{
+      "rows" => [
+        %{"f" => [
+          %{"v" => [
+            %{"v" => %{"f" => [%{"v" => "foo"}, %{"v" => "176"}]}},
+            %{"v" => %{"f" => [%{"v" => "bar"}, %{"v" => "5873"}]}}
+          ]}
+        ]},
+        %{"f" => [
+          %{"v" => [
+            %{"v" => %{"f" => [%{"v" => "64"}, %{"v" => "309.3"}]}},
+            %{"v" => %{"f" => [%{"v" => "59a"}, %{"v" => "stuff"}]}}
+          ]}
+        ]},
+      ],
+      "schema" => %{"fields" => [%{"name" => "rec", "type" => "RECORD"}]}
+    })
+
+    assert is_list result
+    assert length(result) == 2
+    assert Enum.at(result, 0).rec == [["foo", 176], ["bar", 5873]]
+    assert Enum.at(result, 1).rec == [[64, "309.3"], ["59a", "stuff"]]
+  end
+
   test "parses metadata" do
     {_result, meta} = from_response(%{
       "rows" => [],
