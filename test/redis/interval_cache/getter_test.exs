@@ -21,11 +21,11 @@ defmodule Castle.RedisIntervalCacheGetterTest do
   end
 
   test "hits the entire range", %{from: from, to: to, rollup: rollup, keys: keys} do
-    Conn.hset(Enum.at(keys, 0), "key1", 11)
-    Conn.hset(Enum.at(keys, 1), "key1", 22)
-    Conn.hset(Enum.at(keys, 2), "key1", 33)
-    Conn.hset(Enum.at(keys, 3), "key1", 44)
-    {hits, new_from} = Getter.get(@prefix, "key1", from, to, rollup)
+    Conn.hset(Enum.at(keys, 0), "field1", 11)
+    Conn.hset(Enum.at(keys, 1), "field1", 22)
+    Conn.hset(Enum.at(keys, 2), "field1", 33)
+    Conn.hset(Enum.at(keys, 3), "field1", 44)
+    {hits, new_from} = Getter.get(@prefix, "field1", from, to, rollup)
 
     assert length(hits) == 4
     assert new_from == nil
@@ -40,10 +40,10 @@ defmodule Castle.RedisIntervalCacheGetterTest do
   end
 
   test "misses a partial range", %{from: from, to: to, rollup: rollup, keys: keys} do
-    Conn.hset(Enum.at(keys, 0), "key1", 11)
-    Conn.hset(Enum.at(keys, 1), "key1", 22)
-    Conn.hset(Enum.at(keys, 3), "key1", 44)
-    {hits, new_from} = Getter.get(@prefix, "key1", from, to, rollup)
+    Conn.hset(Enum.at(keys, 0), "field1", 11)
+    Conn.hset(Enum.at(keys, 1), "field1", 22)
+    Conn.hset(Enum.at(keys, 3), "field1", 44)
+    {hits, new_from} = Getter.get(@prefix, "field1", from, to, rollup)
 
     assert length(hits) == 2
     assert_time new_from, "2017-03-22T01:45:00Z"
@@ -54,19 +54,19 @@ defmodule Castle.RedisIntervalCacheGetterTest do
   end
 
   test "misses the entire range", %{from: from, to: to, rollup: rollup, keys: keys} do
-    Conn.hset(Enum.at(keys, 1), "key1", 22)
-    Conn.hset(Enum.at(keys, 2), "key1", 33)
-    Conn.hset(Enum.at(keys, 3), "key1", 44)
-    {hits, new_from} = Getter.get(@prefix, "key1", from, to, rollup)
+    Conn.hset(Enum.at(keys, 1), "field1", 22)
+    Conn.hset(Enum.at(keys, 2), "field1", 33)
+    Conn.hset(Enum.at(keys, 3), "field1", 44)
+    {hits, new_from} = Getter.get(@prefix, "field1", from, to, rollup)
     assert hits == []
     assert_time new_from, "2017-03-22T01:15:00Z"
   end
 
   test "interprets hash-field misses as 0", %{from: from, to: to, rollup: rollup, keys: keys} do
-    Conn.hset(Enum.at(keys, 0), "key1", 11)
-    Conn.hset(Enum.at(keys, 1), "key2", 99)
-    Conn.hset(Enum.at(keys, 3), "key1", 44)
-    {hits, new_from} = Getter.get(@prefix, "key1", from, to, rollup)
+    Conn.hset(Enum.at(keys, 0), "field1", 11)
+    Conn.hset(Enum.at(keys, 1), "field2", 99)
+    Conn.hset(Enum.at(keys, 3), "field1", 44)
+    {hits, new_from} = Getter.get(@prefix, "field1", from, to, rollup)
 
     assert length(hits) == 2
     assert_time new_from, "2017-03-22T01:45:00Z"
@@ -77,22 +77,22 @@ defmodule Castle.RedisIntervalCacheGetterTest do
   end
 
   test "hits all 0s", %{from: from, to: to, rollup: rollup, keys: keys} do
-    Conn.hset(Enum.at(keys, 0), "key2", 99)
-    Conn.hset(Enum.at(keys, 1), "key2", 99)
-    Conn.hset(Enum.at(keys, 2), "key2", 99)
-    Conn.hset(Enum.at(keys, 3), "key2", 99)
-    {hits, new_from} = Getter.get(@prefix, "key1", from, to, rollup)
+    Conn.hset(Enum.at(keys, 0), "field2", 99)
+    Conn.hset(Enum.at(keys, 1), "field2", 99)
+    Conn.hset(Enum.at(keys, 2), "field2", 99)
+    Conn.hset(Enum.at(keys, 3), "field2", 99)
+    {hits, new_from} = Getter.get(@prefix, "field1", from, to, rollup)
     assert length(hits) == 4
     assert new_from == nil
   end
 
   test "assumes 0 on misses within a few seconds of now", %{from: from, to: to, rollup: rollup, keys: keys} do
-    Conn.hset(Enum.at(keys, 0), "key1", 11)
-    Conn.hset(Enum.at(keys, 1), "key1", 22)
-    Conn.hset(Enum.at(keys, 2), "key1", 33)
+    Conn.hset(Enum.at(keys, 0), "field1", 11)
+    Conn.hset(Enum.at(keys, 1), "field1", 22)
+    Conn.hset(Enum.at(keys, 2), "field1", 33)
     hits_at_time = fn(time) ->
       with_mock Timex, [:passthrough], [now: fn() -> get_dtim(time) end] do
-        {hits, _new_from} = Getter.get(@prefix, "key1", from, to, rollup)
+        {hits, _new_from} = Getter.get(@prefix, "field1", from, to, rollup)
         {length(hits), List.last(hits).count}
       end
     end
