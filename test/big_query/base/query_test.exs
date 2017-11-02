@@ -8,6 +8,7 @@ defmodule Castle.BigQueryBaseQueryTest do
     {result, meta} = query("""
       SELECT * FROM #{Env.get(:bq_impressions_table)}
       WHERE is_duplicate = true
+      AND _PARTITIONTIME = TIMESTAMP("2017-10-29")
       LIMIT 2
     """)
 
@@ -26,6 +27,7 @@ defmodule Castle.BigQueryBaseQueryTest do
     {result, meta} = query(%{is_dup: true, lim: 2}, """
       SELECT * FROM #{Env.get(:bq_impressions_table)}
       WHERE is_duplicate = @is_dup
+      AND _PARTITIONTIME = TIMESTAMP("2017-10-29")
       LIMIT @lim
     """)
 
@@ -37,5 +39,21 @@ defmodule Castle.BigQueryBaseQueryTest do
     assert meta.bytes >= 0
     assert meta.megabytes >= 0
     assert meta.total == 2
+  end
+
+  @tag :external
+  test "loads all pages of results" do
+    {result, meta} = query(%{is_dup: true, lim: 215}, """
+      SELECT * FROM #{Env.get(:bq_impressions_table)}
+      WHERE is_duplicate = @is_dup
+      AND _PARTITIONTIME = TIMESTAMP("2017-10-29")
+      LIMIT @lim
+    """, 100)
+
+    assert is_list result
+    assert length(result) == 215
+    assert meta.bytes >= 0
+    assert meta.megabytes >= 0
+    assert meta.total == 215
   end
 end

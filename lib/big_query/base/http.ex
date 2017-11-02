@@ -12,7 +12,13 @@ defmodule BigQuery.Base.HTTP do
         raise error
     end
   end
+  def get(params, "" <> path), do: get(path, params)
+  def get(path, params) do
+    encoded = params |> Map.put("timeoutMs", @timeout) |> URI.encode_query()
+    get("#{path}?#{encoded}")
+  end
 
+  def post(body, "" <> path), do: post(path, body)
   def post(path, body) do
     case get_token() do
       {:ok, token} ->

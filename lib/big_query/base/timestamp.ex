@@ -4,14 +4,14 @@ defmodule BigQuery.Base.Timestamp do
   def timestamp_query(tbl, interval, group_by) do
     timestamp_params(interval)
     |> query(timestamp_sql(tbl, interval, group_by))
-    |> group(interval, group_by)
+    |> group(interval)
   end
 
   def timestamp_sql(tbl, interval, group_by) do
     """
     WITH intervals AS (#{timestamp_intervals(tbl, interval, group_by)})
-    SELECT time, #{group_by}, count FROM intervals
-    ORDER BY time ASC, #{group_by} ASC
+    SELECT time, ARRAY_AGG(STRUCT(#{group_by}, count)) as counts FROM intervals
+    GROUP BY time ORDER BY time ASC
     """ |> clean_sql()
   end
 
@@ -41,17 +41,20 @@ defmodule BigQuery.Base.Timestamp do
     Regex.replace(~r/[ \n\r\t]+/, str, " ")
   end
 
-  def group({data, meta}, intv, group_by) do
+  def group({data, meta}, intv) do
     data = intv.rollup.range(intv.from, intv.to, false)
-           |> Enum.map(&({&1, find_times(&1, data, group_by)}))
+           |> insert_counts(data)
     {data, meta}
   end
 
-  defp find_times(time, data, "" <> group_by), do: find_times(time, data, String.to_atom(group_by))
-  defp find_times(time, data, group_by) do
-    time_unix = Timex.to_unix(time)
-    Enum.filter(data, fn(%{time: t}) -> Timex.to_unix(t) == time_unix end)
-    |> Enum.map(fn(d) -> {Map.get(d, group_by), d.count} end)
-    |> Map.new()
+  defp insert_counts([t1 | times], [%{time: t2, counts: counts} | rest] = all) do
+    if Timex.to_unix(t1) == Timex.to_unix(t2) do
+      count_map = counts |> Enum.map(&List.to_tuple/1) |> Map.new()
+      [{t1, count_map}] ++ insert_counts(times, rest)
+    else
+      [{t1, %{}}] ++ insert_counts(times, all)
+    end
   end
+  defp insert_counts([], _), do: []
+  defp insert_counts([t1 | times], []), do: [{t1, %{}}] ++ insert_counts(times, [])
 end

@@ -11,7 +11,7 @@ defmodule Castle.BigQueryBaseTimestampTest do
     sql = timestamp_sql("the_table", @fifteen, "feeder_podcast")
     assert sql =~ ~r/FROM the_table/
     assert sql =~ ~r/GROUP BY time, feeder_podcast/
-    assert sql =~ ~r/SELECT time, feeder_podcast, count/
+    assert sql =~ ~r/SELECT time, ARRAY_AGG\(STRUCT\(/
   end
 
   test "uses a modulo based rollup" do
@@ -41,14 +41,12 @@ defmodule Castle.BigQueryBaseTimestampTest do
     finish = get_dtim("2017-03-28T11:00:00Z")
     interval = %BigQuery.Interval{from: start, to: finish, rollup: BigQuery.TimestampRollups.Hourly}
     raw = [
-      %{time: get_dtim("2017-03-28T05:00:00Z"), feeder_podcast: 123, count: 11},
-      %{time: get_dtim("2017-03-28T06:00:00Z"), feeder_podcast: 456, count: 22},
-      %{time: get_dtim("2017-03-28T06:00:00Z"), feeder_podcast: 123, count: 33},
-      %{time: get_dtim("2017-03-28T07:00:00Z"), feeder_podcast: 123, count: 44},
-      %{time: get_dtim("2017-03-28T09:00:00Z"), feeder_podcast: 456, count: 55},
-      %{time: get_dtim("2017-03-28T09:00:00Z"), feeder_podcast: 789, count: 66},
+      %{time: get_dtim("2017-03-28T05:00:00Z"), counts: [[123, 11]]},
+      %{time: get_dtim("2017-03-28T06:00:00Z"), counts: [[456, 22], [123, 33]]},
+      %{time: get_dtim("2017-03-28T07:00:00Z"), counts: [[123, 44]]},
+      %{time: get_dtim("2017-03-28T09:00:00Z"), counts: [[456, 55], [789, 66]]},
     ]
-    {data, _meta} = group({raw, %{}}, interval, "feeder_podcast")
+    {data, _meta} = group({raw, %{}}, interval)
 
     assert length(data) == 7
     times = Enum.map(data, fn(d) -> List.first(Tuple.to_list(d)) end)
