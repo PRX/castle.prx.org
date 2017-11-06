@@ -14,9 +14,9 @@ defmodule Castle.RedisIntervalCacheGetterTest do
   setup do
     redis_clear("#{@prefix}*")
     from = get_dtim("2017-03-22T01:15:00Z")
-    to = get_dtim("2017-03-22T02:15:00Z")
+    to = get_dtim("2017-03-22T02:00:00Z")
     rollup = BigQuery.TimestampRollups.QuarterHourly
-    keys = Keys.keys(@prefix, rollup.range(from, to, false))
+    keys = Keys.keys(@prefix, rollup.range(from, to))
     [from: from, to: to, rollup: rollup, keys: keys]
   end
 
