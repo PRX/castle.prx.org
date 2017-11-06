@@ -30,15 +30,15 @@ defmodule Castle.BigQueryBaseTimestampTest do
     interval = %BigQuery.Interval{from: start, to: finish, rollup: BigQuery.TimestampRollups.QuarterHourly}
     params = timestamp_params(interval)
 
-    assert_time params.from_dtim, "2017-03-22T21:54:52Z"
-    assert_time params.to_dtim, "2017-03-28T04:12:00Z"
+    assert_time params.from_dtim, "2017-03-22T21:45:00Z"
+    assert_time params.to_dtim, "2017-03-28T04:15:00Z"
     assert_time params.pstart, "2017-03-22T00:00:00Z"
     assert_time params.pend, "2017-03-28T23:59:59.999999Z"
   end
 
   test "groups results" do
     start = get_dtim("2017-03-28T04:00:00Z")
-    finish = get_dtim("2017-03-28T11:00:00Z")
+    finish = get_dtim("2017-03-28T10:00:00Z")
     interval = %BigQuery.Interval{from: start, to: finish, rollup: BigQuery.TimestampRollups.Hourly}
     raw = [
       %{time: get_dtim("2017-03-28T05:00:00Z"), counts: [[123, 11]]},
