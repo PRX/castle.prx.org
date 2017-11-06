@@ -54,7 +54,7 @@ defmodule Castle.BigQueryImpressionsTest do
     assert_time time, "2017-06-27T21:00:00Z"
     assert length(Map.keys(counts)) > 10
     assert Map.has_key?(counts, "7acf74b8-7b0a-4e9e-90be-f69052064b77")
-    assert Map.get(counts, "7acf74b8-7b0a-4e9e-90be-f69052064b77") == 1056
+    assert Map.get(counts, "7acf74b8-7b0a-4e9e-90be-f69052064b77") == 4184
   end
 
   test "groups impressions for an episode" do
