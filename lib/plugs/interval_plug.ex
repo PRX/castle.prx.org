@@ -26,7 +26,7 @@ defmodule Castle.Plugs.Interval do
   defp round_time_window(%{status: nil, assigns: %{interval: intv}} = conn) do
     assign(conn, :interval, %{
       from: intv.rollup.floor(intv.from),
-      to: intv.rollup.ceiling(intv.to),
+      to: intv.rollup.floor(intv.to),
       rollup: intv.rollup,
     })
   end
