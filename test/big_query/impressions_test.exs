@@ -7,7 +7,7 @@ defmodule Castle.BigQueryImpressionsTest do
   import BigQuery.Impressions
 
   test "lists impressions for all podcasts" do
-    intv = interval("2017-06-27T21:45:00Z", "2017-06-28T04:15:00Z", BigQuery.TimestampRollups.QuarterHourly)
+    intv = interval("2017-06-27T21:45:00Z", "2017-06-28T04:00:00Z", BigQuery.TimestampRollups.QuarterHourly)
     {result, _meta} = for_podcasts(intv)
 
     assert is_list result
@@ -21,7 +21,7 @@ defmodule Castle.BigQueryImpressionsTest do
   end
 
   test "groups impressions for a podcast" do
-    intv = interval("2017-07-10T21:45:00Z", "2017-07-11T04:15:00Z", BigQuery.TimestampRollups.QuarterHourly)
+    intv = interval("2017-07-10T21:45:00Z", "2017-07-11T04:00:00Z", BigQuery.TimestampRollups.QuarterHourly)
     group = Castle.Plugs.Group.get("city", 3)
     {result, _meta} = group_podcast(57, intv, group)
     assert is_list result
@@ -44,7 +44,7 @@ defmodule Castle.BigQueryImpressionsTest do
   end
 
   test "lists impressions for all episodes" do
-    intv = interval("2017-06-27T21:45:00Z", "2017-06-28T04:15:00Z", BigQuery.TimestampRollups.Hourly)
+    intv = interval("2017-06-27T21:45:00Z", "2017-06-28T04:00:00Z", BigQuery.TimestampRollups.Hourly)
     {result, _meta} = for_episodes(intv)
 
     assert is_list result
@@ -54,11 +54,11 @@ defmodule Castle.BigQueryImpressionsTest do
     assert_time time, "2017-06-27T21:00:00Z"
     assert length(Map.keys(counts)) > 10
     assert Map.has_key?(counts, "7acf74b8-7b0a-4e9e-90be-f69052064b77")
-    assert Map.get(counts, "7acf74b8-7b0a-4e9e-90be-f69052064b77") == 1056
+    assert Map.get(counts, "7acf74b8-7b0a-4e9e-90be-f69052064b77") == 4184
   end
 
   test "groups impressions for an episode" do
-    intv = interval("2017-07-10T04:00:00Z", "2017-07-10T22:00:00Z", BigQuery.TimestampRollups.Hourly)
+    intv = interval("2017-07-10T04:00:00Z", "2017-07-10T21:00:00Z", BigQuery.TimestampRollups.Hourly)
     group = Castle.Plugs.Group.get("country", 2)
     {result, _meta} = group_episode("7acf74b8-7b0a-4e9e-90be-f69052064b77", intv, group)
     assert is_list result

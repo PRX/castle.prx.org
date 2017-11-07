@@ -29,11 +29,13 @@ defmodule BigQuery.Base.Timestamp do
   end
 
   def timestamp_params(interval) do
+    lower = interval.rollup.floor(interval.from)
+    upper = interval.rollup.next(interval.to)
     %{
-      from_dtim: interval.from,
-      to_dtim: interval.to,
-      pstart: Timex.beginning_of_day(interval.from),
-      pend: Timex.end_of_day(interval.to),
+      from_dtim: lower,
+      to_dtim: upper,
+      pstart: Timex.beginning_of_day(lower),
+      pend: Timex.end_of_day(upper),
     }
   end
 
@@ -42,8 +44,7 @@ defmodule BigQuery.Base.Timestamp do
   end
 
   def group({data, meta}, intv) do
-    data = intv.rollup.range(intv.from, intv.to, false)
-           |> insert_counts(data)
+    data = intv.rollup.range(intv.from, intv.to) |> insert_counts(data)
     {data, meta}
   end
 

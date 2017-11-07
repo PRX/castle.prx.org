@@ -19,11 +19,12 @@ defmodule BigQuery.TimestampRollups.Monthly do
     end
   end
 
-  def range(from, to, _inclusive_to=false) do
-    range(floor(from), ceiling(to), [])
+  def next(time) do
+    Timex.shift(time, seconds: 1) |> ceiling()
   end
-  def range(from, to, _inclusive_to=true) do
-    range(floor(from), ceiling(Timex.shift(to, seconds: 1)), [])
+
+  def range(from, to) do
+    range(floor(from), next(to), [])
   end
   def range(from, to, acc) do
     if Timex.compare(from, to) >= 0 do
@@ -37,7 +38,7 @@ defmodule BigQuery.TimestampRollups.Monthly do
   # this is an estimate, since days-per-month varies
   def count_range(from, to) do
     start = floor(from) |> Timex.to_unix()
-    stop = ceiling(to) |> Timex.to_unix()
+    stop = next(to) |> Timex.to_unix()
     Float.ceil(max(stop - start, 0) / 2592000) |> round
   end
 end

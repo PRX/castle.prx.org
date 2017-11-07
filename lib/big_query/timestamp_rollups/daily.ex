@@ -19,24 +19,24 @@ defmodule BigQuery.TimestampRollups.Daily do
     end
   end
 
-  def range(from, to, _inclusive_to=false) do
-    range(floor(from), ceiling(to), [])
+  def next(time) do
+    Timex.shift(time, seconds: 1) |> ceiling()
   end
-  def range(from, to, _inclusive_to=true) do
-    range(floor(from), ceiling(Timex.shift(to, seconds: 1)), [])
+
+  def range(from, to) do
+    range(floor(from), floor(to), [])
   end
   def range(from, to, acc) do
-    if Timex.compare(from, to) >= 0 do
+    if Timex.compare(from, to) > 0 do
       acc
     else
-      next_from = Timex.shift(from, seconds: 1) |> ceiling()
-      range(next_from, to, acc ++ [from])
+      next(from) |> range(to, acc ++ [from])
     end
   end
 
   def count_range(from, to) do
     start = floor(from) |> Timex.to_unix()
-    stop = ceiling(to) |> Timex.to_unix()
+    stop = next(to) |> Timex.to_unix()
     Float.ceil(max(stop - start, 0) / 86400) |> round
   end
 end

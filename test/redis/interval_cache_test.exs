@@ -14,9 +14,9 @@ defmodule Castle.RedisIntervalCacheTest do
   setup do
     redis_clear("#{@prefix}*")
     from = get_dtim("2017-03-22T01:15:00Z")
-    to = get_dtim("2017-03-22T02:15:00Z")
+    to = get_dtim("2017-03-22T02:00:00Z")
     intv = %BigQuery.Interval{from: from, to: to, rollup: QuarterHourly}
-    keys = Keys.keys("#{@prefix}.#{intv.rollup.name()}", intv.rollup.range(from, to, false))
+    keys = Keys.keys("#{@prefix}.#{intv.rollup.name()}", intv.rollup.range(from, to))
     [interval: intv, keys: keys]
   end
 
@@ -84,7 +84,7 @@ defmodule Castle.RedisIntervalCacheTest do
       "2017-03-22T01:45:00Z" => %{},
       "2017-03-22T02:00:00Z" => %{"foobar" => 43},
     }
-    data = Enum.map intv.rollup.range(intv.from, intv.to, false), fn(dtim) ->
+    data = Enum.map intv.rollup.range(intv.from, intv.to), fn(dtim) ->
       {dtim, Map.get(lookup, format_dtim(dtim))}
     end
     {data, %{meta: "data"}}

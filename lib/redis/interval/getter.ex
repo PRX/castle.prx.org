@@ -5,7 +5,7 @@ defmodule Castle.Redis.Interval.Getter do
   @buffer_seconds 30
 
   def get(key_prefix, ident, from, to, rollup) do
-    range = rollup.range(from, to, false)
+    range = rollup.range(from, to)
     counts = Keys.keys(key_prefix, range) |> Conn.hget(ident)
     cache_hits(range, counts)
   end

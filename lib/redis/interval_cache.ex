@@ -21,8 +21,7 @@ defmodule Castle.Redis.IntervalCache do
 
     # bulk set all the %{ident => counts}
     Enum.each(data, fn({time, ids_to_counts}) ->
-      next_time = intv.rollup.ceiling(Timex.shift(time, seconds: 1))
-      Setter.set(key_prefix, time, next_time, ids_to_counts)
+      Setter.set(key_prefix, time, intv.rollup.next(time), ids_to_counts)
     end)
 
     # filter down to the specific ident we want to return
