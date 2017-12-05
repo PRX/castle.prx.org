@@ -1,36 +1,19 @@
-version: 0.1
-environment_variables:
-  plaintext:
-    BUILD_PHASE_MARKER: build_phase_complete
+version: 0.2
+env:
+  variables:
+    PRX_ECR_REGION: "us-east-1"
+    PRX_ECR_REPOSITORY: "castle.prx.org"
 phases:
   install:
     commands:
-      - apt-get update -y
-      - apt-get install -y jq
-      - curl -L "https://github.com/docker/compose/releases/download/1.11.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
-  pre_build:
-    commands:
-      - echo Logging in to Amazon ECR...
-      - $(aws ecr get-login --region $ECR_REGION)
+      - 'echo "Installing docker-compose..."'
+      - 'COMPOSE="https://github.com/docker/compose/releases/download/1.11.2/docker-compose-$(uname -s)-$(uname -m)" && curl -sL $COMPOSE -o /usr/local/bin/docker-compose'
+      - "chmod +x /usr/local/bin/docker-compose"
   build:
     commands:
-      - docker-compose -f docker-compose-ci.yml build
-      - docker-compose -f docker-compose-ci.yml run castle
-      - docker tag castle_app $AWS_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$((ECR_IMAGE_TAG+1))
-      - touch $BUILD_PHASE_MARKER
+      - "cd $(ls -d */|head -n 1)"
+      - "docker-compose -f docker-compose-ci.yml build"
+      - "docker-compose -f docker-compose-ci.yml run castle"
   post_build:
     commands:
-      - test -e $BUILD_PHASE_MARKER
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$((ECR_IMAGE_TAG+1))
-      - aws s3 cp s3://$TEMPLATE_CONFIG_BUCKET/$TEMPLATE_CONFIG_ARTIFACT $TEMPLATE_CONFIG_ARTIFACT
-      - unzip $TEMPLATE_CONFIG_ARTIFACT
-      - jq --arg tag $((ECR_IMAGE_TAG+1)) '.Parameters.CastleECRImageTag = $tag' castle-staging.json > castle-staging2.json
-      - rm castle-staging.json && mv castle-staging2.json castle-staging.json
-      - zip $TEMPLATE_CONFIG_ARTIFACT castle-staging.json
-      - aws s3 cp $TEMPLATE_CONFIG_ARTIFACT s3://$TEMPLATE_CONFIG_BUCKET/
-      # that will trigger a Root Stack CodePipeline execution
-artifacts:
-  # It seems like CodePipeline and CodeBuild expect an artifact here. Currently
-  # we don't need any, so this is essentially a no-op.
-  files:
-    - README.md
+      - 'curl -sO "https://raw.githubusercontent.com/PRX/Infrastructure/master/ci/utility/post_build.sh" && chmod +x post_build.sh && bash ./post_build.sh'
