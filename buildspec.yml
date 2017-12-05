@@ -3,6 +3,7 @@ env:
   variables:
     PRX_ECR_REGION: "us-east-1"
     PRX_ECR_REPOSITORY: "castle.prx.org"
+    PRX_ECR_CONFIG_PARAMETERS: "CastleEcrImageTag"
 phases:
   install:
     commands:
