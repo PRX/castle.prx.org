@@ -31,4 +31,5 @@ defmodule Castle.Redis.Interval.Getter do
       %{time: time, count: 0}
     end
   end
+  def cache_val(_time, _any_miss), do: nil
 end
