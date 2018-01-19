@@ -1,7 +1,7 @@
 defmodule Castle.API.PodcastViewTest do
   use Castle.ConnCase, async: true
 
-  import Castle.API.PodcastView
+  import CastleWeb.API.PodcastView
 
   test "index.json", %{conn: conn} do
     doc = render("index.json", %{conn: conn, podcasts: test_podcasts(), meta: %{}})

@@ -8,7 +8,7 @@ defmodule Castle do
 
     # Define workers and child supervisors to be supervised
     children = [
-      supervisor(Castle.Endpoint, []),
+      supervisor(CastleWeb.Endpoint, []),
       worker(Castle.Rollup.Worker, [])
     ]
 
@@ -31,7 +31,7 @@ defmodule Castle do
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
   def config_change(changed, _new, removed) do
-    Castle.Endpoint.config_change(changed, removed)
+    CastleWeb.Endpoint.config_change(changed, removed)
     :ok
   end
 end

@@ -20,10 +20,10 @@ defmodule Castle.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
 
-      import Castle.Router.Helpers
+      import CastleWeb.Router.Helpers
 
       # The default endpoint for testing
-      @endpoint Castle.Endpoint
+      @endpoint CastleWeb.Endpoint
     end
   end
 

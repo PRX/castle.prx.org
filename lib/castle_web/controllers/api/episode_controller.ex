@@ -1,5 +1,5 @@
-defmodule Castle.API.EpisodeController do
-  use Castle.Web, :controller
+defmodule CastleWeb.API.EpisodeController do
+  use CastleWeb, :controller
 
   alias Castle.Rollup.Data.Totals, as: Totals
 

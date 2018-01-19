@@ -1,5 +1,5 @@
-defmodule Castle.Router do
-  use Castle.Web, :router
+defmodule CastleWeb.Router do
+  use CastleWeb, :router
 
   # pipeline :browser do
   #   plug :accepts, ["html"]
@@ -18,7 +18,7 @@ defmodule Castle.Router do
 
   def id_host, do: Env.get(:id_host)
   pipeline :authorized do
-    plug PrxAuth.Plug, required: true, iss: &Castle.Router.id_host/0
+    plug PrxAuth.Plug, required: true, iss: &CastleWeb.Router.id_host/0
   end
 
   pipeline :metrics do
@@ -26,7 +26,7 @@ defmodule Castle.Router do
     plug Castle.Plugs.Group
   end
 
-  scope "/", Castle do
+  scope "/", CastleWeb do
     pipe_through :api
 
     get "/", RedirectController, :index
@@ -34,7 +34,7 @@ defmodule Castle.Router do
     get "/api/v1", API.RootController, :index, as: :api_root
   end
 
-  scope "/api/v1", Castle.API, as: :api do
+  scope "/api/v1", CastleWeb.API, as: :api do
     pipe_through :api
     pipe_through :logged
     pipe_through :authorized

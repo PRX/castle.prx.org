@@ -1,5 +1,5 @@
-defmodule Castle.ErrorView do
-  use Castle.Web, :view
+defmodule CastleWeb.ErrorView do
+  use CastleWeb, :view
 
   def render("404.html", _assigns) do
     "Page not found"

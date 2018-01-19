@@ -1,12 +1,12 @@
-defmodule Castle.Web do
+defmodule CastleWeb do
   @moduledoc """
   A module that keeps using definitions for controllers,
   views and so on.
 
   This can be used in your application as:
 
-      use Castle.Web, :controller
-      use Castle.Web, :view
+      use CastleWeb, :controller
+      use CastleWeb, :view
 
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused
@@ -24,16 +24,16 @@ defmodule Castle.Web do
 
   def controller do
     quote do
-      use Phoenix.Controller
+      use Phoenix.Controller, namespace: CastleWeb
 
-      import Castle.Router.Helpers
-      import Castle.Gettext
+      import CastleWeb.Router.Helpers
+      import CastleWeb.Gettext
     end
   end
 
   def view do
     quote do
-      use Phoenix.View, root: "web/templates"
+      use Phoenix.View, root: "lib/castle_web/templates", namespace: CastleWeb
 
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 2, view_module: 1]
@@ -41,9 +41,9 @@ defmodule Castle.Web do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
-      import Castle.Router.Helpers
-      import Castle.ErrorHelpers
-      import Castle.Gettext
+      import CastleWeb.Router.Helpers
+      import CastleWeb.ErrorHelpers
+      import CastleWeb.Gettext
     end
   end
 
@@ -56,7 +56,7 @@ defmodule Castle.Web do
   def channel do
     quote do
       use Phoenix.Channel
-      import Castle.Gettext
+      import CastleWeb.Gettext
     end
   end
 

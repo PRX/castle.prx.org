@@ -1,7 +1,7 @@
 defmodule Castle.API.IntervalViewTest do
   use Castle.ConnCase, async: true
 
-  import Castle.API.IntervalView
+  import CastleWeb.API.IntervalView
 
   test "podcast.json" do
     {:ok, time, _} = DateTime.from_iso8601("2017-04-09T21:45:00Z")

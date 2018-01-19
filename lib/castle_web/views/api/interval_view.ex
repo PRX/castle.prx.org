@@ -1,5 +1,5 @@
-defmodule Castle.API.IntervalView do
-  use Castle.Web, :view
+defmodule CastleWeb.API.IntervalView do
+  use CastleWeb, :view
 
   def render("podcast.json", %{id: id} = data) do
     %{id: id} |> meta_json(data) |> counts_json(data)
