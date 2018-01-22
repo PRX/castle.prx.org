@@ -7,7 +7,6 @@ castle:
     - ./lib:/opt/app/lib
     - ./priv:/opt/app/priv
     - ./test:/opt/app/test
-    - ./web:/opt/app/web
     - ./bin:/opt/app/bin
   env_file:
     - .env
