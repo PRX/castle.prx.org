@@ -62,10 +62,10 @@ if you're trying to develop/test locally and not in Docker.
 
 ```
 # Start the phoenix server
-mix phoenix.server
+mix phx.server
 
 # Or run interactively
-iex -S mix phoenix.server
+iex -S mix phx.server
 
 # Or just get a console
 iex -S mix

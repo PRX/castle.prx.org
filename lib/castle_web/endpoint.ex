@@ -1,7 +1,7 @@
-defmodule Castle.Endpoint do
+defmodule CastleWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :castle
 
-  socket "/socket", Castle.UserSocket
+  socket "/socket", CastleWeb.UserSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -44,5 +44,5 @@ defmodule Castle.Endpoint do
     allow_methods: ~w(HEAD GET),
     allow_credentials: true
 
-  plug Castle.Router
+  plug CastleWeb.Router
 end

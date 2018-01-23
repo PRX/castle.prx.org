@@ -4,7 +4,7 @@ defmodule Castle.Mixfile do
   def project do
     [app: :castle,
      version: "0.0.1",
-     elixir: "~> 1.2",
+     elixir: "~> 1.6",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
@@ -29,29 +29,29 @@ defmodule Castle.Mixfile do
   ]
 
   # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
-  defp elixirc_paths(_),     do: ["lib", "web"]
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_),     do: ["lib"]
 
   # Specifies your project dependencies.
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:phoenix, "~> 1.2.1"},
+    [{:phoenix, "~> 1.3.0"},
      {:phoenix_pubsub, "~> 1.0"},
-     {:phoenix_html, "~> 2.6"},
+     {:phoenix_html, "~> 2.10"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:ex_doc, "~> 0.14", only: :dev, runtime: false},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:jose, "~> 1.8"},
-     {:httpoison, "~> 0.11"},
+     {:httpoison, "~> 0.13"},
      {:uuid, "~> 1.1"},
      {:timex, "~> 3.0"},
      {:redix, ">= 0.6.0"},
      {:corsica, "~> 0.5"},
      {:prx_auth, "~> 0.0.1"},
      {:dotenv, "~> 2.1", only: [:dev, :test]},
-     {:mock, "~> 0.2.0", only: :test}]
+     {:mock, "~> 0.3.1", only: :test}]
   end
 
   defp docs do

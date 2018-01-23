@@ -2,7 +2,7 @@ defmodule Castle.API.RootViewTest do
   use Castle.ConnCase, async: true
 
   test "index.json", %{conn: conn} do
-    doc = Castle.API.RootView.render("index.json", %{conn: conn})
+    doc = CastleWeb.API.RootView.render("index.json", %{conn: conn})
     links = doc[:_links]
 
     assert doc.version == "v1"

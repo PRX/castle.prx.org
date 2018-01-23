@@ -1,5 +1,5 @@
-defmodule Castle.API.RootView do
-  use Castle.Web, :view
+defmodule CastleWeb.API.RootView do
+  use CastleWeb, :view
 
   def render("index.json", %{conn: conn}) do
     %{

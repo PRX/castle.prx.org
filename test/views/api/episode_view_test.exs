@@ -1,7 +1,7 @@
 defmodule Castle.API.EpisodeViewTest do
   use Castle.ConnCase, async: true
 
-  import Castle.API.EpisodeView
+  import CastleWeb.API.EpisodeView
 
   test "index.json", %{conn: conn} do
     doc = render("index.json", %{conn: conn, episodes: test_episodes(), meta: %{}})

@@ -14,11 +14,13 @@ ApplicationParseOpts () {
 }
 
 UpdateEnvironment () {
-  IFS=$'\n'
-  for item in `aws-secrets-get`; do
-    export "$item"
-  done
-  unset IFS
+  if [ -z "$LOCAL_ENV" ]; then
+    IFS=$'\n'
+    for item in `aws-secrets-get`; do
+      export "$item"
+    done
+    unset IFS
+  fi
 }
 
 ApplicationRun () {
@@ -28,7 +30,7 @@ ApplicationRun () {
     exit
   elif [ "$PROCESS" = "web" ] ; then
     UpdateEnvironment
-    CMD="mix phoenix.server"
+    CMD="mix phx.server"
   elif [ "$PROCESS" = "test" ] ; then
     CMD="mix test"
   elif [ "$PROCESS" = "mix" ] ; then

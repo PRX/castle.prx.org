@@ -1,5 +1,5 @@
-defmodule Castle.API.EpisodeView do
-  use Castle.Web, :view
+defmodule CastleWeb.API.EpisodeView do
+  use CastleWeb, :view
 
   @limit 100
 
