@@ -45,9 +45,10 @@ defmodule Castle.BigQueryTimestampRollupsHourlyTest do
     assert Enum.at(range, 3) == "2017-03-23T02:00:00Z"
 
     range = format_range("2017-03-22T23:00:00Z", "2017-03-23T00:59:59Z")
-    assert length(range) == 2
+    assert length(range) == 3
     assert Enum.at(range, 0) == "2017-03-22T23:00:00Z"
     assert Enum.at(range, 1) == "2017-03-23T00:00:00Z"
+    assert Enum.at(range, 2) == "2017-03-23T01:00:00Z"
   end
 
   test "count range" do

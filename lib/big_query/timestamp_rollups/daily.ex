@@ -24,11 +24,11 @@ defmodule BigQuery.TimestampRollups.Daily do
   end
 
   def range(from, to) do
-    range(floor(from), floor(to), [])
+    range(floor(from), ceiling(to), [])
   end
   def range(from, to, acc) do
-    if Timex.compare(from, to) > 0 do
-      acc
+    if Timex.compare(from, to) >= 0 do
+      acc ++ [to]
     else
       next(from) |> range(to, acc ++ [from])
     end

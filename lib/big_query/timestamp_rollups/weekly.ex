@@ -24,14 +24,13 @@ defmodule BigQuery.TimestampRollups.Weekly do
   end
 
   def range(from, to) do
-    range(floor(from), next(to), [])
+    range(floor(from), ceiling(to), [])
   end
   def range(from, to, acc) do
     if Timex.compare(from, to) >= 0 do
-      acc
+      acc ++ [to]
     else
-      next_from = Timex.shift(from, seconds: 1) |> ceiling()
-      range(next_from, to, acc ++ [from])
+      next(from) |> range(to, acc ++ [from])
     end
   end
 

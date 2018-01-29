@@ -38,11 +38,12 @@ defmodule Castle.BigQueryTimestampRollupsDailyTest do
 
   test "range" do
     range = format_range("2017-03-22T01:15:00Z", "2017-03-25T12:00:00Z")
-    assert length(range) == 4
+    assert length(range) == 5
     assert Enum.at(range, 0) == "2017-03-22T00:00:00Z"
     assert Enum.at(range, 1) == "2017-03-23T00:00:00Z"
     assert Enum.at(range, 2) == "2017-03-24T00:00:00Z"
     assert Enum.at(range, 3) == "2017-03-25T00:00:00Z"
+    assert Enum.at(range, 4) == "2017-03-26T00:00:00Z"
 
     range = format_range("2017-03-22T00:00:00Z", "2017-03-23T00:00:00Z")
     assert length(range) == 2
