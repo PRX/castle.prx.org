@@ -28,6 +28,7 @@ defmodule CastleWeb do
 
       import CastleWeb.Router.Helpers
       import CastleWeb.Gettext
+      import CastleWeb.API.BucketHelper
     end
   end
 
