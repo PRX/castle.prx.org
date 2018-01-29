@@ -11,25 +11,25 @@ defmodule CastleWeb.API.ImpressionController do
 
   def index(%{assigns: %{interval: intv, group: group}} = conn, %{"podcast_id" => id}) do
     {data, meta} = group_cache_podcast(intv, group, id)
-    render conn, IntervalView, "podcast-group.json", id: id, interval: intv.bucket.name,
+    render conn, IntervalView, "podcast-group.json", id: id, interval: intv,
       group: group.name, impressions: data, meta: meta
   end
 
   def index(%{assigns: %{interval: intv}} = conn, %{"podcast_id" => id}) do
     {data, meta} = cache_podcast(intv, id) |> bucketize(intv)
-    render conn, IntervalView, "podcast.json", id: id, interval: intv.bucket.name,
+    render conn, IntervalView, "podcast.json", id: id, interval: intv,
       impressions: data, meta: meta
   end
 
   def index(%{assigns: %{interval: intv, group: group}} = conn, %{"episode_guid" => guid}) do
     {data, meta} = group_cache_episode(intv, group, guid)
-    render conn, IntervalView, "episode-group.json", guid: guid, interval: intv.bucket.name,
+    render conn, IntervalView, "episode-group.json", guid: guid, interval: intv,
       group: group.name, impressions: data, meta: meta
   end
 
   def index(%{assigns: %{interval: intv}} = conn, %{"episode_guid" => guid}) do
     {data, meta} = cache_episode(intv, guid) |> bucketize(intv)
-    render conn, IntervalView, "episode.json", guid: guid, interval: intv.bucket.name,
+    render conn, IntervalView, "episode.json", guid: guid, interval: intv,
       impressions: data, meta: meta
   end
 

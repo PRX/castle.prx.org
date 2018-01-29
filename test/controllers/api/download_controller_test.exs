@@ -27,7 +27,7 @@ defmodule Castle.API.DownloadControllerTest do
     with_mock BigQuery, fake_data() do
       resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-21", interval: "1d") |> json_response(200)
       assert resp["id"] == 123
-      assert resp["interval"] == "DAY"
+      assert resp["interval"]["name"] == "DAY"
       assert length(resp["downloads"]) == 20
       assert hd(resp["downloads"]) == ["2017-04-01T00:00:00Z", 0]
     end
@@ -37,7 +37,7 @@ defmodule Castle.API.DownloadControllerTest do
     with_mock BigQuery, fake_groups() do
       resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-21", interval: "1d", group: "city") |> json_response(200)
       assert resp["id"] == 123
-      assert resp["interval"] == "DAY"
+      assert resp["interval"]["name"] == "DAY"
       assert length(resp["groups"]) == 1
       assert hd(resp["groups"]) == "foo"
       assert length(resp["downloads"]) == 20
@@ -49,7 +49,7 @@ defmodule Castle.API.DownloadControllerTest do
     with_mock BigQuery, fake_data() do
       resp = conn |> get_episode("hello", from: "2017-04-01", to: "2017-04-21", interval: "1d") |> json_response(200)
       assert resp["guid"] == "hello"
-      assert resp["interval"] == "DAY"
+      assert resp["interval"]["name"] == "DAY"
       assert length(resp["downloads"]) == 20
       assert hd(resp["downloads"]) == ["2017-04-01T00:00:00Z", 0]
     end
@@ -59,7 +59,7 @@ defmodule Castle.API.DownloadControllerTest do
     with_mock BigQuery, fake_groups() do
       resp = conn |> get_episode("hello", from: "2017-04-01", to: "2017-04-21", interval: "1d", group: "country") |> json_response(200)
       assert resp["guid"] == "hello"
-      assert resp["interval"] == "DAY"
+      assert resp["interval"]["name"] == "DAY"
       assert length(resp["groups"]) == 1
       assert hd(resp["groups"]) == "foo"
       assert length(resp["downloads"]) == 20

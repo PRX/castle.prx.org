@@ -17,12 +17,17 @@ defmodule CastleWeb.API.IntervalView do
     %{guid: guid} |> meta_json(data) |> groups_json(data)
   end
 
-  defp meta_json(json, %{interval: interval, meta: meta}) do
-    json |> Map.merge(%{interval: interval, meta: meta})
+  defp meta_json(json, %{interval: intv, meta: meta}) do
+    json |> Map.merge(%{interval: interval_json(intv), meta: meta})
   end
   defp meta_json(json, %{meta: meta}) do
     json |> Map.put(:meta, meta)
   end
+
+  defp interval_json(%{from: from, to: to, bucket: bucket}) do
+    %{name: bucket.name(), from: format_dtim(from), to: format_dtim(to)}
+  end
+  defp interval_json(any), do: any
 
   defp counts_json(json, %{downloads: downloads}) do
     json |> Map.put(:downloads, Enum.map(downloads, &count_json/1))
