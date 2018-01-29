@@ -24,10 +24,10 @@ defmodule BigQuery.TimestampRollups.Daily do
   end
 
   def range(from, to) do
-    range(floor(from), floor(to), [])
+    range(floor(from), ceiling(to), [])
   end
   def range(from, to, acc) do
-    if Timex.compare(from, to) > 0 do
+    if Timex.compare(from, to) >= 0 do
       acc
     else
       next(from) |> range(to, acc ++ [from])
@@ -36,7 +36,7 @@ defmodule BigQuery.TimestampRollups.Daily do
 
   def count_range(from, to) do
     start = floor(from) |> Timex.to_unix()
-    stop = next(to) |> Timex.to_unix()
+    stop = ceiling(to) |> Timex.to_unix()
     Float.ceil(max(stop - start, 0) / 86400) |> round
   end
 end

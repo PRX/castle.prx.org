@@ -30,7 +30,7 @@ defmodule BigQuery.Base.Timestamp do
 
   def timestamp_params(interval) do
     lower = interval.rollup.floor(interval.from)
-    upper = interval.rollup.next(interval.to)
+    upper = interval.rollup.ceiling(interval.to)
     %{
       from_dtim: lower,
       to_dtim: upper,

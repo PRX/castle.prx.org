@@ -24,20 +24,19 @@ defmodule BigQuery.TimestampRollups.Weekly do
   end
 
   def range(from, to) do
-    range(floor(from), next(to), [])
+    range(floor(from), ceiling(to), [])
   end
   def range(from, to, acc) do
     if Timex.compare(from, to) >= 0 do
       acc
     else
-      next_from = Timex.shift(from, seconds: 1) |> ceiling()
-      range(next_from, to, acc ++ [from])
+      next(from) |> range(to, acc ++ [from])
     end
   end
 
   def count_range(from, to) do
     start = floor(from) |> Timex.to_unix()
-    stop = next(to) |> Timex.to_unix()
+    stop = ceiling(to) |> Timex.to_unix()
     Float.ceil(max(stop - start, 0) / 604800) |> round
   end
 end

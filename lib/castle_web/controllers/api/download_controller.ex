@@ -10,35 +10,53 @@ defmodule CastleWeb.API.DownloadController do
   plug Castle.Plugs.ParseInt, "podcast_id"
 
   def index(%{assigns: %{interval: intv, group: group}} = conn, %{"podcast_id" => id}) do
-    {data, meta} = @redis.cached key("podcast.#{id}", intv, group), @group_ttl, fn() ->
-      @bigquery.podcast_downloads(id, intv, group)
-    end
-    render conn, IntervalView, "podcast-group.json", id: id, interval: intv.rollup.name,
+    {data, meta} = group_cache_podcast(intv, group, id)
+    render conn, IntervalView, "podcast-group.json", id: id, interval: intv,
       group: group.name, downloads: data, meta: meta
   end
 
   def index(%{assigns: %{interval: intv}} = conn, %{"podcast_id" => id}) do
-    {data, meta} = @redis.interval "downloads.podcasts", intv, id, fn(new_intv) ->
-      @bigquery.podcast_downloads(new_intv)
-    end
-    render conn, IntervalView, "podcast.json", id: id, interval: intv.rollup.name,
+    {data, meta} = cache_podcast(intv, id) |> bucketize(intv)
+    render conn, IntervalView, "podcast.json", id: id, interval: intv,
       downloads: data, meta: meta
   end
 
   def index(%{assigns: %{interval: intv, group: group}} = conn, %{"episode_guid" => guid}) do
-    {data, meta} = @redis.cached key("episode.#{guid}", intv, group), @group_ttl, fn() ->
-      @bigquery.episode_downloads(guid, intv, group)
-    end
-    render conn, IntervalView, "episode-group.json", guid: guid, interval: intv.rollup.name,
+    {data, meta} = group_cache_episode(intv, group, guid)
+    render conn, IntervalView, "episode-group.json", guid: guid, interval: intv,
       group: group.name, downloads: data, meta: meta
   end
 
   def index(%{assigns: %{interval: intv}} = conn, %{"episode_guid" => guid}) do
-    {data, meta} = @redis.interval "downloads.episodes", intv, guid, fn(new_intv) ->
+    {data, meta} = cache_episode(intv, guid) |> bucketize(intv)
+    render conn, IntervalView, "episode.json", guid: guid, interval: intv,
+      downloads: data, meta: meta
+  end
+
+  defp cache_podcast(intv, id) do
+    @redis.interval "downloads.podcasts", intv, id, fn(new_intv) ->
+      @bigquery.podcast_downloads(new_intv)
+    end
+  end
+
+  defp cache_episode(intv, guid) do
+    @redis.interval "downloads.episodes", intv, guid, fn(new_intv) ->
       @bigquery.episode_downloads(new_intv)
     end
-    render conn, IntervalView, "episode.json", guid: guid, interval: intv.rollup.name,
-      downloads: data, meta: meta
+  end
+
+  defp group_cache_podcast(intv, group, id) do
+    intv_nobucket = intv |> Map.put(:rollup, intv.bucket) |> Map.put(:bucket, nil)
+    @redis.cached key("podcast.#{id}", intv_nobucket, group), @group_ttl, fn() ->
+      @bigquery.podcast_downloads(id, intv_nobucket, group)
+    end
+  end
+
+  defp group_cache_episode(intv, group, guid) do
+    intv_nobucket = intv |> Map.put(:rollup, intv.bucket) |> Map.put(:bucket, nil)
+    @redis.cached key("episode.#{guid}", intv_nobucket, group), @group_ttl, fn() ->
+      @bigquery.episode_downloads(guid, intv_nobucket, group)
+    end
   end
 
   defp key(id, intv, group) do

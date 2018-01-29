@@ -8,6 +8,7 @@ defmodule Castle.Plugs.Interval do
     |> assign(:interval, %{})
     |> interval_part(:from, &Castle.Plugs.Interval.TimeFrom.parse/1)
     |> interval_part(:to, &Castle.Plugs.Interval.TimeTo.parse/1)
+    |> interval_part(:bucket, &Castle.Plugs.Interval.Buckets.parse/1)
     |> interval_part(:rollup, &Castle.Plugs.Interval.Rollups.parse/1)
     |> round_time_window()
     |> interval_struct()
@@ -26,7 +27,8 @@ defmodule Castle.Plugs.Interval do
   defp round_time_window(%{status: nil, assigns: %{interval: intv}} = conn) do
     assign(conn, :interval, %{
       from: intv.rollup.floor(intv.from),
-      to: intv.rollup.floor(intv.to),
+      to: intv.rollup.ceiling(intv.to),
+      bucket: intv.bucket,
       rollup: intv.rollup,
     })
   end

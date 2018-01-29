@@ -37,13 +37,14 @@ defmodule Castle.BigQueryTimestampRollupsMonthlyTest do
   end
 
   test "range" do
-    range = format_range("2017-03-22T01:15:00Z", "2017-05-01T12:00:00Z")
-    assert length(range) == 3
+    range = format_range("2017-03-22T01:15:00Z", "2017-06-01T12:00:00Z")
+    assert length(range) == 4
     assert Enum.at(range, 0) == "2017-03-01T00:00:00Z"
     assert Enum.at(range, 1) == "2017-04-01T00:00:00Z"
     assert Enum.at(range, 2) == "2017-05-01T00:00:00Z"
+    assert Enum.at(range, 3) == "2017-06-01T00:00:00Z"
 
-    range = format_range("2017-03-01T00:00:00Z", "2017-05-01T00:00:00Z")
+    range = format_range("2017-03-01T00:00:00Z", "2017-06-01T00:00:00Z")
     assert length(range) == 3
     assert Enum.at(range, 0) == "2017-03-01T00:00:00Z"
     assert Enum.at(range, 1) == "2017-04-01T00:00:00Z"
@@ -53,6 +54,6 @@ defmodule Castle.BigQueryTimestampRollupsMonthlyTest do
   test "count range" do
     # these are estimates for monthly ... and usually on the high side
     assert get_count("2017-06-01T01:15:00Z", "2017-08-10T12:00:00Z") == 4
-    assert get_count("2017-06-01T00:00:00Z", "2017-09-01T00:00:00Z") == 5
+    assert get_count("2017-06-01T00:00:00Z", "2017-09-01T00:00:00Z") == 4
   end
 end

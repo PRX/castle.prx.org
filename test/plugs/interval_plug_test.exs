@@ -1,19 +1,44 @@
 defmodule Castle.PlugsIntervalTest do
   use Castle.ConnCase, async: true
+  use Castle.TimeHelpers
 
   @from "2017-04-01T14:04:00Z"
-  @to "2017-04-01T14:05:00Z"
-  @interval "15m"
+  @to "2017-04-02T14:05:00Z"
 
-  test "parses intervals", %{conn: conn} do
-    intv = get_interval(conn, @from, @to, @interval)
-    assert Timex.to_unix(intv.from) == 1491055200
-    assert Timex.to_unix(intv.to) == 1491055200
-    assert intv.rollup.name == "15MIN"
+  test "parses hour intervals", %{conn: conn} do
+    intv = get_interval(conn, @from, @to, "1h")
+    assert_time intv.from, "2017-04-01T14:00:00Z"
+    assert_time intv.to, "2017-04-02T15:00:00Z"
+    assert intv.bucket.name == "HOUR"
+    assert intv.rollup.name == "HOUR"
+  end
+
+  test "parses day intervals", %{conn: conn} do
+    intv = get_interval(conn, @from, @to, "1d")
+    assert_time intv.from, "2017-04-01T14:00:00Z"
+    assert_time intv.to, "2017-04-02T15:00:00Z"
+    assert intv.bucket.name == "DAY"
+    assert intv.rollup.name == "HOUR"
+  end
+
+  test "parses week intervals", %{conn: conn} do
+    intv = get_interval(conn, "2017-04-01T14:04:00Z", "2017-04-09T14:05:00Z", "1w")
+    assert_time intv.from, "2017-04-01T00:00:00Z"
+    assert_time intv.to, "2017-04-10T00:00:00Z"
+    assert intv.bucket.name == "WEEK"
+    assert intv.rollup.name == "DAY"
+  end
+
+  test "parses month intervals", %{conn: conn} do
+    intv = get_interval(conn, "2017-04-01T14:04:00Z", "2017-04-09T14:05:00Z", "MONTH")
+    assert_time intv.from, "2017-04-01T00:00:00Z"
+    assert_time intv.to, "2017-04-10T00:00:00Z"
+    assert intv.bucket.name == "MONTH"
+    assert intv.rollup.name == "DAY"
   end
 
   test "handles time_from errors", %{conn: conn} do
-    conn = call_interval(conn, nil, @to, @interval)
+    conn = call_interval(conn, nil, @to, "1h")
     assert conn.status == 400
     assert conn.halted == true
     assert conn.resp_body =~ ~r/missing required param: from/i
@@ -27,30 +52,26 @@ defmodule Castle.PlugsIntervalTest do
   end
 
   test "handles seconds errors", %{conn: conn} do
-    conn = call_interval(conn, @from, "2020-01-01T00:00:00Z", "15m")
+    conn = call_interval(conn, @from, "2020-01-01T00:00:00Z", "1h")
     assert conn.status == 400
     assert conn.halted == true
     assert conn.resp_body =~ ~r/time window too large/i
   end
 
   test "rounds the lower time window down", %{conn: conn} do
-    assert get_lower(conn, "15m", "2017-04-01T00:16:00Z") == "2017-04-01T00:15:00+00:00"
-    assert get_lower(conn, "15m", "2017-04-01T00:59:59Z") == "2017-04-01T00:45:00+00:00"
     assert get_lower(conn, "1h", "2017-04-01T00:59:59Z") == "2017-04-01T00:00:00+00:00"
     assert get_lower(conn, "1h", "2017-04-01T23:22:44Z") == "2017-04-01T23:00:00+00:00"
-    assert get_lower(conn, "1d", "2017-04-01T23:22:44Z") == "2017-04-01T00:00:00+00:00"
-    assert get_lower(conn, "1w", "2017-04-01T23:22:44Z") == "2017-03-26T00:00:00+00:00"
-    assert get_lower(conn, "1M", "2017-04-04T23:22:44Z") == "2017-04-01T00:00:00+00:00"
+    assert get_lower(conn, "1d", "2017-04-01T23:22:44Z") == "2017-04-01T23:00:00+00:00"
+    assert get_lower(conn, "1w", "2017-04-01T23:22:44Z") == "2017-04-01T00:00:00+00:00"
+    assert get_lower(conn, "1M", "2017-04-04T23:22:44Z") == "2017-04-04T00:00:00+00:00"
   end
 
-  test "rounds the upper time window down", %{conn: conn} do
-    assert get_upper(conn, "15m", "2017-04-01T23:45:00Z") == "2017-04-01T23:45:00+00:00"
-    assert get_upper(conn, "15m", "2017-04-01T23:45:01Z") == "2017-04-01T23:45:00+00:00"
-    assert get_upper(conn, "1h", "2017-04-01T00:59:59Z") == "2017-04-01T00:00:00+00:00"
+  test "rounds the upper time window up", %{conn: conn} do
+    assert get_upper(conn, "1h", "2017-04-01T00:59:59Z") == "2017-04-01T01:00:00+00:00"
     assert get_upper(conn, "1h", "2017-04-01T23:00:00Z") == "2017-04-01T23:00:00+00:00"
-    assert get_upper(conn, "1d", "2017-04-01T12:12:12Z") == "2017-04-01T00:00:00+00:00"
-    assert get_upper(conn, "1w", "2017-04-02T12:12:12Z") == "2017-04-02T00:00:00+00:00"
-    assert get_upper(conn, "1M", "2017-04-02T12:12:12Z") == "2017-04-01T00:00:00+00:00"
+    assert get_upper(conn, "1d", "2017-04-01T12:12:12Z") == "2017-04-01T13:00:00+00:00"
+    assert get_upper(conn, "1w", "2017-04-02T12:12:12Z") == "2017-04-03T00:00:00+00:00"
+    assert get_upper(conn, "1M", "2017-04-02T12:12:12Z") == "2017-04-03T00:00:00+00:00"
   end
 
   defp get_lower(conn, interval, from) do
