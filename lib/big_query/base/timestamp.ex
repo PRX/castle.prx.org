@@ -30,7 +30,7 @@ defmodule BigQuery.Base.Timestamp do
 
   def timestamp_params(interval) do
     lower = interval.rollup.floor(interval.from)
-    upper = interval.rollup.next(interval.to)
+    upper = interval.rollup.ceiling(interval.to)
     %{
       from_dtim: lower,
       to_dtim: upper,
@@ -44,7 +44,8 @@ defmodule BigQuery.Base.Timestamp do
   end
 
   def group({data, meta}, intv) do
-    data = intv.rollup.range(intv.from, intv.to) |> insert_counts(data)
+    range = intv.rollup.range(intv.from, intv.to) |> Enum.drop(-1) # exclusive
+    data = insert_counts(range, data)
     {data, meta}
   end
 
