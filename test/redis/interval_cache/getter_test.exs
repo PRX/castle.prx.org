@@ -13,9 +13,9 @@ defmodule Castle.RedisIntervalCacheGetterTest do
 
   setup do
     redis_clear("#{@prefix}*")
-    from = get_dtim("2017-03-22T01:15:00Z")
-    to = get_dtim("2017-03-22T02:00:00Z")
-    rollup = BigQuery.TimestampRollups.QuarterHourly
+    from = get_dtim("2017-03-22T01:00:00Z")
+    to = get_dtim("2017-03-22T05:00:00Z")
+    rollup = BigQuery.TimestampRollups.Hourly
     keys = Keys.keys(@prefix, rollup.range(from, to))
     [from: from, to: to, rollup: rollup, keys: keys]
   end
@@ -29,10 +29,10 @@ defmodule Castle.RedisIntervalCacheGetterTest do
 
     assert length(hits) == 4
     assert new_from == nil
-    assert_time Enum.at(hits, 0).time, "2017-03-22T01:15:00Z"
-    assert_time Enum.at(hits, 1).time, "2017-03-22T01:30:00Z"
-    assert_time Enum.at(hits, 2).time, "2017-03-22T01:45:00Z"
-    assert_time Enum.at(hits, 3).time, "2017-03-22T02:00:00Z"
+    assert_time Enum.at(hits, 0).time, "2017-03-22T01:00:00Z"
+    assert_time Enum.at(hits, 1).time, "2017-03-22T02:00:00Z"
+    assert_time Enum.at(hits, 2).time, "2017-03-22T03:00:00Z"
+    assert_time Enum.at(hits, 3).time, "2017-03-22T04:00:00Z"
     assert Enum.at(hits, 0).count == 11
     assert Enum.at(hits, 1).count == 22
     assert Enum.at(hits, 2).count == 33
@@ -46,9 +46,9 @@ defmodule Castle.RedisIntervalCacheGetterTest do
     {hits, new_from} = Getter.get(@prefix, "field1", from, to, rollup)
 
     assert length(hits) == 2
-    assert_time new_from, "2017-03-22T01:45:00Z"
-    assert_time Enum.at(hits, 0).time, "2017-03-22T01:15:00Z"
-    assert_time Enum.at(hits, 1).time, "2017-03-22T01:30:00Z"
+    assert_time new_from, "2017-03-22T03:00:00Z"
+    assert_time Enum.at(hits, 0).time, "2017-03-22T01:00:00Z"
+    assert_time Enum.at(hits, 1).time, "2017-03-22T02:00:00Z"
     assert Enum.at(hits, 0).count == 11
     assert Enum.at(hits, 1).count == 22
   end
@@ -59,7 +59,7 @@ defmodule Castle.RedisIntervalCacheGetterTest do
     Conn.hset(Enum.at(keys, 3), "field1", 44)
     {hits, new_from} = Getter.get(@prefix, "field1", from, to, rollup)
     assert hits == []
-    assert_time new_from, "2017-03-22T01:15:00Z"
+    assert_time new_from, "2017-03-22T01:00:00Z"
   end
 
   test "interprets hash-field misses as 0", %{from: from, to: to, rollup: rollup, keys: keys} do
@@ -69,9 +69,9 @@ defmodule Castle.RedisIntervalCacheGetterTest do
     {hits, new_from} = Getter.get(@prefix, "field1", from, to, rollup)
 
     assert length(hits) == 2
-    assert_time new_from, "2017-03-22T01:45:00Z"
-    assert_time Enum.at(hits, 0).time, "2017-03-22T01:15:00Z"
-    assert_time Enum.at(hits, 1).time, "2017-03-22T01:30:00Z"
+    assert_time new_from, "2017-03-22T03:00:00Z"
+    assert_time Enum.at(hits, 0).time, "2017-03-22T01:00:00Z"
+    assert_time Enum.at(hits, 1).time, "2017-03-22T02:00:00Z"
     assert Enum.at(hits, 0).count == 11
     assert Enum.at(hits, 1).count == 0
   end
@@ -96,10 +96,10 @@ defmodule Castle.RedisIntervalCacheGetterTest do
         {length(hits), List.last(hits).count}
       end
     end
-    assert hits_at_time.("2017-03-22T03:00:00Z") == {3, 33}
-    assert hits_at_time.("2017-03-22T02:00:00Z") == {4, 0}
-    assert hits_at_time.("2017-03-22T02:00:29Z") == {4, 0}
-    assert hits_at_time.("2017-03-22T02:00:31Z") == {3, 33}
-    assert hits_at_time.("2017-03-22T01:00:00Z") == {4, 0}
+    assert hits_at_time.("2017-03-22T05:00:00Z") == {3, 33}
+    assert hits_at_time.("2017-03-22T04:00:00Z") == {4, 0}
+    assert hits_at_time.("2017-03-22T04:00:29Z") == {4, 0}
+    assert hits_at_time.("2017-03-22T04:00:31Z") == {3, 33}
+    assert hits_at_time.("2017-03-22T00:00:00Z") == {4, 0}
   end
 end

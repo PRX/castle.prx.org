@@ -7,15 +7,15 @@ defmodule Castle.RedisIntervalCacheTest do
   import Castle.Redis.IntervalCache
   alias Castle.Redis.Conn, as: Conn
   alias Castle.Redis.Interval.Keys, as: Keys
-  alias BigQuery.TimestampRollups.QuarterHourly, as: QuarterHourly
+  alias BigQuery.TimestampRollups.Hourly, as: Hourly
 
   @prefix "interval.cache.test"
 
   setup do
     redis_clear("#{@prefix}*")
-    from = get_dtim("2017-03-22T01:15:00Z")
-    to = get_dtim("2017-03-22T02:00:00Z")
-    intv = %BigQuery.Interval{from: from, to: to, rollup: QuarterHourly}
+    from = get_dtim("2017-03-22T01:00:00Z")
+    to = get_dtim("2017-03-22T05:00:00Z")
+    intv = %BigQuery.Interval{from: from, to: to, rollup: Hourly, bucket: Hourly}
     keys = Keys.keys("#{@prefix}.#{intv.rollup.name()}", intv.rollup.range(from, to))
     [interval: intv, keys: keys]
   end
@@ -25,10 +25,10 @@ defmodule Castle.RedisIntervalCacheTest do
     assert redis_count("#{@prefix}*") == 4
     assert meta.cache_hits == 0
     assert length(data) == 4
-    assert_time data, 0, "2017-03-22T01:15:00Z"
-    assert_time data, 1, "2017-03-22T01:30:00Z"
-    assert_time data, 2, "2017-03-22T01:45:00Z"
-    assert_time data, 3, "2017-03-22T02:00:00Z"
+    assert_time data, 0, "2017-03-22T01:00:00Z"
+    assert_time data, 1, "2017-03-22T02:00:00Z"
+    assert_time data, 2, "2017-03-22T03:00:00Z"
+    assert_time data, 3, "2017-03-22T04:00:00Z"
     assert Enum.at(data, 0).count == 13
     assert Enum.at(data, 1).count == 0
     assert Enum.at(data, 2).count == 0
@@ -49,10 +49,10 @@ defmodule Castle.RedisIntervalCacheTest do
     assert redis_count("#{@prefix}*") == 4
     assert meta.cache_hits == 2
     assert length(data) == 4
-    assert_time data, 0, "2017-03-22T01:15:00Z"
-    assert_time data, 1, "2017-03-22T01:30:00Z"
-    assert_time data, 2, "2017-03-22T01:45:00Z"
-    assert_time data, 3, "2017-03-22T02:00:00Z"
+    assert_time data, 0, "2017-03-22T01:00:00Z"
+    assert_time data, 1, "2017-03-22T02:00:00Z"
+    assert_time data, 2, "2017-03-22T03:00:00Z"
+    assert_time data, 3, "2017-03-22T04:00:00Z"
     assert Enum.at(data, 0).count == 11
     assert Enum.at(data, 1).count == 22
     assert Enum.at(data, 2).count == 0
@@ -67,10 +67,10 @@ defmodule Castle.RedisIntervalCacheTest do
     assert redis_count("#{@prefix}*") == 4
     assert meta.cache_hits == 3
     assert length(data) == 4
-    assert_time data, 0, "2017-03-22T01:15:00Z"
-    assert_time data, 1, "2017-03-22T01:30:00Z"
-    assert_time data, 2, "2017-03-22T01:45:00Z"
-    assert_time data, 3, "2017-03-22T02:00:00Z"
+    assert_time data, 0, "2017-03-22T01:00:00Z"
+    assert_time data, 1, "2017-03-22T02:00:00Z"
+    assert_time data, 2, "2017-03-22T03:00:00Z"
+    assert_time data, 3, "2017-03-22T04:00:00Z"
     assert Enum.at(data, 0).count == 0
     assert Enum.at(data, 1).count == 22
     assert Enum.at(data, 2).count == 0
@@ -79,10 +79,10 @@ defmodule Castle.RedisIntervalCacheTest do
 
   defp test_work_fn(intv) do
     lookup = %{
-      "2017-03-22T01:15:00Z" => %{1 => 11, 2 => 12, "foobar" => 13},
-      "2017-03-22T01:30:00Z" => %{1 => 21, 2 => 22},
-      "2017-03-22T01:45:00Z" => %{},
-      "2017-03-22T02:00:00Z" => %{"foobar" => 43},
+      "2017-03-22T01:00:00Z" => %{1 => 11, 2 => 12, "foobar" => 13},
+      "2017-03-22T02:00:00Z" => %{1 => 21, 2 => 22},
+      "2017-03-22T03:00:00Z" => %{},
+      "2017-03-22T04:00:00Z" => %{"foobar" => 43},
     }
     data = Enum.map intv.rollup.range(intv.from, intv.to), fn(dtim) ->
       {dtim, Map.get(lookup, format_dtim(dtim))}
