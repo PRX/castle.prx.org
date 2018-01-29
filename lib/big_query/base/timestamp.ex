@@ -44,8 +44,7 @@ defmodule BigQuery.Base.Timestamp do
   end
 
   def group({data, meta}, intv) do
-    range = intv.rollup.range(intv.from, intv.to) |> Enum.drop(-1) # exclusive
-    data = insert_counts(range, data)
+    data = intv.rollup.range(intv.from, intv.to) |> insert_counts(data)
     {data, meta}
   end
 

@@ -26,7 +26,7 @@ defmodule BigQuery.TimestampRollups.Hourly do
   end
   def range(from, to, acc) do
     if Timex.compare(from, to) >= 0 do
-      acc ++ [to]
+      acc
     else
       next(from) |> range(to, acc ++ [from])
     end
@@ -34,7 +34,7 @@ defmodule BigQuery.TimestampRollups.Hourly do
 
   def count_range(from, to) do
     start = floor(from) |> Timex.to_unix()
-    stop = next(to) |> Timex.to_unix()
+    stop = ceiling(to) |> Timex.to_unix()
     Float.ceil(max(stop - start, 0) / 3600) |> round
   end
 end
