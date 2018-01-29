@@ -2,6 +2,9 @@ defmodule CastleWeb.API.BucketHelper do
 
   # put the data counts into their respective timestamp buckets
   # (assumes both data and buckets are sorted timestamp-ASC)
+  def bucketize(result, %{from: from, to: to, bucket: bucket}) do
+    bucketize(result, bucket.range(from, to))
+  end
   def bucketize({data, meta}, buckets) when is_list(buckets) do
     {combine_data(buckets, data), meta}
   end

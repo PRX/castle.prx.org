@@ -9,7 +9,7 @@ defmodule Castle.API.ImpressionControllerTest do
       assert resp =~ ~r/missing required/i
       resp = conn |> get_podcast(123, from: "blah") |> response(400)
       assert resp =~ ~r/bad from param/i
-      resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-02") |> json_response(200)
+      resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-21") |> json_response(200)
       assert resp["id"] == 123
     end
   end
@@ -25,45 +25,45 @@ defmodule Castle.API.ImpressionControllerTest do
 
   test "responds with impressions for a podcast", %{conn: conn} do
     with_mock BigQuery, fake_data() do
-      resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-02", interval: "15m") |> json_response(200)
+      resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-21", interval: "1d") |> json_response(200)
       assert resp["id"] == 123
-      assert resp["interval"] == "15MIN"
+      assert resp["interval"] == "DAY"
       assert length(resp["impressions"]) == 20
-      assert hd(resp["impressions"]) == ["2017-03-22T00:00:00Z", 0]
+      assert hd(resp["impressions"]) == ["2017-04-01T00:00:00Z", 0]
     end
   end
 
   test "responds with grouped impressions for a podcast", %{conn: conn} do
     with_mock BigQuery, fake_groups() do
-      resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-02", interval: "15m", group: "city") |> json_response(200)
+      resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-21", interval: "1d", group: "city") |> json_response(200)
       assert resp["id"] == 123
-      assert resp["interval"] == "15MIN"
+      assert resp["interval"] == "DAY"
       assert length(resp["groups"]) == 1
       assert hd(resp["groups"]) == "foo"
       assert length(resp["impressions"]) == 20
-      assert hd(resp["impressions"]) == ["2017-03-22T00:00:00Z", 0]
+      assert hd(resp["impressions"]) == ["2017-04-01T00:00:00Z", 0]
     end
   end
 
   test "responds with impressions for an episode", %{conn: conn} do
     with_mock BigQuery, fake_data() do
-      resp = conn |> get_episode("hello", from: "2017-04-01", to: "2017-04-02", interval: "15m") |> json_response(200)
+      resp = conn |> get_episode("hello", from: "2017-04-01", to: "2017-04-21", interval: "1d") |> json_response(200)
       assert resp["guid"] == "hello"
-      assert resp["interval"] == "15MIN"
+      assert resp["interval"] == "DAY"
       assert length(resp["impressions"]) == 20
-      assert hd(resp["impressions"]) == ["2017-03-22T00:00:00Z", 0]
+      assert hd(resp["impressions"]) == ["2017-04-01T00:00:00Z", 0]
     end
   end
 
   test "responds with grouped impressions for an episode", %{conn: conn} do
     with_mock BigQuery, fake_groups() do
-      resp = conn |> get_episode("hello", from: "2017-04-01", to: "2017-04-02", interval: "15m", group: "country") |> json_response(200)
+      resp = conn |> get_episode("hello", from: "2017-04-01", to: "2017-04-21", interval: "1d", group: "country") |> json_response(200)
       assert resp["guid"] == "hello"
-      assert resp["interval"] == "15MIN"
+      assert resp["interval"] == "DAY"
       assert length(resp["groups"]) == 1
       assert hd(resp["groups"]) == "foo"
       assert length(resp["impressions"]) == 20
-      assert hd(resp["impressions"]) == ["2017-03-22T00:00:00Z", 0]
+      assert hd(resp["impressions"]) == ["2017-04-01T00:00:00Z", 0]
     end
   end
 
@@ -90,20 +90,20 @@ defmodule Castle.API.ImpressionControllerTest do
   end
 
   defp group_impressions(_id, _interval, _group) do
-    {:ok, start, _} = DateTime.from_iso8601("2017-03-22T00:00:00Z")
+    {:ok, start, _} = DateTime.from_iso8601("2017-04-01T00:00:00Z")
     {Enum.map(0..19, &group_impression(&1, start)), %{meta: "data"}}
   end
 
   defp group_impression(num, start_dtim) do
-    %{count: num, time: Timex.shift(start_dtim, minutes: num * 900), display: "foo", rank: 1}
+    %{count: num, time: Timex.shift(start_dtim, days: num), display: "foo", rank: 1}
   end
 
   defp impressions(_interval) do
-    {:ok, start, _} = DateTime.from_iso8601("2017-03-22T00:00:00Z")
+    {:ok, start, _} = DateTime.from_iso8601("2017-04-01T00:00:00Z")
     {Enum.map(0..19, &impression(&1, start)), %{meta: "data"}}
   end
 
   defp impression(num, start_dtim) do
-    {Timex.shift(start_dtim, minutes: num * 900), %{123 => num, "hello" => num}}
+    {Timex.shift(start_dtim, days: num), %{123 => num, "hello" => num}}
   end
 end
