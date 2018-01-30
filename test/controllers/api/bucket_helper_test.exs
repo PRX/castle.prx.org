@@ -40,6 +40,21 @@ defmodule Castle.API.BucketHelperTest do
     assert_times(data)
   end
 
+  test "adjust the start time for the first interval bucket", %{to: to} do
+    interval = %BigQuery.Interval{
+      from: get_dtim("2017-03-26T12:00:00Z"),
+      to: to,
+      rollup: BigQuery.TimestampRollups.Hourly,
+      bucket: BigQuery.TimestampRollups.Daily,
+    }
+    data = bucketize([], interval)
+    assert length(data) == 3
+    times = Enum.map(data, &(&1.time))
+    assert_time times, 0, "2017-03-26T12:00:00Z"
+    assert_time times, 1, "2017-03-27T00:00:00Z"
+    assert_time times, 2, "2017-03-28T00:00:00Z"
+  end
+
   test "handles empty first or last buckets", %{buckets: buckets} do
     raw = [%{time: get_dtim("2017-03-27T11:00:00Z"), count: 2}]
     data = bucketize(raw, buckets)
