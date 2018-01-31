@@ -3,9 +3,15 @@ defmodule BigQuery.Base.Query do
   import BigQuery.Base.QueryParams
   import BigQuery.Base.QueryResult
 
-  def query(str), do: query(%{}, str)
+  use Memoize
 
-  def query(queryParams, sql, pageLimit \\ nil) do
+  def query(str), do: query(%{}, str)
+  def query(params, sql), do: query(params, sql, nil)
+  defmemo query(queryParams, sql, pageLimit), expires_in: 10 * 1000 do
+    run_query(queryParams, sql, pageLimit)
+  end
+
+  defp run_query(queryParams, sql, pageLimit) do
     sql
     |> post_params(queryParams, pageLimit)
     |> post("queries")

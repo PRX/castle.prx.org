@@ -25,7 +25,7 @@ defmodule Castle.Mixfile do
   defp apps(_), do: apps()
   defp apps, do: [
     :phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-    :jose, :httpoison, :timex, :corsica, :prx_auth
+    :jose, :httpoison, :timex, :corsica, :prx_auth, :memoize
   ]
 
   # Specifies which paths to compile per environment.
@@ -50,6 +50,7 @@ defmodule Castle.Mixfile do
      {:redix, ">= 0.6.0"},
      {:corsica, "~> 0.5"},
      {:prx_auth, "~> 0.0.1"},
+     {:memoize, "~> 1.2"},
      {:dotenv, "~> 2.1", only: [:dev, :test]},
      {:mock, "~> 0.3.1", only: :test}]
   end
