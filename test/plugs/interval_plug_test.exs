@@ -21,6 +21,14 @@ defmodule Castle.PlugsIntervalTest do
     assert intv.rollup.name == "HOUR"
   end
 
+  test "parses day intervals with a day-rollup", %{conn: conn} do
+    intv = get_interval(conn, "2017-04-01T00:00:00Z", "2017-04-02T23:59:59Z", "1d")
+    assert_time intv.from, "2017-04-01T00:00:00Z"
+    assert_time intv.to, "2017-04-03T00:00:00Z"
+    assert intv.bucket.name == "DAY"
+    assert intv.rollup.name == "DAY"
+  end
+
   test "parses week intervals", %{conn: conn} do
     intv = get_interval(conn, "2017-04-01T14:04:00Z", "2017-04-09T14:05:00Z", "1w")
     assert_time intv.from, "2017-04-01T00:00:00Z"
