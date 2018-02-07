@@ -1,5 +1,5 @@
 defmodule Castle.Rollup.Jobs.Trends do
-  # @redis Application.get_env(:castle, :redis)
+  # TODO: import "public" redis api from the application
   import Castle.Redis.PartitionCache
 
   # old - all days before today
