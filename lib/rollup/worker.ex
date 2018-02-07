@@ -5,6 +5,7 @@ defmodule Castle.Rollup.Worker do
 
   @jobs [
     {Castle.Rollup.Jobs.Totals, :run, []},
+    {Castle.Rollup.Jobs.Trends, :run, []},
   ]
 
   def start_link do

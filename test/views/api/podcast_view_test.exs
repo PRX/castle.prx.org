@@ -15,9 +15,14 @@ defmodule Castle.API.PodcastViewTest do
   end
 
   test "show.json", %{conn: conn} do
-    doc = render("show.json", %{conn: conn, podcast: test_podcast("foo"), meta: %{}})
+    trends = %{today: 1, yesterday: 2, this7: 3, last7: 4}
+    doc = render("show.json", %{conn: conn, podcast: test_podcast("foo"), trends: trends, meta: %{}})
     assert doc.id == "foo"
     assert doc.downloads.total == 999
+    assert doc.downloads.today == 1
+    assert doc.downloads.yesterday == 2
+    assert doc.downloads.this7days == 3
+    assert doc.downloads.previous7days == 4
   end
 
   defp test_podcasts do
