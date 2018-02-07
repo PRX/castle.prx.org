@@ -1,4 +1,6 @@
 defmodule Castle.Redis.PartitionCache do
+  use Memoize
+
   alias Castle.Redis.Conn, as: Conn
 
   def partition(key, combiner_fn, worker_fns) do
@@ -6,7 +8,7 @@ defmodule Castle.Redis.PartitionCache do
   end
   def partition(key, fns), do: partition(key, fn(parts) -> parts end, fns)
 
-  def partition_get(key, num_parts, combiner_fn) do
+  defmemo partition_get(key, num_parts, combiner_fn), expires_in: 300 * 1000 do
     parts = Enum.map 0..(num_parts - 1), fn(index) ->
       case Conn.get("#{key}.#{index}") do
         nil -> {[], %{cached: true}}
