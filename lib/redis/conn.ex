@@ -19,6 +19,13 @@ defmodule Castle.Redis.Conn do
     command(["HGET", key, field]) |> decode()
   end
 
+  def hgetall(key) do
+    command(["HGETALL", key])
+    |> Enum.chunk(2)
+    |> Enum.into(%{}, fn([k, v]) -> {k, decode(v)} end)
+    |> Map.delete("_")
+  end
+
   def set(sets) when is_map(sets) do
     sets |> Enum.map(fn({key, val}) -> ["SET", key, encode(val)] end) |> pipeline()
     sets

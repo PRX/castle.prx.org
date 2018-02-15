@@ -37,6 +37,12 @@ defmodule Castle.RedisConnTest do
     assert hget(["conn_test_key1"], "f1") == [[true, nil]]
   end
 
+  test "gets entire hashes" do
+    hsetall("conn_test_key1", %{f1: 999, f3: 777})
+    assert hgetall("conn_test_key1") == %{"f1" => 999, "f3" => 777}
+    assert hgetall("conn_test_key2") == %{}
+  end
+
   test "sets empty hashes with ttl" do
     assert hget(["conn_test_key1"], "f1") == [[false, nil]]
     hsetall("conn_test_key1", %{})
