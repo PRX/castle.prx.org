@@ -1,5 +1,5 @@
 defmodule Castle.Rollup.Data.TotalsTest do
-  use Castle.RedisCase, async: true
+  use Castle.RedisCase, async: false
   use Castle.TimeHelpers
 
   import Castle.Rollup.Data.Totals
@@ -11,6 +11,8 @@ defmodule Castle.Rollup.Data.TotalsTest do
   @last_updated "_last_updated"
 
   setup do
+    redis_clear("rollup.totals.*")
+    redis_clear("downloads.*")
     today = format_dtim(Timex.now |> Timex.beginning_of_day)
     Conn.hset("rollups.totals.podcasts", @test_podcast, 444)
     Conn.hset("rollups.totals.podcasts", @last_updated, today)

@@ -1,5 +1,5 @@
 defmodule Castle.Rollup.Data.TrendsTest do
-  use Castle.RedisCase, async: true
+  use Castle.RedisCase, async: false
   use Castle.TimeHelpers
 
   import Castle.Rollup.Data.Trends
@@ -10,6 +10,7 @@ defmodule Castle.Rollup.Data.TrendsTest do
   @test_episode "_test_episode_guid"
 
   setup do
+    redis_clear("downloads.*")
     today = format_dtim(Timex.now |> Timex.beginning_of_day)
     yesterday = format_dtim(Timex.now |> Timex.beginning_of_day |> Timex.shift(days: -1))
     last_week = format_dtim(Timex.now |> Timex.beginning_of_day |> Timex.shift(days: -10))
