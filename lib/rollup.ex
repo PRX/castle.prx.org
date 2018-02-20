@@ -2,7 +2,13 @@ defmodule Castle.Rollup do
 
   alias Castle.Rollup.Data, as: Data
 
-  defdelegate total_podcast_downloads(id), to: Data.Totals, as: :podcast_downloads
-  defdelegate total_episode_downloads(guid), to: Data.Totals, as: :episode_downloads
+  defdelegate podcasts(), to: Data.Totals, as: :podcasts
+  defdelegate episodes(), to: Data.Totals, as: :episodes
+
+  defdelegate podcast_total(id), to: Data.Totals, as: :podcast
+  defdelegate episode_total(guid), to: Data.Totals, as: :episode
+
+  defdelegate podcast_trends(id), to: Data.Trends, as: :podcast
+  defdelegate episode_trends(guid), to: Data.Trends, as: :episode
 
 end

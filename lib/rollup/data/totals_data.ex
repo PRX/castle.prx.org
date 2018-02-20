@@ -14,11 +14,15 @@ defmodule Castle.Rollup.Data.Totals do
     end
   end
 
+  def podcasts(), do: hash_fetch(podcasts_key)
+
   def episode(guid) do
     hash_fetch episodes_key(), guid, fn(from) ->
       get_from_interval(@episode_downloads_key, guid, from)
     end
   end
+
+  def episodes(), do: hash_fetch(episodes_key)
 
   defp get_from_interval(key_prefix, ident, from) do
     tomorrow = Timex.now |> Timex.end_of_day |> Timex.shift(microseconds: 1)

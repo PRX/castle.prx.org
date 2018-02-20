@@ -17,6 +17,7 @@ defmodule Castle.Redis.HashCache do
     end
   end
 
+  def hash_fetch(key), do: Conn.hgetall(key) |> Map.delete(@last_updated) |> Map.to_list
   def hash_fetch(key, field), do: Conn.hget(key, field)
   def hash_fetch(key, field, supplement_fn) do
     last_updated = parse Conn.hget(key, @last_updated)

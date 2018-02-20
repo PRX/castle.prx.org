@@ -1,4 +1,4 @@
-defmodule Castle.RedisIntervalCacheTest do
+defmodule Castle.RedisHashCacheTest do
   use Castle.RedisCase, async: true
   use Castle.TimeHelpers
 
