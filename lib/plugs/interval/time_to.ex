@@ -1,8 +1,5 @@
 defmodule Castle.Plugs.Interval.TimeTo do
 
-  # if no end date is set, just use this many seconds into the future
-  @buffer_seconds 60
-
   def parse(%{params: %{"to" => to_dtim}}) when is_bitstring(to_dtim) do
     case parse_dtim(to_dtim) do
       {:ok, dtim} -> {:ok, Timex.Timezone.convert(dtim, :utc)}
@@ -10,7 +7,7 @@ defmodule Castle.Plugs.Interval.TimeTo do
     end
   end
   def parse(_conn) do
-    {:ok, Timex.shift(Timex.now, seconds: @buffer_seconds)}
+    {:ok, Timex.now |> Timex.beginning_of_day |> Timex.shift(days: 1)}
   end
 
   defp parse_dtim(dtim_string) do
