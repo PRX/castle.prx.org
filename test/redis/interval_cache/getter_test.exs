@@ -102,4 +102,18 @@ defmodule Castle.RedisIntervalCacheGetterTest do
     assert hits_at_time.("2017-03-22T04:00:31Z") == {3, 33}
     assert hits_at_time.("2017-03-22T00:00:00Z") == {4, 0}
   end
+
+  test "gets hits only", %{from: from, to: to, rollup: rollup, keys: keys} do
+    Conn.hset(Enum.at(keys, 0), "field1", 11)
+    Conn.hset(Enum.at(keys, 1), "field1", 22)
+    Conn.hset(Enum.at(keys, 3), "field1", 44)
+    hits = Getter.get_hits(@prefix, "field1", from, to, rollup)
+    assert length(hits) == 3
+    assert_time Enum.at(hits, 0).time, "2017-03-22T01:00:00Z"
+    assert_time Enum.at(hits, 1).time, "2017-03-22T02:00:00Z"
+    assert_time Enum.at(hits, 2).time, "2017-03-22T04:00:00Z"
+    assert Enum.at(hits, 0).count == 11
+    assert Enum.at(hits, 1).count == 22
+    assert Enum.at(hits, 2).count == 44
+  end
 end

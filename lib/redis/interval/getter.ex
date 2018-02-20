@@ -10,6 +10,15 @@ defmodule Castle.Redis.Interval.Getter do
     cache_hits(range, counts)
   end
 
+  def get_hits(key_prefix, ident, from, to, rollup) do
+    range = rollup.range(from, to)
+    Keys.keys(key_prefix, range)
+    |> Conn.hget(ident)
+    |> Enum.zip(range)
+    |> Enum.map(fn({[_hit, count], time}) -> %{time: time, count: count} end)
+    |> Enum.filter(&(!is_nil(&1.count)))
+  end
+
   defp cache_hits(times, counts), do: cache_hits(times, counts, [])
   defp cache_hits([time | rest_times], [count | rest_counts], accumulator) do
     case cache_val(time, count) do
