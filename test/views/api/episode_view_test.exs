@@ -16,21 +16,16 @@ defmodule Castle.API.EpisodeViewTest do
 
   test "show.json", %{conn: conn} do
     trends = %{today: 1, this7: 2, last7: 3}
-    doc = render("show.json", %{conn: conn, episode: test_episode("foo"), trends: trends, meta: %{}})
+    doc = render("show.json", %{conn: conn, episode: "foo", total: 999, trends: trends, meta: %{}})
     assert doc.guid == "foo"
     assert doc.downloads.total == 999
     assert doc.downloads.today == 1
     assert doc.downloads.yesterday == 0
     assert doc.downloads.this7days == 2
     assert doc.downloads.previous7days == 3
-    assert doc._links["prx:podcast"].href =~ ~r/podcasts\/123/
   end
 
   defp test_episodes do
-    Enum.map(["foo", "bar"], &test_episode/1)
-  end
-
-  defp test_episode(guid) do
-    %{feeder_episode: guid, feeder_podcast: 123, count: 999}
+    [{"foo", 999}, {"bar", 999}]
   end
 end

@@ -16,17 +16,16 @@ defmodule CastleWeb.API.EpisodeView do
     }
   end
 
-  def render("show.json", %{conn: conn, episode: episode, trends: trends, meta: meta}) do
-    episode_json(episode, trends, conn)
-    |> put_podcast_link(conn, episode)
-    |> Map.put(:meta, meta)
+  def render("show.json", %{conn: conn, episode: guid, total: total, trends: trends, meta: meta}) do
+    episode_json(guid, total, trends, conn) |> Map.put(:meta, meta)
   end
 
-  defp episode_json(%{feeder_episode: guid, count: count}, trends, conn) do
+  defp episode_json({guid, total}, trends, conn), do: episode_json(guid, total, trends, conn)
+  defp episode_json(guid, total, trends, conn) do
     %{
       guid: guid,
       name: guid,
-      downloads: trends_json(count, trends),
+      downloads: trends_json(total, trends),
       _links: %{
         self: %{
           href: api_episode_path(conn, :show, guid),
@@ -46,11 +45,6 @@ defmodule CastleWeb.API.EpisodeView do
       }
     }
   end
-
-  defp put_podcast_link(json, conn, %{feeder_podcast: id}) do
-    put_in json, [:_links, "prx:podcast"], %{href: api_podcast_path(conn, :show, id)}
-  end
-  defp put_podcast_link(json, _conn, _episode), do: json
 
   defp trends_json(total_count, nil), do: %{total: total_count}
   defp trends_json(total_count, trends) do
