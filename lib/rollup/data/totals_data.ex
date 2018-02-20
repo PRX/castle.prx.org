@@ -22,8 +22,8 @@ defmodule Castle.Rollup.Data.Totals do
 
   defp get_from_interval(key_prefix, ident, from) do
     tomorrow = Timex.now |> Timex.end_of_day |> Timex.shift(microseconds: 1)
-    {hits, _new_from} = Getter.get(key_prefix, ident, from, tomorrow, @daily)
-    sum_interval_hits(hits)
+    Getter.get_hits(key_prefix, ident, from, tomorrow, @daily)
+    |> sum_interval_hits()
   end
 
   defp sum_interval_hits([]), do: 0

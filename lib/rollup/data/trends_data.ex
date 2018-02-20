@@ -29,8 +29,7 @@ defmodule Castle.Rollup.Data.Trends do
   end
 
   defp get_from_interval(key_prefix, ident, from, to) do
-    {hits, _new_from} = Getter.get(key_prefix, ident, from, to, @daily)
-    hits
+    Getter.get_hits(key_prefix, ident, from, to, @daily)
   end
 
   defp sum_for_range(_from, _to, []), do: 0
