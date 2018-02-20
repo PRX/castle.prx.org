@@ -14,8 +14,11 @@ defmodule Castle do
 
     # Create the redix children list of workers:
     redix_config =
-      [host: Env.get(:redis_host), port: Env.get(:redis_port)]
-      |> Enum.filter(fn({_key, val}) -> val end)
+      [
+        host: Env.get(:redis_host),
+        port: Env.get(:redis_port),
+        database: Application.get_env(:castle, :redis_database)
+      ] |> Enum.filter(fn({_key, val}) -> val end)
     redix_size = 5
     redix_workers = for i <- 0..(redix_size - 1) do
       worker(Redix, [redix_config, [name: :"redix_#{i}"]], id: {Redix, i})
