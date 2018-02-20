@@ -6,14 +6,14 @@ defmodule Castle.Redis.HashCache do
   def hash_cache(key, work_fn) do
     case lookup(key) do
       {:skip} ->
-        {nil, nil}
+        {%{}, %{cached: true}}
       {:ok, from_dtim, to_dtim, old_data} ->
-        merged_data = work_fn.(from_dtim, to_dtim)
-          |> stringify_keys()
+        {data, meta} = work_fn.(from_dtim, to_dtim)
+        merged_data = stringify_keys(data)
           |> merge(old_data)
           |> Map.put(@last_updated, format(to_dtim))
         Conn.hsetall(key, merged_data)
-        {from_dtim, to_dtim}
+        {data, Map.put(meta, :job, {from_dtim, to_dtim})}
     end
   end
 

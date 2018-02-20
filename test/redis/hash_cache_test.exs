@@ -17,11 +17,11 @@ defmodule Castle.RedisIntervalCacheTest do
   end
 
   test "fetches from the beginning of time", %{today: today} do
-    {from, to} = hash_cache @key, fn(from, to) ->
+    {_data, %{job: {from, to}}} = hash_cache @key, fn(from, to) ->
       case {from, to} do
-        {nil, nil} -> %{skip: 1}
-        {nil, _to} -> %{fullfetch: 1}
-        {_from, _to} -> %{partialfetch: 1}
+        {nil, nil} -> {%{skip: 1}, %{}}
+        {nil, _to} -> {%{fullfetch: 1}, %{}}
+        {_from, _to} -> {%{partialfetch: 1}, %{}}
       end
     end
     assert from == nil
@@ -34,11 +34,11 @@ defmodule Castle.RedisIntervalCacheTest do
 
   test "fetches from a specific date", %{today: today} do
     Conn.hsetall(@key, %{_last_updated: "2018-02-01T00:00:00Z", partialfetch: 2})
-    {from, to} = hash_cache @key, fn(from, to) ->
+    {_data, %{job: {from, to}}} = hash_cache @key, fn(from, to) ->
       case {from, to} do
-        {nil, nil} -> %{skip: 1}
-        {nil, _to} -> %{fullfetch: 1}
-        {_from, _to} -> %{partialfetch: 1}
+        {nil, nil} -> {%{skip: 1}, %{}}
+        {nil, _to} -> {%{fullfetch: 1}, %{}}
+        {_from, _to} -> {%{partialfetch: 1}, %{}}
       end
     end
     assert_time from, "2018-02-01T00:00:00Z"
@@ -51,15 +51,15 @@ defmodule Castle.RedisIntervalCacheTest do
 
   test "skips fetching entirely", %{today: today} do
     Conn.hsetall(@key, %{_last_updated: today})
-    {from, to} = hash_cache @key, fn(from, to) ->
+    {_data, meta} = hash_cache @key, fn(from, to) ->
       case {from, to} do
-        {nil, nil} -> %{skip: 1}
-        {nil, _to} -> %{fullfetch: 1}
-        {_from, _to} -> %{partialfetch: 1}
+        {nil, nil} -> {%{skip: 1}, %{}}
+        {nil, _to} -> {%{fullfetch: 1}, %{}}
+        {_from, _to} -> {%{partialfetch: 1}, %{}}
       end
     end
-    assert from == nil
-    assert to == nil
+    assert Map.has_key?(meta, :job) == false
+    assert meta.cached == true
     assert Conn.hget(@key, "_last_updated") == today
     assert Conn.hget(@key, "skip") == nil
     assert Conn.hget(@key, "fullfetch") == nil

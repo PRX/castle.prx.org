@@ -4,14 +4,11 @@ defmodule Castle.Rollup.Jobs.Totals do
   def podcasts_key(), do: "rollups.totals.podcasts"
   def episodes_key(), do: "rollups.totals.episodes"
 
-  def run() do
-    t1 = Task.async(fn ->
-      hash_cache podcasts_key(), &Castle.Rollup.Jobs.Totals.query_podcasts/2
-    end)
-    t2 = Task.async(fn ->
-      hash_cache episodes_key(), &Castle.Rollup.Jobs.Totals.query_episodes/2
-    end)
-    {Task.await(t1), Task.await(t2)}
+  def run_podcasts() do
+    hash_cache podcasts_key(), &Castle.Rollup.Jobs.Totals.query_podcasts/2
+  end
+  def run_episodes() do
+    hash_cache episodes_key(), &Castle.Rollup.Jobs.Totals.query_episodes/2
   end
 
   def query_podcasts(from, to), do: query("feeder_podcast", from, to)
@@ -20,13 +17,13 @@ defmodule Castle.Rollup.Jobs.Totals do
   defp query(_field, nil, nil), do: %{}
   defp query(field, nil, to) do
     sql = sql(field, "_PARTITIONTIME < @upper")
-    {result, _meta} = BigQuery.Base.Query.query %{upper: to}, sql
-    result_hash(result)
+    {result, meta} = BigQuery.Base.Query.query %{upper: to}, sql
+    {result_hash(result), meta}
   end
   defp query(field, from, to) do
     sql = sql(field, "_PARTITIONTIME >= @lower AND _PARTITIONTIME < @upper")
-    {result, _meta} = BigQuery.Base.Query.query %{lower: from, upper: to}, sql
-    result_hash(result)
+    {result, meta} = BigQuery.Base.Query.query %{lower: from, upper: to}, sql
+    {result_hash(result), meta}
   end
 
   defp sql(field, where_sql) do

@@ -4,8 +4,8 @@ defmodule Castle.Rollup.Worker do
   use GenServer
 
   @jobs [
-    {Castle.Rollup.Jobs.Totals, :run, []},
-    {Castle.Rollup.Jobs.Trends, :run, []},
+    {Castle.Rollup.Jobs.Totals, :run_podcasts, []},
+    {Castle.Rollup.Jobs.Totals, :run_episodes, []},
   ]
 
   def start_link do
@@ -34,12 +34,12 @@ defmodule Castle.Rollup.Worker do
   end
 
   defp run_job({module, name, args}, %{log: true}) do
-    IO.puts "Running: #{module}"
+    IO.puts "Running: #{module}.#{name}"
     {_result, meta} = apply(module, name, args)
     if Map.has_key?(meta, :job) do
       IO.puts "  #{format_meta(meta)}"
     else
-      IO.puts "  no partitions expired"
+      IO.puts "  skip - no data expired"
     end
   end
 
@@ -47,9 +47,9 @@ defmodule Castle.Rollup.Worker do
     {_result, meta} = apply(module, name, args)
     case meta do
       %{job: _, total: _, megabytes: _} ->
-        Logger.info "ROLLUP #{module} #{format_meta(meta)}"
+        Logger.info "ROLLUP #{module}.#{name} #{format_meta(meta)}"
       %{job: _} ->
-        Logger.debug "ROLLUP #{module} #{format_meta(meta)}"
+        Logger.debug "ROLLUP #{module}.#{name} #{format_meta(meta)}"
       _ -> nil
     end
   end
