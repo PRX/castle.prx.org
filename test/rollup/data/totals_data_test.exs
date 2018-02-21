@@ -1,70 +1,36 @@
-import Mock
-
 defmodule Castle.Rollup.Data.TotalsTest do
-  use Castle.ConnCase, async: false
+  use Castle.RedisCase, async: false
+  use Castle.TimeHelpers
 
   import Castle.Rollup.Data.Totals
+  alias Castle.Redis.Conn, as: Conn
 
-  # TODO: this doesn't work unless you've "mix castle.rollup"d first
-  # @tag :external
-  # test "actually works" do
-  #   assert podcast_downloads(25) > 10000
-  #   assert episode_downloads("d7a8935e-b735-4ecc-afff-0a804ac40fd9") > 100
-  # end
+  @moduletag :redis
+  @test_podcast "_test_podcast_id"
+  @test_episode "_test_episode_guid"
+  @last_updated "_last_updated"
 
-  test "lists podcasts" do
-    with_mock Castle.Rollup.Jobs.Totals, fake_getter() do
-      list = podcasts()
-      assert length(list) == 2
-      assert Enum.at(list, 0).feeder_podcast == 5
-      assert Enum.at(list, 0).count == 14
-      assert Enum.at(list, 0).feeder_episodes == ["guid1", "guid2"]
-      assert Enum.at(list, 1).feeder_podcast == 6
-      assert Enum.at(list, 1).count == 3
-      assert Enum.at(list, 1).feeder_episodes == ["guid3"]
-    end
+  setup do
+    redis_clear("rollup.totals.*")
+    redis_clear("downloads.*")
+    today = format_dtim(Timex.now |> Timex.beginning_of_day)
+    Conn.hset("rollups.totals.podcasts", @test_podcast, 444)
+    Conn.hset("rollups.totals.podcasts", @last_updated, today)
+    Conn.hset("downloads.podcasts.DAY.#{today}", @test_podcast, 33)
+    Conn.hset("rollups.totals.episodes", @test_episode, 222)
+    Conn.hset("rollups.totals.episodes", @last_updated, today)
+    Conn.hset("downloads.episodes.DAY.#{today}", @test_episode, 11)
+    []
   end
 
-  test "lists episodes" do
-    with_mock Castle.Rollup.Jobs.Totals, fake_getter() do
-      list = episodes()
-      assert length(list) == 3
-      assert Enum.at(list, 0).feeder_episode == "guid1"
-      assert Enum.at(list, 0).feeder_podcast == 5
-      assert Enum.at(list, 0).count == 9
-      assert Enum.at(list, 1).feeder_episode == "guid2"
-      assert Enum.at(list, 1).feeder_podcast == 5
-      assert Enum.at(list, 1).count == 5
-      assert Enum.at(list, 2).feeder_episode == "guid3"
-      assert Enum.at(list, 2).feeder_podcast == 6
-      assert Enum.at(list, 2).count == 3
-    end
+  test "gets nil for unknown podcats/episodes" do
+    assert podcast("_does_not_exist") == nil
+    assert episode("_does_not_exist") == nil
   end
 
-  test "gets podcast download counts" do
-    with_mock Castle.Rollup.Jobs.Totals, fake_getter() do
-      assert podcast_downloads(5) == 14
-      assert podcast_downloads(6) == 3
-      assert podcast_downloads(7) == 0
-    end
-  end
-
-  test "gets episode download counts" do
-    with_mock Castle.Rollup.Jobs.Totals, fake_getter() do
-      assert episode_downloads("guid1") == 9
-      assert episode_downloads("guid2") == 5
-      assert episode_downloads("guid3") == 3
-      assert episode_downloads("guid4") == 0
-    end
-  end
-
-  defp fake_getter do
-    results = [
-      %{count: 5, feeder_episode: "guid2", feeder_podcast: 5},
-      %{count: 9, feeder_episode: "guid1", feeder_podcast: 5},
-      %{count: 3, feeder_episode: "guid3", feeder_podcast: 6},
-    ]
-    [get: fn() -> {results, %{cached: true}} end]
+  test "gets daily numbers added to the rollup" do
+    assert podcast(@test_podcast) == 477
+    assert episode(@test_episode) == 233
   end
 
 end

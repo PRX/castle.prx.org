@@ -1,14 +1,10 @@
 defmodule Castle.PlugsIntervalTimeToTest do
   use Castle.ConnCase, async: true
 
-  test "sets a default slightly in the future", %{conn: conn} do
+  test "sets a default as the next day", %{conn: conn} do
     {:ok, time_to} = Castle.Plugs.Interval.TimeTo.parse(conn)
-    now = Timex.now
-    later = Timex.shift(now, seconds: 100)
-
-    assert time_to
-    assert Timex.compare(time_to, now) > 0
-    assert Timex.compare(time_to, later) < 0
+    tomorrow = Timex.now |> Timex.beginning_of_day |> Timex.shift(days: 1)
+    assert time_to == tomorrow
   end
 
   test "parses query timestamps", %{conn: conn} do

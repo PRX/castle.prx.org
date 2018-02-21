@@ -16,3 +16,6 @@ config :castle, :bigquery, BigQuery
 # Don't run workers during testing
 config :castle, :rollup_initial_delay, nil
 config :castle, :rollup_delay, nil
+
+# Run against a different redis database, so we're not messing with dev data
+config :castle, :redis_database, 2

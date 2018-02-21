@@ -1,51 +1,35 @@
 defmodule Castle.Rollup.Data.TrendsTest do
-  use Castle.ConnCase, async: false
+  use Castle.RedisCase, async: false
+  use Castle.TimeHelpers
 
   import Castle.Rollup.Data.Trends
+  alias Castle.Redis.Conn, as: Conn
 
-  import Mock
+  @moduletag :redis
+  @test_podcast "_test_podcast_id"
+  @test_episode "_test_episode_guid"
 
-  # TODO: this doesn't work unless you've "mix castle.rollup"d first
-  # @tag :external
-  # test "actually works" do
-  #   pod_trends = podcast(25)
-  #   assert pod_trends.last7 > 1000
-  #   assert pod_trends.this7 > 1000
-  #   assert pod_trends.yesterday > 100
-  #   assert pod_trends.today > 1
-  #
-  #   ep_trends = episode("5209720b-e71e-454a-abaf-8ffaf542ac67")
-  #   assert ep_trends.last7 > 100
-  #   assert ep_trends.this7 > 100
-  #   assert ep_trends.yesterday > 10
-  #   assert ep_trends.today > 1
-  # end
+  setup do
+    redis_clear("downloads.*")
+    today = format_dtim(Timex.now |> Timex.beginning_of_day)
+    yesterday = format_dtim(Timex.now |> Timex.beginning_of_day |> Timex.shift(days: -1))
+    last_week = format_dtim(Timex.now |> Timex.beginning_of_day |> Timex.shift(days: -10))
+    Conn.hset("downloads.podcasts.DAY.#{today}", @test_podcast, 11)
+    Conn.hset("downloads.podcasts.DAY.#{yesterday}", @test_podcast, 22)
+    Conn.hset("downloads.podcasts.DAY.#{last_week}", @test_podcast, 333)
+    Conn.hset("downloads.episodes.DAY.#{today}", @test_episode, 44)
+    Conn.hset("downloads.episodes.DAY.#{last_week}", @test_episode, 55)
+    []
+  end
 
   test "gets podcast trends" do
-    with_mock Castle.Rollup.Jobs.Trends, fake_getter() do
-      assert podcast(5) == %{last7: 6, this7: 0, today: 3, yesterday: 1}
-      assert podcast(6) == %{last7: 0, this7: 0, today: 11, yesterday: 0}
-      assert podcast(7) == %{last7: 0, this7: 0, today: 0, yesterday: 0}
-    end
+    assert podcast("_does_not_exist") == %{last7: 0, this7: 0, today: 0, yesterday: 0}
+    assert podcast(@test_podcast) == %{last7: 333, this7: 33, today: 11, yesterday: 22}
   end
 
   test "gets episode trends" do
-    with_mock Castle.Rollup.Jobs.Trends, fake_getter() do
-      assert episode("guid1") == %{last7: 2, this7: 0, today: 0, yesterday: 1}
-      assert episode("guid2") == %{last7: 4, this7: 0, today: 3, yesterday: 0}
-      assert episode("guid3") == %{last7: 0, this7: 0, today: 11, yesterday: 0}
-      assert episode("guid4") == %{last7: 0, this7: 0, today: 0, yesterday: 0}
-    end
-  end
-
-  defp fake_getter do
-    results = [
-      %{feeder_episode: "guid2", feeder_podcast: 5, last7: 4},
-      %{feeder_episode: "guid2", feeder_podcast: 5, today: 3},
-      %{feeder_episode: "guid1", feeder_podcast: 5, last7: 2, yesterday: 1},
-      %{feeder_episode: "guid3", feeder_podcast: 6, today: 11},
-    ]
-    [get: fn() -> {results, %{cached: true}} end]
+    assert episode("_does_not_exist") == %{last7: 0, this7: 0, today: 0, yesterday: 0}
+    assert episode(@test_episode) == %{last7: 55, this7: 44, today: 44, yesterday: 0}
   end
 
 end

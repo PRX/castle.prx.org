@@ -16,15 +16,16 @@ defmodule CastleWeb.API.PodcastView do
     }
   end
 
-  def render("show.json", %{conn: conn, podcast: podcast, trends: trends, meta: meta}) do
-    podcast_json(podcast, trends, conn) |> Map.put(:meta, meta)
+  def render("show.json", %{conn: conn, podcast: id, total: total, trends: trends, meta: meta}) do
+    podcast_json(id, total, trends, conn) |> Map.put(:meta, meta)
   end
 
-  defp podcast_json(%{feeder_podcast: id, count: count}, trends, conn) do
+  defp podcast_json({id, total}, trends, conn), do: podcast_json(id, total, trends, conn)
+  defp podcast_json(id, total, trends, conn) do
     %{
       id: id,
       name: id,
-      downloads: trends_json(count, trends),
+      downloads: trends_json(total, trends),
       _links: %{
         self: %{
           href: api_podcast_path(conn, :show, id),

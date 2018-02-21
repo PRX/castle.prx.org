@@ -1,53 +1,35 @@
 defmodule Castle.Rollup.Data.Totals do
   import Castle.Rollup.Jobs.Totals
+  import Castle.Redis.HashCache
+  alias Castle.Redis.Interval.Getter, as: Getter
 
-  # TODO: this is real ugly. Just trying to combine/sort the episode maps
-  def podcasts() do
-    {result, _meta} = get()
-    result
-    |> Enum.map(&(Map.put(&1, :feeder_episodes, [&1.feeder_episode])))
-    |> Enum.map(&(Map.delete(&1, :feeder_episode)))
-    |> Enum.group_by(&(&1.feeder_podcast))
-    |> Enum.map(fn({_podcast_id, episodes}) ->
-      Enum.reduce(episodes, %{}, fn(episode, acc) ->
-        Map.merge(acc, episode, fn(k, v1, v2) ->
-          case k do
-            :count -> v1 + v2
-            :feeder_episodes -> Enum.sort(v1 ++ v2)
-            _ -> v2
-          end
-        end)
-      end)
-    end)
-    |> Enum.sort(&(&1.feeder_podcast < &2.feeder_podcast))
-  end
+  # TODO: this is a bit inside-baseball
+  @podcast_downloads_key "downloads.podcasts.DAY"
+  @episode_downloads_key "downloads.episodes.DAY"
+  @daily BigQuery.TimestampRollups.Daily
 
   def podcast(id) do
-    podcasts() |> Enum.find(&(&1.feeder_podcast == id))
+    hash_fetch podcasts_key(), id, fn(from) ->
+      get_from_interval(@podcast_downloads_key, id, from)
+    end
   end
 
-  def episodes() do
-    {result, _meta} = get()
-    result |> Enum.sort(&(&1.feeder_episode < &2.feeder_episode))
-  end
+  def podcasts(), do: hash_fetch(podcasts_key())
 
   def episode(guid) do
-    episodes() |> Enum.find(&(&1.feeder_episode == guid))
+    hash_fetch episodes_key(), guid, fn(from) ->
+      get_from_interval(@episode_downloads_key, guid, from)
+    end
   end
 
-  def podcast_downloads(podcast_id) do
-    find_count &(&1.feeder_podcast == podcast_id)
+  def episodes(), do: hash_fetch(episodes_key())
+
+  defp get_from_interval(key_prefix, ident, from) do
+    tomorrow = Timex.now |> Timex.end_of_day |> Timex.shift(microseconds: 1)
+    Getter.get_hits(key_prefix, ident, from, tomorrow, @daily)
+    |> sum_interval_hits()
   end
 
-  def episode_downloads(episode_guid) do
-    find_count &(&1.feeder_episode == episode_guid)
-  end
-
-  defp find_count(finder_fn) do
-    {result, _meta} = get()
-    result
-    |> Enum.filter(finder_fn)
-    |> Enum.map(&(&1.count))
-    |> Enum.sum()
-  end
+  defp sum_interval_hits([]), do: 0
+  defp sum_interval_hits([%{count: n} | rest]), do: n + sum_interval_hits(rest)
 end

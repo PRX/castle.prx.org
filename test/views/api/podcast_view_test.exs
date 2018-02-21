@@ -16,7 +16,7 @@ defmodule Castle.API.PodcastViewTest do
 
   test "show.json", %{conn: conn} do
     trends = %{today: 1, yesterday: 2, this7: 3, last7: 4}
-    doc = render("show.json", %{conn: conn, podcast: test_podcast("foo"), trends: trends, meta: %{}})
+    doc = render("show.json", %{conn: conn, podcast: "foo", total: 999, trends: trends, meta: %{}})
     assert doc.id == "foo"
     assert doc.downloads.total == 999
     assert doc.downloads.today == 1
@@ -26,10 +26,6 @@ defmodule Castle.API.PodcastViewTest do
   end
 
   defp test_podcasts do
-    Enum.map(["foo", "bar"], &test_podcast/1)
-  end
-
-  defp test_podcast(id) do
-    %{feeder_podcast: id, feeder_episodes: ["guid1", "guid2"], count: 999}
+    [{"foo", 999}, {"bar", 999}]
   end
 end

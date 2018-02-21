@@ -1,36 +1,37 @@
 defmodule Castle.Rollup.Jobs.TotalsTest do
-  use Castle.BigQueryCase, async: true
+  use Castle.BigQueryCase, async: false
 
+  import Mock
   import Castle.Rollup.Jobs.Totals
 
-  test "combines results" do
-    results = combine([
-      %{count: 1, feeder_podcast: 123, feeder_episode: "123-1"},
-      %{count: 3, feeder_podcast: 123, feeder_episode: "123-2"},
-      %{count: 7, feeder_podcast: 456, feeder_episode: "456-1"},
-      %{count: 9, feeder_podcast: 789, feeder_episode: "789-1"},
-      %{count: 2, feeder_podcast: 123, feeder_episode: "123-2"},
-      %{count: 4, feeder_podcast: 789, feeder_episode: "789-2"},
-      %{count: 6, feeder_podcast: 123, feeder_episode: "123-1"},
-    ])
-
-    assert podcast(results, "123-1") == 123
-    assert count(results, "123-1") == 7
-    assert podcast(results, "123-2") == 123
-    assert count(results, "123-2") == 5
-    assert podcast(results, "456-1") == 456
-    assert count(results, "456-1") == 7
-    assert podcast(results, "789-1") == 789
-    assert count(results, "789-1") == 9
-    assert podcast(results, "789-2") == 789
-    assert count(results, "789-2") == 4
+  test "queries for podcasts" do
+    now = Timex.now
+    then = Timex.shift(now, days: -2)
+    with_mock BigQuery.Base.Query, [query: fn(params, sql) ->
+      assert params.lower == then
+      assert params.upper == now
+      assert sql =~ ~r/_PARTITIONTIME >= @lower/
+      assert sql =~ ~r/_PARTITIONTIME < @upper/
+      {[%{count: 10, key: 99}], %{cached: true}}
+    end] do
+      {data, meta} = query_podcasts(then, now)
+      assert data == %{99 => 10}
+      assert meta.cached == true
+    end
   end
 
-  defp podcast(results, guid) do
-    Enum.find(results, &(&1.feeder_episode == guid)).feeder_podcast
-  end
-
-  defp count(results, guid) do
-    Enum.find(results, &(&1.feeder_episode == guid)).count
+  test "queries for episodes" do
+    now = Timex.now
+    with_mock BigQuery.Base.Query, [query: fn(params, sql) ->
+      assert Map.has_key?(params, :lower) == false
+      assert params.upper == now
+      refute sql =~ ~r/_PARTITIONTIME >= @lower/
+      assert sql =~ ~r/_PARTITIONTIME < @upper/
+      {[%{count: 10, key: "abcd"}], %{cached: true}}
+    end] do
+      {data, meta} = query_episodes(nil, now)
+      assert data == %{"abcd" => 10}
+      assert meta.cached == true
+    end
   end
 end
