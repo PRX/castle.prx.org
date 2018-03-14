@@ -89,6 +89,16 @@ defmodule Castle.RedisHashCacheTest do
     assert run_fetch("#{@key}.dne", "foo", 3, today) == nil
   end
 
+  test "stringifies hash keys" do
+    data = stringify_keys(%{
+      "str" => "value1",
+      :atom => "value2",
+      3 => "value3",
+      "4" => "value4",
+    })
+    assert Map.keys(data) == ["3", "4", "atom", "str"]
+  end
+
   defp run_fetch(key, field, num, expected_time) do
     hash_fetch(key, field, fn(from) ->
       assert_time from, expected_time

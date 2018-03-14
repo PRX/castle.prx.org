@@ -67,6 +67,7 @@ defmodule Castle.Redis.HashCache do
     |> Enum.into(%{})
   end
   def stringify_key(k) when is_atom(k), do: Atom.to_string(k)
+  def stringify_key(k) when is_number(k), do: "#{k}"
   def stringify_key(k), do: k
 
   defp merge(left, right) do
