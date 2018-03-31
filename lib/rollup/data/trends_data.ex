@@ -34,7 +34,7 @@ defmodule Castle.Rollup.Data.Trends do
 
   defp sum_for_range(_from, _to, []), do: 0
   defp sum_for_range(from, to, [%{count: count, time: time} | hits]) do
-    if time >= from && time < to do
+    if Timex.to_unix(time) >= Timex.to_unix(from) && Timex.to_unix(time) < Timex.to_unix(to) do
       count + sum_for_range(from, to, hits)
     else
       sum_for_range(from, to, hits)
