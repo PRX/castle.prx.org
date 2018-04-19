@@ -9,6 +9,11 @@ config :castle, CastleWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
+# Configure your database
+config :castle, Castle.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  pool: Ecto.Adapters.SQL.Sandbox
+
 # External clients
 config :castle, :redis, Castle.FakeRedis
 config :castle, :bigquery, BigQuery

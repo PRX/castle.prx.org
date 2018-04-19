@@ -5,6 +5,10 @@
 # is restricted to this project.
 use Mix.Config
 
+# General application configuration
+config :castle, ecto_repos: [Castle.Repo]
+config :castle, Castle.Repo, adapter: Ecto.Adapters.Postgres
+
 # Configures the endpoint
 config :castle, CastleWeb.Endpoint,
   url: [host: "localhost"],

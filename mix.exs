@@ -9,6 +9,7 @@ defmodule Castle.Mixfile do
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     aliases: aliases(),
      deps: deps(),
      docs: docs()]
   end
@@ -17,8 +18,11 @@ defmodule Castle.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {Castle, []},
-     applications: apps(Mix.env)]
+    [
+      mod: {Castle.Application, []},
+      applications: apps(Mix.env),
+      extra_applications: [:logger, :runtime_tools]
+    ]
   end
   defp apps(:dev), do: [:dotenv | apps()]
   defp apps(:test), do: [:dotenv | apps()]
@@ -38,6 +42,8 @@ defmodule Castle.Mixfile do
   defp deps do
     [{:phoenix, "~> 1.3.0"},
      {:phoenix_pubsub, "~> 1.0"},
+     {:phoenix_ecto, "~> 3.2"},
+     {:postgrex, ">= 0.0.0"},
      {:phoenix_html, "~> 2.10"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:ex_doc, "~> 0.14", only: :dev, runtime: false},
@@ -58,5 +64,13 @@ defmodule Castle.Mixfile do
   defp docs do
     [main: "readme",
      extras: ["README.md"]]
+  end
+
+  defp aliases do
+    [
+      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+      "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "test": ["ecto.create --quiet", "ecto.migrate", "test"]
+    ]
   end
 end
