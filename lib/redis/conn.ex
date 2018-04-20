@@ -26,6 +26,10 @@ defmodule Castle.Redis.Conn do
     |> Map.delete("_")
   end
 
+  def ttl(key) do
+    command(["TTL", key])
+  end
+
   def set(sets) when is_map(sets) do
     sets |> Enum.map(fn({key, val}) -> ["SET", key, encode(val)] end) |> pipeline()
     sets
@@ -45,6 +49,13 @@ defmodule Castle.Redis.Conn do
   def set(key, ttl, val) do
     command ["SETEX", key, ttl, encode(val)]
     val
+  end
+
+  def setnx(key, ttl, val) do
+    case command ["SET", key, encode(val), "EX", ttl, "NX"] do
+      nil -> false
+      _ok -> true
+    end
   end
 
   def hset(key, field, val) do
