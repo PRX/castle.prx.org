@@ -8,6 +8,7 @@ defmodule Castle.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
+      supervisor(Castle.Repo, []),
       supervisor(CastleWeb.Endpoint, []),
       worker(Castle.Rollup.Worker, [])
     ]

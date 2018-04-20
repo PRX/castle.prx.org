@@ -2,8 +2,8 @@ defmodule Castle.Repo.Migrations.CreatePodcasts do
   use Ecto.Migration
 
   def change do
-    create table(:podcasts) do
-      add :podcast_id, :integer
+    create table(:podcasts, primary_key: false) do
+      add :id, :integer, primary_key: true
       add :account_id, :integer
       add :name, :string
       add :created_at, :utc_datetime
