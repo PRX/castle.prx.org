@@ -30,7 +30,7 @@ ApplicationRun () {
     exit
   elif [ "$PROCESS" = "web" ] ; then
     UpdateEnvironment
-    CMD="mix phx.server"
+    CMD="mix do ecto.migrate, phx.server"
   elif [ "$PROCESS" = "test" ] ; then
     CMD="mix test"
   elif [ "$PROCESS" = "mix" ] ; then
