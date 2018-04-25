@@ -10,7 +10,7 @@ defmodule Castle.TimeHelpers do
 
       defp format_dtim(dtim) do
         case Timex.format(dtim, "{ISO:Extended:Z}") do
-          {:ok, formatted} -> formatted
+          {:ok, formatted} -> String.replace(formatted, ".000000Z", "Z")
           _ -> "ERROR - BAD DATE"
         end
       end
