@@ -43,4 +43,12 @@ defmodule Castle.HttpCase do
       import Castle.HttpCase
     end
   end
+
+  setup tags do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Castle.Repo)
+    unless tags[:async] do
+      Ecto.Adapters.SQL.Sandbox.mode(Castle.Repo, {:shared, self()})
+    end
+    :ok
+  end
 end
