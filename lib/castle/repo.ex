@@ -11,11 +11,18 @@ defmodule Castle.Repo do
   end
   defp load_opts(opts, _env) do
     opts
-    |> Keyword.put(:database, Env.get(:pg_database))
+    |> Keyword.put(:database, database())
     |> Keyword.put(:username, Env.get(:pg_user))
     |> Keyword.put(:password, Env.get(:pg_password))
     |> Keyword.put(:hostname, Env.get(:pg_host))
-    |> Keyword.put(:port, Env.get(:pg_porth))
+    |> Keyword.put(:port, Env.get(:pg_port))
     |> Keyword.put(:pool_size, Env.get(:pg_pool_size))
+  end
+
+  defp database() do
+    case Mix.env do
+      :test -> "castle_test"
+      _ -> Env.get(:pg_database)
+    end
   end
 end

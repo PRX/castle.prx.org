@@ -28,6 +28,10 @@ defmodule Castle.ConnCase do
   end
 
   setup tags do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Castle.Repo)
+    unless tags[:async] do
+      Ecto.Adapters.SQL.Sandbox.mode(Castle.Repo, {:shared, self()})
+    end
     {:ok, conn: Phoenix.ConnTest.build_conn() |> skip_prx_auth(tags)}
   end
 
