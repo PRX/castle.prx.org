@@ -3,9 +3,11 @@ defmodule Castle.Repo.Migrations.CreateEpisodes do
 
   def change do
     create table(:episodes, primary_key: false) do
-      add :guid, :string, primary_key: true
+      add :id, :string, primary_key: true
       add :podcast_id, :integer, null: false
-      add :name, :string
+      add :title, :string
+      add :subtitle, :text
+      add :image_url, :string
       add :created_at, :utc_datetime
       add :updated_at, :utc_datetime
       add :published_at, :utc_datetime

@@ -3,12 +3,13 @@ defmodule Castle.Episode do
   import Ecto.Changeset
   import Ecto.Query
 
-  @primary_key {:guid, :string, autogenerate: false}
+  @primary_key {:id, :string, autogenerate: false}
 
   schema "episodes" do
-
     field :podcast_id, :integer
-    field :name, :string
+    field :title, :string
+    field :subtitle, :string
+    field :image_url, :string
     field :created_at, :utc_datetime
     field :updated_at, :utc_datetime
     field :published_at, :utc_datetime
@@ -17,10 +18,9 @@ defmodule Castle.Episode do
   @doc false
   def changeset(episode, attrs) do
     episode
-    |> cast(attrs, [:podcast_id, :name, :created_at, :updated_at, :published_at])
-    |> validate_required([:podcast_id, :name])
+    |> cast(attrs, [:podcast_id, :title, :subtitle, :image_url, :created_at, :updated_at, :published_at])
+    |> validate_required([:podcast_id])
   end
-
 
   def max_updated_at() do
     Castle.Repo.one(from e in Castle.Episode, select: max(e.updated_at))
