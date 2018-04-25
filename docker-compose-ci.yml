@@ -1,5 +1,7 @@
 castle:
   build: .
+  env_file:
+    - env-example
   links:
     - redis
     - db
