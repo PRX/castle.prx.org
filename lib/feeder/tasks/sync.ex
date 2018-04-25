@@ -1,24 +1,33 @@
 defmodule Mix.Tasks.Feeder.Sync do
   use Mix.Task
-
   require Logger
+  import Castle.Redis.Lock
 
   @shortdoc "Manually run the Feeder data refresh"
+
   @podlabel "Feeder.SyncPodcasts"
   @eplabel "Feeder.SyncEpisodes"
 
+  @lock "lock.feeder.sync"
+  @lock_ttl 50
+  @success_ttl 10
+
   def run(args) do
     {:ok, _started} = Application.ensure_all_started(:castle)
-    cond do
-      Enum.member?(args, "--force") || Enum.member?(args, "-f") ->
-        sync_podcasts(nil, true)
-        sync_episodes(nil, true)
-      Enum.member?(args, "--all") || Enum.member?(args, "-a") ->
-        sync_podcasts(Castle.Podcast.max_updated_at(), true)
-        sync_episodes(Castle.Episode.max_updated_at(), true)
-      true ->
-        sync_podcasts(Castle.Podcast.max_updated_at(), false)
-        sync_episodes(Castle.Episode.max_updated_at(), false)
+
+    lock = Enum.member?(args, "--lock") || Enum.member?(args, "-l")
+    force = Enum.member?(args, "--force") || Enum.member?(args, "-f")
+    all = force || Enum.member?(args, "--all") || Enum.member?(args, "-a")
+
+    pod_since = if force, do: nil, else: Castle.Podcast.max_updated_at()
+    ep_since = if force, do: nil, else: Castle.Episode.max_updated_at()
+
+    if lock do
+      lock "#{@lock}.podcasts", @lock_ttl, @success_ttl, do: sync_podcasts(pod_since, all)
+      lock "#{@lock}.episodes", @lock_ttl, @success_ttl, do: sync_episodes(ep_since, all)
+    else
+      sync_podcasts(pod_since, all)
+      sync_episodes(ep_since, all)
     end
   end
 

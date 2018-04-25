@@ -10,6 +10,7 @@ defmodule Castle.Application do
     children = [
       supervisor(Castle.Repo, []),
       supervisor(CastleWeb.Endpoint, []),
+      worker(Castle.Scheduler, []),
       worker(Castle.Rollup.Worker, [])
     ]
 

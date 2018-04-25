@@ -26,6 +26,12 @@ config :castle, :bigquery, BigQuery
 config :castle, :rollup_initial_delay, 60
 config :castle, :rollup_delay, 300
 
+# Scheduled jobs
+config :castle, Castle.Scheduler,
+  jobs: [
+    {"* * * * *", {Mix.Tasks.Feeder.Sync, :run, [["--lock"]]}},
+  ]
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
