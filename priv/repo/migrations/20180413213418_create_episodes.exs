@@ -3,7 +3,7 @@ defmodule Castle.Repo.Migrations.CreateEpisodes do
 
   def change do
     create table(:episodes, primary_key: false) do
-      add :id, :string, primary_key: true
+      add :id, :uuid, primary_key: true
       add :podcast_id, :integer, null: false
       add :title, :string
       add :subtitle, :text

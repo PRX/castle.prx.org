@@ -3,7 +3,8 @@ defmodule Castle.Episode do
   import Ecto.Changeset
   import Ecto.Query
 
-  @primary_key {:id, :string, autogenerate: false}
+  @primary_key {:id, :binary_id, autogenerate: false}
+  @foreign_key_type :binary_id
 
   schema "episodes" do
     field :podcast_id, :integer
