@@ -12,6 +12,7 @@ castle:
     - .env
   links:
     - redis
+    - db
   ports:
     - "4000:4000"
   command: web
@@ -19,8 +20,20 @@ castle:
     VIRTUAL_HOST: castle.prx.docker
     REDIS_HOST: redis
     REDIS_PORT: 6379
+    PG_DATABASE: castle_development
+    PG_HOST: db
+    PG_USER: castle_user
+    PG_PASSWORD: password
     MIX_ENV:
 redis:
   image: redis
   ports:
     - "6379:6379"
+db:
+  image: postgres
+  environment:
+    POSTGRES_DB: castle_development
+    POSTGRES_USER: castle_user
+    POSTGRES_PASSWORD: password
+  expose:
+    - "5432"

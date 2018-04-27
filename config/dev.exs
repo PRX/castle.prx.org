@@ -13,7 +13,6 @@ config :castle, CastleWeb.Endpoint,
   check_origin: false,
   watchers: []
 
-
 # Watch static and templates for browser reloading.
 config :castle, CastleWeb.Endpoint,
   live_reload: [
@@ -39,3 +38,9 @@ config :castle, :bigquery, BigQuery
 # Don't run workers - must be manually called with "mix castle.rollup"
 config :castle, :rollup_initial_delay, nil
 config :castle, :rollup_delay, nil
+
+# Uncomment to run jobs in development
+# config :castle, Castle.Scheduler,
+#   jobs: [
+#     {"* * * * *", {Mix.Tasks.Feeder.Sync, :run, [["--lock"]]}},
+#   ]

@@ -43,6 +43,14 @@ defmodule Castle.RedisConnTest do
     assert hgetall("conn_test_key2") == %{}
   end
 
+  test "returns the ttl for keys" do
+    assert ttl("conn_test_key1") == -2
+    set("conn_test_key1", "val1")
+    assert ttl("conn_test_key1") == -1
+    set("conn_test_key1", 99, "val1")
+    assert ttl("conn_test_key1") >= 98
+  end
+
   test "sets empty hashes with ttl" do
     assert hget(["conn_test_key1"], "f1") == [[false, nil]]
     hsetall("conn_test_key1", %{})
@@ -50,6 +58,12 @@ defmodule Castle.RedisConnTest do
     assert command(["TTL", "conn_test_key1"]) == -1
     hsetall("conn_test_key1", %{}, 10)
     assert command(["TTL", "conn_test_key1"]) == 10
+  end
+
+  test "sets when the key does not exist" do
+    assert setnx("conn_test_key1", 99, "val1") == true
+    assert setnx("conn_test_key1", 11, "val2") == false
+    assert ttl("conn_test_key1") >= 98
   end
 
   test "deletes objects" do

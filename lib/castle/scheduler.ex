@@ -1,0 +1,4 @@
+defmodule Castle.Scheduler do
+  use Quantum.Scheduler,
+    otp_app: :castle
+end

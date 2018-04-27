@@ -5,6 +5,10 @@
 # is restricted to this project.
 use Mix.Config
 
+# General application configuration
+config :castle, ecto_repos: [Castle.Repo]
+config :castle, Castle.Repo, adapter: Ecto.Adapters.Postgres
+
 # Configures the endpoint
 config :castle, CastleWeb.Endpoint,
   url: [host: "localhost"],
@@ -22,6 +26,7 @@ config :castle, :env_config,
   bq_dataset: System.get_env("BQ_DATASET") || "${BQ_DATASET}",
   bq_downloads_table: System.get_env("BQ_DOWNLOADS_TABLE") || "${BQ_DOWNLOADS_TABLE}",
   bq_impressions_table: System.get_env("BQ_IMPRESSIONS_TABLE") || "${BQ_IMPRESSIONS_TABLE}",
+  feeder_host: System.get_env("FEEDER_HOST") || "${FEEDER_HOST}",
   redis_host: System.get_env("REDIS_HOST") || "${REDIS_HOST}",
   redis_port: System.get_env("REDIS_PORT") || "${REDIS_PORT}",
   redis_pool_size: System.get_env("REDIS_POOL_SIZE") || "${REDIS_POOL_SIZE}",

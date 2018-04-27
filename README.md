@@ -55,8 +55,8 @@ docker-compose run castle test test/controllers/api/root_controller_test.exs
 
 ## Dependencies
 
-Currently, just BigQuery. Oh, and Redis. You should be running a `redis-server`
-if you're trying to develop/test locally and not in Docker.
+BigQuery, Redis, and Postgres.  But if you use docker-compose, you'll only need
+to configure BigQuery.
 
 ## Usage
 
@@ -71,14 +71,33 @@ iex -S mix phx.server
 iex -S mix
 ```
 
-## Rollups
+## Tasks
 
-Certain queries can be expensive to run against BigQuery, so we cache these to
-Redis in a background worker.  The interval at which the worker runs in prod is
-configured in `config/prod.exs`.  But in dev/test, these queries will never run
-by default.
+### Feeder Sync
 
-To manually get rollups in your development Redis, just run `mix castle.rollup`.
+Sync all podcasts/episodes from `FEEDER_HOST` into your local Postgres database.
+By default, will only go through a few pages of results at a time, before
+returning.  Use `--all` to process all pages (which might take a long time for
+all episodes in Feeder).  Similarly, the `--force` flag will sync all
+podcasts/episodes since the beginning of time, and can take a long time.
+
+The scheduler uses `--lock` to ensure 2 servers aren't attempting to sync the
+same data at the same time.  The schedule is set in `config/prod.exs`, and
+disabled in other environments by default.
+
+```
+mix feeder.sync [--lock,--all,--force]
+```
+
+### Rollup
+
+*DEPRECATED* These bigquery rollups are deprecated, and will soon be replaced
+with cron-like scheduled postgres rollups.  For now, these run automatically in
+prod via the intervals in `config/prod.exs`.
+
+```
+mix castle.rollup
+```
 
 ## Testing
 
