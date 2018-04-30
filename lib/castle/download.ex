@@ -1,7 +1,6 @@
 defmodule Castle.Download do
   use Ecto.Schema
   import Ecto.Changeset
-  import Ecto.Query
 
   schema "downloads" do
     field :podcast_id, :integer
