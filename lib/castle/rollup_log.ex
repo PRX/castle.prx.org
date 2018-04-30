@@ -25,12 +25,12 @@ defmodule Castle.RollupLog do
 
   def find_missing(table_name, limit, to_date \\ nil) do
     query = """
-    SELECT range.date FROM (#{select_range(to_date)}) as range
-    WHERE range.date NOT IN (
-      SELECT date FROM rollup_logs WHERE table_name = $1
-    )
-    ORDER BY range.date DESC limit $2
-    """
+      SELECT range.date FROM (#{select_range(to_date)}) as range
+      WHERE range.date NOT IN (
+        SELECT date FROM rollup_logs WHERE table_name = $1
+      )
+      ORDER BY range.date DESC limit $2
+      """ |> String.replace("\n", " ")
     {:ok, result} = Ecto.Adapters.SQL.query(Castle.Repo, query, [table_name, limit])
     Enum.map result.rows, &(range_to_struct(table_name, hd(&1)))
   end
@@ -47,7 +47,8 @@ defmodule Castle.RollupLog do
     select_range(date_str)
   end
 
-  defp range_to_struct(name, date) do
+  defp range_to_struct(name, erl) do
+    {:ok, date} = Date.from_erl(erl)
     %Castle.RollupLog{table_name: name, date: date}
   end
 end
