@@ -8,6 +8,7 @@ defmodule Castle.Repo.Migrations.CreateHourlyDownloads do
       add :dtim, :utc_datetime, null: false
       add :count, :integer, null: false
     end
+    create unique_index(:hourly_downloads, [:episode_id, :dtim])
 
     execute """
     CREATE OR REPLACE FUNCTION create_hourly_downloads_partition() RETURNS trigger AS
