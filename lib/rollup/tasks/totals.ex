@@ -5,7 +5,7 @@ defmodule Mix.Tasks.Castle.Rollup.Totals do
 
   @shortdoc "DEPRECATED: Manually calculate castle totals"
 
-  @lock "lock.feeder.sync"
+  @lock "lock.rollup.totals"
   @lock_ttl 60
   @success_ttl 60
 
@@ -13,8 +13,8 @@ defmodule Mix.Tasks.Castle.Rollup.Totals do
     {:ok, _started} = Application.ensure_all_started(:castle)
 
     if  Enum.member?(args, "--lock") || Enum.member?(args, "-l") do
-      lock "#{@lock}.totals.podcasts", @lock_ttl, @success_ttl, do: podcasts()
-      lock "#{@lock}.totals.episodes", @lock_ttl, @success_ttl, do: episodes()
+      lock "#{@lock}.podcasts", @lock_ttl, @success_ttl, do: podcasts()
+      lock "#{@lock}.episodes", @lock_ttl, @success_ttl, do: episodes()
     else
       podcasts()
       episodes()
