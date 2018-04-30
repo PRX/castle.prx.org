@@ -22,13 +22,10 @@ config :logger, level: :info
 config :castle, :redis, Castle.Redis.Api
 config :castle, :bigquery, BigQuery
 
-# Worker intervals
-config :castle, :rollup_initial_delay, 60
-config :castle, :rollup_delay, 300
-
 # Scheduled jobs
 config :castle, Castle.Scheduler,
   jobs: [
+    {"*/5 * * * *", {Mix.Tasks.Castle.Rollup.Totals, :run, [["--lock"]]}},
     {"* * * * *", {Mix.Tasks.Feeder.Sync, :run, [["--lock"]]}},
   ]
 

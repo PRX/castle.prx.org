@@ -35,12 +35,9 @@ config :phoenix, :stacktrace_depth, 20
 config :castle, :redis, Castle.Redis.Api
 config :castle, :bigquery, BigQuery
 
-# Don't run workers - must be manually called with "mix castle.rollup"
-config :castle, :rollup_initial_delay, nil
-config :castle, :rollup_delay, nil
-
 # Uncomment to run jobs in development
 # config :castle, Castle.Scheduler,
 #   jobs: [
+#     {"*/5 * * * *", {Mix.Tasks.Castle.Rollup.Totals, :run, [["--lock"]]}},
 #     {"* * * * *", {Mix.Tasks.Feeder.Sync, :run, [["--lock"]]}},
 #   ]
