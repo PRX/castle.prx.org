@@ -11,9 +11,9 @@ defmodule BigQuery.Rollup do
     day = Timex.beginning_of_day(dtim)
     case completion_state(day, now) do
       :none ->
-        {[], %{day: day, complete: false}}
+        {[], %{day: day, complete: false, hours_complete: 0}}
       :partial ->
-        query_hourly_downloads(day) |> set_meta(:complete, false)
+        query_hourly_downloads(day) |> set_meta(:complete, false) |> set_meta(:hours_complete, hours_complete(now))
       :complete ->
         query_hourly_downloads(day) |> set_meta(:complete, true)
     end
@@ -29,6 +29,8 @@ defmodule BigQuery.Rollup do
       {-1, _} -> :partial # day is < 15min over
     end
   end
+
+  def hours_complete(now), do: Timex.shift(now, seconds: -@buffer_seconds).hour
 
   defp query_hourly_downloads(day) do
     sql = """
