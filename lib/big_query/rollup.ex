@@ -1,66 +1,51 @@
 defmodule BigQuery.Rollup do
   import BigQuery.Base.Query
 
-  # wait this many seconds for an hour's data to be in bigquery
-  @buffer_seconds 300
+  # a day isn't "complete" until this many seconds after it's over
+  @buffer_seconds 900
 
   # get a single day of downloads bucketed by hours
-  def daily_downloads(), do: daily_downloads(Timex.now)
-  def daily_downloads(dtim), do: daily_downloads(dtim, Timex.now)
-  def daily_downloads(dtim, now) do
+  def hourly_downloads(), do: hourly_downloads(Timex.now)
+  def hourly_downloads(dtim) do
+    now = Timex.now()
     day = Timex.beginning_of_day(dtim)
-    case max_hour(day, now) do
-      :no_data -> :no_data
-      :no_max ->
-        params(day) |> query(sql()) |> format(day, :no_max)
-      max ->
-        params(day, max) |> query(sql(max)) |> format(day, max)
+    case completion_state(day, now) do
+      :none ->
+        {[], %{day: day, complete: false}}
+      :partial ->
+        query_hourly_downloads(day) |> set_meta(:complete, false)
+      :complete ->
+        query_hourly_downloads(day) |> set_meta(:complete, true)
     end
   end
 
-  def max_hour(day, now \\ Timex.now) do
-    offset_now = Timex.shift(now, seconds: -@buffer_seconds)
-    case Timex.compare(day, Timex.beginning_of_day(offset_now)) do
-      -1 -> :no_max
-      0 ->
-        max_hour = floor_hour(offset_now)
-        if max_hour.hour == 0, do: :no_data, else: max_hour
-      1 -> :no_data
+  def completion_state(day, now) do
+    today = Timex.beginning_of_day(now)
+    buffer_today = Timex.shift(now, seconds: -@buffer_seconds) |> Timex.beginning_of_day()
+    case {Timex.compare(day, today), Timex.compare(day, buffer_today)} do
+      {1, _} -> :none # future
+      {0, _} -> :partial # today
+      {-1, -1} -> :complete # > 15min since that day
+      {-1, _} -> :partial # day is < 15min over
     end
   end
 
-  defp floor_hour(dtim) do
-    seconds = Timex.to_unix(dtim)
-    Timex.from_unix(seconds - rem(seconds, 3600))
-  end
-
-  defp params(day, :no_max), do: params(day)
-  defp params(day, max), do: params(day) |> Map.put(:max_hour, max)
-  defp params(day) do
+  defp query_hourly_downloads(day) do
+    sql = """
+      SELECT
+        ANY_VALUE(feeder_podcast) as podcast_id,
+        feeder_episode as episode_guid,
+        EXTRACT(HOUR from timestamp) as hour,
+        count(*) as count
+      FROM production.downloads
+      WHERE _PARTITIONTIME = @date_str AND is_duplicate = false
+      GROUP BY feeder_episode, hour
+      """
     {:ok, date_str} = Timex.format(day, "{YYYY}-{0M}-{0D}")
-    %{date_str: date_str}
-  end
-
-  defp sql("" <> extra) do
-    """
-    SELECT
-      ANY_VALUE(feeder_podcast) as podcast_id,
-      feeder_episode as episode_guid,
-      EXTRACT(HOUR from timestamp) as hour,
-      count(*) as count
-    FROM production.downloads
-    WHERE _PARTITIONTIME = @date_str
-      AND is_duplicate = false #{extra}
-    GROUP BY feeder_episode, hour
-    """
-  end
-  defp sql(_max), do: sql("AND timestamp < @max_hour")
-  defp sql(), do: sql("")
-
-  defp format({results, meta}, day, max) do
+    {results, meta} = query(%{date_str: date_str}, sql)
     {
       Enum.map(results, &(format_result(&1, day))),
-      format_meta(meta, day, max)
+      Map.put(meta, :day, day)
     }
   end
 
@@ -68,7 +53,7 @@ defmodule BigQuery.Rollup do
     Map.put(row, :hour, Timex.shift(day, hours: row.hour))
   end
 
-  defp format_meta(meta, day), do: Map.put(meta, :day, day)
-  defp format_meta(meta, day, :no_max), do: format_meta(meta, day) |> Map.put(:max_hour, 23)
-  defp format_meta(meta, day, max), do: format_meta(meta, day) |> Map.put(:max_hour, max.hour - 1)
+  defp set_meta({results, meta}, key, value) do
+    {results, Map.put(meta, key, value)}
+  end
 end
