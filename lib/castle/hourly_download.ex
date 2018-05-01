@@ -29,6 +29,8 @@ defmodule Castle.HourlyDownload do
     length(rows)
   end
 
+  # in case 2 process on different servers are trying to create the same
+  # child table at the same time ... just catch and retry
   defp insert_handle_conflict(rows), do: insert_handle_conflict(rows, actual_table(rows))
   defp insert_handle_conflict(rows, table) do
     try do

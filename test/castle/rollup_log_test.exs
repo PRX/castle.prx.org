@@ -7,10 +7,10 @@ defmodule Castle.RollupLogTest do
   test "finds an entirely missing range" do
     result = find_missing("foobar", 4, "2018-04-25")
     assert length(result) == 4
-    assert Enum.at(result, 0).date == {2018, 4, 25}
-    assert Enum.at(result, 1).date == {2018, 4, 24}
-    assert Enum.at(result, 2).date == {2018, 4, 23}
-    assert Enum.at(result, 3).date == {2018, 4, 22}
+    assert "#{Enum.at(result, 0).date}" == "2018-04-25"
+    assert "#{Enum.at(result, 1).date}" == "2018-04-24"
+    assert "#{Enum.at(result, 2).date}" == "2018-04-23"
+    assert "#{Enum.at(result, 3).date}" == "2018-04-22"
   end
 
   test "finds partial missing range" do
@@ -19,10 +19,10 @@ defmodule Castle.RollupLogTest do
     upsert build_log("foobar", 2018, 4, 22)
     result = find_missing("foobar", 4, "2018-04-25")
     assert length(result) == 4
-    assert Enum.at(result, 0).date == {2018, 4, 25}
-    assert Enum.at(result, 1).date == {2018, 4, 23}
-    assert Enum.at(result, 2).date == {2018, 4, 21}
-    assert Enum.at(result, 3).date == {2018, 4, 20}
+    assert "#{Enum.at(result, 0).date}" == "2018-04-25"
+    assert "#{Enum.at(result, 1).date}" == "2018-04-23"
+    assert "#{Enum.at(result, 2).date}" == "2018-04-21"
+    assert "#{Enum.at(result, 3).date}" == "2018-04-20"
   end
 
   test "finds empty range" do
@@ -48,8 +48,8 @@ defmodule Castle.RollupLogTest do
     assert log2.id == id
     assert log2.table_name == "foobar"
     assert "#{log2.date}" == "2018-04-22"
-    assert log2.inserted_at > log1.inserted_at
-    assert log2.updated_at >= log1.updated_at
+    assert Timex.compare(log2.inserted_at, log1.inserted_at) > 0
+    assert Timex.compare(log2.updated_at, log1.updated_at) > 0
 
     # neither is accurate now - refetch timestamps
     final = Castle.Repo.get(Castle.RollupLog, id)
