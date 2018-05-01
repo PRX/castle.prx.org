@@ -14,16 +14,16 @@ defmodule Castle.Repo.Migrations.CreateHourlyDownloads do
     CREATE OR REPLACE FUNCTION create_hourly_downloads_partition() RETURNS trigger AS
     $$
       DECLARE
-        partition_month TEXT;
+        partition_start DATE;
+        partition_end DATE;
         partition TEXT;
       BEGIN
-        partition_month := to_char(NEW.dtim,'YYYYMM');
-        partition := 'hourly_downloads_' || partition_month;
+        partition_start := DATE_TRUNC('MONTH', NEW.dtim);
+        partition_end := partition_start + INTERVAL '1 MONTH';
+        partition := 'hourly_downloads_' || to_char(NEW.dtim,'YYYYMM');
         IF NOT EXISTS(SELECT relname FROM pg_class WHERE relname=partition) THEN
           RAISE NOTICE 'A partition has been created %',partition;
-          EXECUTE 'CREATE TABLE ' || partition ||
-            ' (CHECK (TO_CHAR(dtim,''YYYYMM'') = ''' || partition_month || '''))' ||
-            ' INHERITS (hourly_downloads);';
+          EXECUTE 'CREATE TABLE ' || partition || ' (CHECK (dtim >= DATE ''' || partition_start || ''' AND dtim < DATE ''' || partition_end || ''')) INHERITS (hourly_downloads);';
           EXECUTE 'CREATE INDEX ' || partition || '_podcast_id_index ON ' || partition || ' (podcast_id);';
           EXECUTE 'CREATE INDEX ' || partition || '_episode_id_index ON ' || partition || ' (episode_id);';
           EXECUTE 'CREATE UNIQUE INDEX ' || partition || '_episode_id_dtim_index ON ' || partition || ' (episode_id, dtim);';
