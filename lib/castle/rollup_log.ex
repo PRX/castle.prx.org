@@ -26,9 +26,7 @@ defmodule Castle.RollupLog do
   def find_missing(table_name, limit, to_date \\ nil) do
     query = """
       SELECT range.date FROM (#{select_range(to_date)}) as range
-      WHERE range.date NOT IN (
-        SELECT date FROM rollup_logs WHERE table_name = $1
-      )
+      WHERE range.date NOT IN (SELECT date FROM rollup_logs WHERE table_name = $1)
       ORDER BY range.date DESC limit $2
       """ |> String.replace("\n", " ")
     {:ok, result} = Ecto.Adapters.SQL.query(Castle.Repo, query, [table_name, limit])
