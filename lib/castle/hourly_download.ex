@@ -25,30 +25,30 @@ defmodule Castle.HourlyDownload do
     |> Enum.sum()
   end
   def upsert_all(rows) do
-    try do
-      insert_handle_conflict(actual_table(rows), rows)
-    rescue
-      e in Postgrex.Error ->
-        case e do
-          %{postgres: %{code: :undefined_table}} -> insert_handle_conflict(Castle.HourlyDownload, rows)
-          _ -> raise e
-        end
-    end
+    Enum.map(rows, &parse_row/1) |> insert_handle_conflict()
     length(rows)
   end
 
-  defp insert_handle_conflict(table, raw_rows) do
-    rows = Enum.map(raw_rows, &parse_row/1)
-    uniq = [:episode_id, :dtim]
-    Castle.Repo.insert_all table, rows, on_conflict: :replace_all, conflict_target: uniq
+  defp insert_handle_conflict(rows), do: insert_handle_conflict(rows, actual_table(rows))
+  defp insert_handle_conflict(rows, table) do
+    try do
+      Castle.Repo.insert_all table, rows, on_conflict: :replace_all, conflict_target: [:episode_id, :dtim]
+    rescue
+      e in Postgrex.Error ->
+        case e do
+          %{postgres: %{code: :undefined_table}} -> insert_handle_conflict(rows, Castle.HourlyDownload)
+          %{postgres: %{code: :duplicate_table}} -> insert_handle_conflict(rows)
+          _ -> raise e
+        end
+    end
   end
 
   defp parse_row(%{podcast_id: id, episode_guid: guid, hour: hour, count: count}) do
     %{podcast_id: id, episode_id: guid, dtim: hour, count: count}
   end
 
-  defp actual_table([%{hour: hour} | _rest]) do
-    {:ok, table_name} = Timex.format(hour, "hourly_downloads_{YYYY}{0M}")
+  defp actual_table([%{dtim: dtim} | _rest]) do
+    {:ok, table_name} = Timex.format(dtim, "hourly_downloads_{YYYY}{0M}")
     {table_name, Castle.HourlyDownload}
   end
 end
