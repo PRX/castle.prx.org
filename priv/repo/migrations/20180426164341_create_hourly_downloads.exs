@@ -8,7 +8,6 @@ defmodule Castle.Repo.Migrations.CreateHourlyDownloads do
       add :dtim, :utc_datetime, null: false
       add :count, :integer, null: false
     end
-    create unique_index(:hourly_downloads, [:episode_id, :dtim])
 
     execute """
     CREATE OR REPLACE FUNCTION create_hourly_downloads_partition() RETURNS trigger AS
@@ -23,12 +22,12 @@ defmodule Castle.Repo.Migrations.CreateHourlyDownloads do
         partition := 'hourly_downloads_' || to_char(NEW.dtim,'YYYYMM');
         IF NOT EXISTS(SELECT relname FROM pg_class WHERE relname=partition) THEN
           RAISE NOTICE 'A partition has been created %',partition;
-          EXECUTE 'CREATE TABLE ' || partition || ' (CHECK (dtim >= DATE ''' || partition_start || ''' AND dtim < DATE ''' || partition_end || ''')) INHERITS (hourly_downloads);';
+          EXECUTE 'CREATE TABLE ' || partition || ' (CHECK (dtim >= DATE ''' || partition_start || ''' AND dtim < DATE ''' || partition_end || '''), CONSTRAINT ' || partition || '_uniq UNIQUE (episode_id, dtim)) INHERITS (hourly_downloads);';
           EXECUTE 'CREATE INDEX ' || partition || '_podcast_id_index ON ' || partition || ' (podcast_id);';
           EXECUTE 'CREATE INDEX ' || partition || '_episode_id_index ON ' || partition || ' (episode_id);';
-          EXECUTE 'CREATE UNIQUE INDEX ' || partition || '_episode_id_dtim_index ON ' || partition || ' (episode_id, dtim);';
+          EXECUTE 'CREATE INDEX ' || partition || '_dtim_index ON ' || partition || ' (dtim);';
         END IF;
-        EXECUTE 'INSERT INTO ' || partition || ' SELECT(hourly_downloads ' || quote_literal(NEW) || ').*;';
+        EXECUTE 'INSERT INTO ' || partition || ' SELECT(hourly_downloads ' || quote_literal(NEW) || ').* ON CONFLICT ON CONSTRAINT ' || partition || '_uniq DO UPDATE SET (podcast_id, count) = (' || NEW.podcast_id || ', ' || NEW.count || ');';
         RETURN NULL;
       END;
     $$ LANGUAGE plpgsql;
