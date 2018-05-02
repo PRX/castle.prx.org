@@ -9,7 +9,7 @@ defmodule Mix.Tasks.Castle.Rollup.Downloads do
   @table "hourly_downloads"
   @lock_ttl 50
   @success_ttl 200
-  @default_count 10
+  @default_count 5
 
   def run(args) do
     {:ok, _started} = Application.ensure_all_started(:castle)

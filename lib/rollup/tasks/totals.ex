@@ -22,21 +22,21 @@ defmodule Mix.Tasks.Castle.Rollup.Totals do
   end
 
   defp podcasts do
-    Castle.Rollup.Jobs.Totals.run_podcasts() |> log("totals.podcasts")
+    Castle.Rollup.Jobs.Totals.run_podcasts() |> log("podcasts")
   end
 
   defp episodes do
-    Castle.Rollup.Jobs.Totals.run_episodes() |> log("totals.episodes")
+    Castle.Rollup.Jobs.Totals.run_episodes() |> log("episodes")
   end
 
   defp log({_result, meta}, name) do
     case meta do
       %{job: _, total: _, megabytes: _} ->
-        Logger.info "ROLLUP #{name} #{format_meta(meta)}"
+        Logger.info "Rollup.Totals.#{name} #{format_meta(meta)}"
       %{job: _} ->
-        Logger.info "ROLLUP #{name} #{format_meta(meta)}"
+        Logger.info "Rollup.Totals.#{name} #{format_meta(meta)}"
       _ ->
-        Logger.info "ROLLUP #{name} no changes"
+        Logger.info "Rollup.Totals.#{name} no changes"
     end
   end
 
