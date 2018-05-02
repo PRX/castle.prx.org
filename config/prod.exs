@@ -26,6 +26,7 @@ config :castle, :bigquery, BigQuery
 config :castle, Castle.Scheduler,
   jobs: [
     {"*/5 * * * *", {Mix.Tasks.Castle.Rollup.Totals, :run, [["--lock"]]}},
+    {"6 * * * *", {Mix.Tasks.Castle.Rollup.Downloads, :run, [["--lock"]]}},
     {"* * * * *", {Mix.Tasks.Feeder.Sync, :run, [["--lock"]]}},
   ]
 

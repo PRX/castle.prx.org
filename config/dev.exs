@@ -40,6 +40,7 @@ config :castle, :bigquery, BigQuery
 # Uncomment to run jobs in development
 # config :castle, Castle.Scheduler,
 #   jobs: [
-#     {"*/5 * * * *", {Mix.Tasks.Castle.Rollup.Totals, :run, [["--lock"]]}},
+#     {"* * * * *", {Mix.Tasks.Castle.Rollup.Totals, :run, [["--lock"]]}},
+#     {"* * * * *", {Mix.Tasks.Castle.Rollup.Downloads, :run, [["--lock"]]}},
 #     {"* * * * *", {Mix.Tasks.Feeder.Sync, :run, [["--lock"]]}},
 #   ]
