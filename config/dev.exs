@@ -24,6 +24,8 @@ config :castle, CastleWeb.Endpoint,
     ]
   ]
 
+config :logger, level: :info
+
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 
@@ -35,12 +37,10 @@ config :phoenix, :stacktrace_depth, 20
 config :castle, :redis, Castle.Redis.Api
 config :castle, :bigquery, BigQuery
 
-# Don't run workers - must be manually called with "mix castle.rollup"
-config :castle, :rollup_initial_delay, nil
-config :castle, :rollup_delay, nil
-
 # Uncomment to run jobs in development
 # config :castle, Castle.Scheduler,
 #   jobs: [
+#     {"* * * * *", {Mix.Tasks.Castle.Rollup.Totals, :run, [["--lock"]]}},
+#     {"* * * * *", {Mix.Tasks.Castle.Rollup.Downloads, :run, [["--lock"]]}},
 #     {"* * * * *", {Mix.Tasks.Feeder.Sync, :run, [["--lock"]]}},
 #   ]

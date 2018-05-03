@@ -2,10 +2,13 @@ defmodule Castle.TimeHelpers do
   defmacro __using__(_opts) do
     quote do
       defp get_dtim(dtim_str) do
-        case DateTime.from_iso8601(dtim_str) do
-          {:ok, dtim, _} -> dtim
-          _ -> nil
+        format = case String.length(dtim_str) do
+          8 -> "{YYYY}{0M}{0D}"
+          10 -> "{YYYY}-{0M}-{0D}"
+          _ -> "{ISO:Extended:Z}"
         end
+        {:ok, dtim} = Timex.parse(dtim_str, format)
+        dtim |> Timex.to_datetime()
       end
 
       defp format_dtim(dtim) do

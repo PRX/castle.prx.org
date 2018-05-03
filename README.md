@@ -73,6 +73,12 @@ iex -S mix
 
 ## Tasks
 
+Background worker tasks are configured to run on a cron, in `config/prod.exs`.
+By default, these are commented out in `dev.exs`, so you'll need to run them
+manually or uncomment that line.  Generally, these tasks run with a `--lock`
+flag, which uses a redis lock to prevent multiple prod instances from doing the
+same work at the same time.
+
 ### Feeder Sync
 
 Sync all podcasts/episodes from `FEEDER_HOST` into your local Postgres database.
@@ -81,22 +87,36 @@ returning.  Use `--all` to process all pages (which might take a long time for
 all episodes in Feeder).  Similarly, the `--force` flag will sync all
 podcasts/episodes since the beginning of time, and can take a long time.
 
-The scheduler uses `--lock` to ensure 2 servers aren't attempting to sync the
-same data at the same time.  The schedule is set in `config/prod.exs`, and
-disabled in other environments by default.
-
 ```
 mix feeder.sync [--lock,--all,--force]
 ```
 
-### Rollup
+### Downloads Rollup
 
-*DEPRECATED* These bigquery rollups are deprecated, and will soon be replaced
-with cron-like scheduled postgres rollups.  For now, these run automatically in
-prod via the intervals in `config/prod.exs`.
+This task queries BigQuery for hourly downloads on a single day, and inserts
+that day of data into Postgres.  It also updates the `rollup_logs` to keep track
+of which days have already been rolled up.
+
+By default, this task will find 5 incomplete days (not present in `rollup_logs`)
+and process those.  But you can change that number with the `--count 99` flag.  
+Or explicitly rollup a certain day with `--date 20180425`.
+
+Since the rollup operation is idempotent, you can run it on the current day
+repeatedly.  But a record will only be added to the `rollup_logs` table 15
+minutes after midnight, to make sure BigQuery is completely accurate before
+marking the day as "complete".
 
 ```
-mix castle.rollup
+mix castle.rollup.downloads [--lock,--date [YYYYMMDD],--count [INT]]
+```
+
+### Totals Rollup
+
+*DEPRECATED* These "all time total" rollups are deprecated, and will soon be
+replaced by the Postgres rollups.
+
+```
+mix castle.rollup.totals [--lock]
 ```
 
 ## Testing
