@@ -39,7 +39,7 @@ defmodule BigQuery.Rollup do
         feeder_episode as episode_guid,
         EXTRACT(HOUR from timestamp) as hour,
         count(*) as count
-      FROM production.downloads
+      FROM #{Env.get(:bq_downloads_table)}
       WHERE _PARTITIONTIME = @date_str AND is_duplicate = false
       GROUP BY feeder_episode, hour
       """
