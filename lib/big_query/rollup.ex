@@ -41,6 +41,7 @@ defmodule BigQuery.Rollup do
         count(*) as count
       FROM #{Env.get(:bq_downloads_table)}
       WHERE _PARTITIONTIME = @date_str AND is_duplicate = false
+        AND feeder_podcast IS NOT NULL AND feeder_episode IS NOT NULL
       GROUP BY feeder_episode, hour
       """
     {:ok, date_str} = Timex.format(day, "{YYYY}-{0M}-{0D}")
