@@ -28,7 +28,7 @@ defmodule CastleWeb.Paging do
   end
 
   defp next_link(links, _, page, last_page, _) when page == last_page, do: links
-  defp next_link(links, base, page, last_page, per) do
+  defp next_link(links, base, page, _, per) do
     Map.put links, :next, %{href: make_link(base, page + 1, per)}
   end
 

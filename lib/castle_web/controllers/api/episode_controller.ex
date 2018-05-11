@@ -15,12 +15,17 @@ defmodule CastleWeb.API.EpisodeController do
   end
 
   def show(conn, %{"id" => id}) do
-    case Castle.Repo.get(Castle.Episode, id) do
-      nil ->
+    case Ecto.UUID.cast(id) do
+      :error ->
         send_resp conn, 404, "Episode #{id} not found"
-      episode ->
-        trends = Castle.Rollup.Query.Trends.episode_trends(id)
-        render conn, "show.json", conn: conn, episode: episode, trends: trends
+      {:ok, uuid} ->
+        case Castle.Repo.get(Castle.Episode, uuid) do
+          nil ->
+            send_resp conn, 404, "Episode #{id} not found"
+          episode ->
+            trends = Castle.Rollup.Query.Trends.episode_trends(id)
+            render conn, "show.json", conn: conn, episode: episode, trends: trends
+        end
     end
   end
 end
