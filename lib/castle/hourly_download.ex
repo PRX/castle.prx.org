@@ -18,6 +18,8 @@ defmodule Castle.HourlyDownload do
     |> validate_required([:podcast_id, :episode_id, :dtim, :count])
   end
 
+  def upsert(row), do: upsert_all([row])
+
   def upsert_all([]), do: 0
   def upsert_all(rows) when length(rows) > 5000 do
     Enum.chunk_every(rows, 5000)
@@ -46,4 +48,5 @@ defmodule Castle.HourlyDownload do
   defp parse_row(%{podcast_id: id, episode_guid: guid, hour: hour, count: count}) do
     %{podcast_id: id, episode_id: guid, dtim: hour, count: count}
   end
+  defp parse_row(row), do: row
 end
