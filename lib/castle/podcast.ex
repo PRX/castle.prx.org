@@ -13,12 +13,19 @@ defmodule Castle.Podcast do
     field :created_at, :utc_datetime
     field :updated_at, :utc_datetime
     field :published_at, :utc_datetime
+    field :total_downloads, :integer
   end
 
   def changeset(podcast, attrs) do
     podcast
     |> cast(attrs, [:account_id, :title, :subtitle, :image_url, :created_at, :updated_at, :published_at])
   end
+
+  def recent(limit, offset \\ 0) do
+    Castle.Repo.all(from p in Castle.Podcast, limit: ^limit, offset: ^offset, order_by: [desc: :created_at])
+  end
+
+  def total, do: Castle.Repo.one(from p in Castle.Podcast, select: count("*"))
 
   def max_updated_at do
     Castle.Repo.one(from p in Castle.Podcast, select: max(p.updated_at))

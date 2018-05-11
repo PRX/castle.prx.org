@@ -29,6 +29,20 @@ defmodule Castle.HourlyDownload do
     length(rows)
   end
 
+  def set_podcast_totals! do
+    totals = "SELECT SUM(count) FROM hourly_downloads WHERE podcast_id = id"
+    update = "UPDATE podcasts SET total_downloads = (#{totals})"
+    result = Ecto.Adapters.SQL.query!(Castle.Repo, update, [])
+    result.num_rows
+  end
+
+  def set_episode_totals! do
+    totals = "SELECT SUM(count) FROM hourly_downloads WHERE episode_id = id"
+    update = "UPDATE episodes SET total_downloads = (#{totals})"
+    result = Ecto.Adapters.SQL.query!(Castle.Repo, update, [])
+    result.num_rows
+  end
+
   defp parse_row(%{podcast_id: id, episode_guid: guid, hour: hour, count: count}) do
     %{podcast_id: id, episode_id: guid, dtim: hour, count: count}
   end
