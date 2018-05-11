@@ -45,13 +45,11 @@ defmodule CastleWeb.Router do
     scope "/podcasts", as: :podcast do
       pipe_through :metrics
       get "/:podcast_id/downloads", DownloadController, :index
-      get "/:podcast_id/impressions", ImpressionController, :index
     end
 
     scope "/episodes", as: :episode do
       pipe_through :metrics
       get "/:episode_guid/downloads", DownloadController, :index
-      get "/:episode_guid/impressions", ImpressionController, :index
     end
   end
 

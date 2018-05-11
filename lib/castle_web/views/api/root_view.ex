@@ -44,14 +44,6 @@ defmodule CastleWeb.API.RootView do
           href: fix_path(api_episode_download_path(conn, :index, "{guid}") <> "{?interval,from,to,group,grouplimit}"),
           templated: true,
         }],
-        "prx:podcast-impressions": [%{
-          href: fix_path(api_podcast_impression_path(conn, :index, "{id}") <> "{?interval,from,to,group,grouplimit}"),
-          templated: true,
-        }],
-        "prx:episode-impressions": [%{
-          href: fix_path(api_episode_impression_path(conn, :index, "{guid}") <> "{?interval,from,to,group,grouplimit}"),
-          templated: true,
-        }],
       }
     }
   end

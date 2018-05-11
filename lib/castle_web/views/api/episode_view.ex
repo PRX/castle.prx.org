@@ -37,11 +37,7 @@ defmodule CastleWeb.API.EpisodeView do
         "prx:downloads": %{
           href: api_episode_download_path(conn, :index, guid) <> "{?interval,from,to,group,grouplimit}",
           templated: true,
-        },
-        "prx:impressions": %{
-          href: api_episode_impression_path(conn, :index, guid) <> "{?interval,from,to,group,grouplimit}",
-          templated: true,
-        },
+        }
       }
     }
   end
