@@ -39,7 +39,9 @@ defmodule CastleWeb.Router do
     pipe_through :logged
     pipe_through :authorized
 
-    resources "/podcasts", PodcastController, only: [:index, :show]
+    resources "/podcasts", PodcastController, only: [:index, :show] do
+      resources "/episodes", EpisodeController, only: [:index, :show]
+    end
     resources "/episodes", EpisodeController, only: [:index, :show]
 
     scope "/podcasts", as: :podcast do

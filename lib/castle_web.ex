@@ -28,6 +28,7 @@ defmodule CastleWeb do
 
       import CastleWeb.Router.Helpers
       import CastleWeb.Gettext
+      import CastleWeb.Paging
       import CastleWeb.API.BucketHelper
     end
   end
@@ -45,6 +46,7 @@ defmodule CastleWeb do
       import CastleWeb.Router.Helpers
       import CastleWeb.ErrorHelpers
       import CastleWeb.Gettext
+      import CastleWeb.Paging
     end
   end
 

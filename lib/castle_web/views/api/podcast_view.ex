@@ -1,59 +1,53 @@
 defmodule CastleWeb.API.PodcastView do
   use CastleWeb, :view
 
-  @limit 100
-
-  def render("index.json", %{conn: conn, podcasts: podcasts, meta: meta}) do
-    limit = Enum.min [@limit, length(podcasts)]
-    items = podcasts |> Enum.slice(0, limit) |> Enum.map(&(podcast_json(&1, nil, conn)))
+  def render("index.json", %{conn: conn, podcasts: podcasts, paging: paging}) do
     %{
-      count: limit,
-      total: length(podcasts),
+      count: length(podcasts),
+      total: Map.get(paging, :total),
       _embedded: %{
-        "prx:items": items
+        "prx:items": Enum.map(podcasts, &(podcast_json(&1, nil, conn)))
       },
-      meta: meta,
+      _links: paging_links(api_podcast_path(conn, :index), paging),
     }
   end
 
-  def render("show.json", %{conn: conn, podcast: id, total: total, trends: trends, meta: meta}) do
-    podcast_json(id, total, trends, conn) |> Map.put(:meta, meta)
+  def render("show.json", %{conn: conn, podcast: podcast, trends: trends}) do
+    podcast_json(podcast, trends, conn)
   end
 
-  defp podcast_json({id, total}, trends, conn), do: podcast_json(id, total, trends, conn)
-  defp podcast_json(id, total, trends, conn) do
+  defp podcast_json(podcast, trends, conn) do
     %{
-      id: id,
-      name: id,
-      downloads: trends_json(total, trends),
-      _links: %{
-        self: %{
-          href: api_podcast_path(conn, :show, id),
-          templated: true,
-        },
-        alternate: %{
-          href: "https://feeder.prx.org/api/v1/podcasts/#{id}"
-        },
-        "prx:downloads": %{
-          href: api_podcast_download_path(conn, :index, id) <> "{?interval,from,to,group,grouplimit}",
-          templated: true,
-        },
-        "prx:impressions": %{
-          href: api_podcast_impression_path(conn, :index, id) <> "{?interval,from,to,group,grouplimit}",
-          templated: true,
-        },
-      }
+      id: podcast.id,
+      title: podcast.title,
+      subtitle: podcast.subtitle,
+      downloads: trends_json(podcast.total_downloads, trends),
+      _links: podcast_links(conn, podcast),
     }
   end
 
   defp trends_json(total_count, nil), do: %{total: total_count}
-  defp trends_json(total_count, trends) do
+  defp trends_json(total_count, trends), do: Map.put(trends, :total, total_count)
+
+  defp podcast_links(conn, podcast) do
     %{
-      total: total_count,
-      today: Map.get(trends, :today, 0),
-      yesterday: Map.get(trends, :yesterday, 0),
-      this7days: Map.get(trends, :this7, 0),
-      previous7days: Map.get(trends, :last7, 0),
-    }
+      self: %{
+        href: api_podcast_path(conn, :show, podcast.id),
+      },
+      alternate: %{
+        href: "https://feeder.prx.org/api/v1/podcasts/#{podcast.id}",
+      },
+      "prx:episodes": %{
+        href: api_podcast_episode_path(conn, :index, podcast.id) <> "{?page,per}",
+        templated: true,
+      },
+      "prx:downloads": %{
+        href: api_podcast_download_path(conn, :index, podcast.id) <> "{?interval,from,to}",
+        templated: true,
+      }
+    } |> podcast_image_link(podcast.image_url)
   end
+
+  defp podcast_image_link(links, nil), do: links
+  defp podcast_image_link(links, url), do: Map.put(links, "prx:image", %{href: url})
 end

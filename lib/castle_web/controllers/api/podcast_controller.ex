@@ -3,22 +3,20 @@ defmodule CastleWeb.API.PodcastController do
 
   plug Castle.Plugs.ParseInt, "id" when action == :show
 
-  def index(conn, _params) do
-    render conn, "index.json", conn: conn, podcasts: Castle.Rollup.podcasts(), meta: %{cached: true}
+  def index(conn, params) do
+    {page, per} = parse_paging(params)
+    podcasts = Castle.Podcast.recent(per, page)
+    paging = %{page: page, per: per, total: Castle.Podcast.total()}
+    render conn, "index.json", conn: conn, podcasts: podcasts, paging: paging
   end
 
   def show(conn, %{"id" => id}) do
-    case assemble_data(id) do
-      {nil, _} ->
+    case Castle.Repo.get(Castle.Podcast, id) do
+      nil ->
         send_resp conn, 404, "Podcast #{id} not found"
-      {total, trends} ->
-        render conn, "show.json", conn: conn, podcast: id, total: total, trends: trends, meta: %{cached: true}
+      podcast ->
+        trends = Castle.Rollup.Query.Trends.podcast_trends(id)
+        render conn, "show.json", conn: conn, podcast: podcast, trends: trends
     end
-  end
-
-  defp assemble_data(id) do
-    t1 = Task.async(fn -> Castle.Rollup.podcast_total(id) end)
-    t2 = Task.async(fn -> Castle.Rollup.podcast_trends(id) end)
-    {Task.await(t1), Task.await(t2)}
   end
 end
