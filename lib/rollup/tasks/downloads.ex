@@ -15,8 +15,8 @@ defmodule Mix.Tasks.Castle.Rollup.Downloads do
     {:ok, _started} = Application.ensure_all_started(:castle)
 
     {opts, _, _} = OptionParser.parse args,
-      switches: [lock: :boolean, date: :string, count: :integer],
-      aliases: [l: :lock, d: :date, c: :count]
+      switches: [lock: :boolean, date: :string, count: :integer, total: :boolean],
+      aliases: [l: :lock, d: :date, c: :count, t: :total]
 
     rollup_logs = case opts[:date] do
       nil ->
@@ -31,6 +31,10 @@ defmodule Mix.Tasks.Castle.Rollup.Downloads do
       else
         rollup(log)
       end
+    end
+
+    if opts[:total] && !Enum.empty?(rollup_logs) do
+      Mix.Tasks.Castle.Rollup.Totals.run([])
     end
   end
 
