@@ -1,20 +1,22 @@
-defmodule BigQuery.TimestampRollups.Hourly do
-  @behaviour BigQuery.TimestampRollup
+defmodule Castle.Bucket.Daily do
+  @behaviour Castle.Bucket
 
-  def name, do: "HOUR"
+  def name, do: "DAY"
 
-  def rollup, do: "TIMESTAMP_TRUNC(timestamp, HOUR)"
+  def rollup, do: "TIMESTAMP_TRUNC(timestamp, DAY)"
 
-  def is_a?(param), do: Enum.member?(["1h", "HOUR"], param)
+  def is_a?(param), do: Enum.member?(["1d", "DAY"], param)
 
   def floor(time) do
-    seconds = Timex.to_unix(time)
-    Timex.from_unix(seconds - rem(seconds, 3600))
+    Timex.beginning_of_day(time)
   end
 
   def ceiling(time) do
-    seconds = Timex.to_unix(time)
-    Timex.from_unix(round(Float.ceil(seconds / 3600) * 3600))
+    if Timex.compare(floor(time), time) == 0 do
+      time
+    else
+      Timex.end_of_day(time) |> Timex.shift(microseconds: 1)
+    end
   end
 
   def next(time) do
@@ -35,6 +37,6 @@ defmodule BigQuery.TimestampRollups.Hourly do
   def count_range(from, to) do
     start = floor(from) |> Timex.to_unix()
     stop = ceiling(to) |> Timex.to_unix()
-    Float.ceil(max(stop - start, 0) / 3600) |> round
+    Float.ceil(max(stop - start, 0) / 86400) |> round
   end
 end

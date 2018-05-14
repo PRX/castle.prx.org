@@ -1,4 +1,4 @@
-defmodule Castle.PlugsIntervalBucketsTest do
+defmodule Castle.PlugsIntervalBucketTest do
   use Castle.ConnCase, async: true
 
   @default_from "2017-04-01T14:04:00Z"
@@ -40,7 +40,7 @@ defmodule Castle.PlugsIntervalBucketsTest do
     conn
     |> set_interval(interval)
     |> Plug.Conn.assign(:interval, %{from: time_from, to: time_to})
-    |> Castle.Plugs.Interval.Buckets.parse()
+    |> Castle.Plugs.Interval.Bucket.parse()
   end
   defp call_parse(conn, interval), do: call_parse(conn, interval, @default_from, @default_to)
 

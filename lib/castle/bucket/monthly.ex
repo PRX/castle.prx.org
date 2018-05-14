@@ -1,21 +1,21 @@
-defmodule BigQuery.TimestampRollups.Daily do
-  @behaviour BigQuery.TimestampRollup
+defmodule Castle.Bucket.Monthly do
+  @behaviour Castle.Bucket
 
-  def name, do: "DAY"
+  def name, do: "MONTH"
 
-  def rollup, do: "TIMESTAMP_TRUNC(timestamp, DAY)"
+  def rollup, do: "TIMESTAMP_TRUNC(timestamp, MONTH)"
 
-  def is_a?(param), do: Enum.member?(["1d", "DAY"], param)
+  def is_a?(param), do: Enum.member?(["1M", "MONTH"], param)
 
   def floor(time) do
-    Timex.beginning_of_day(time)
+    Timex.beginning_of_month(time)
   end
 
   def ceiling(time) do
     if Timex.compare(floor(time), time) == 0 do
       time
     else
-      Timex.end_of_day(time) |> Timex.shift(microseconds: 1)
+      Timex.end_of_month(time) |> Timex.shift(microseconds: 1)
     end
   end
 
@@ -34,9 +34,10 @@ defmodule BigQuery.TimestampRollups.Daily do
     end
   end
 
+  # this is an estimate, since days-per-month varies
   def count_range(from, to) do
     start = floor(from) |> Timex.to_unix()
     stop = ceiling(to) |> Timex.to_unix()
-    Float.ceil(max(stop - start, 0) / 86400) |> round
+    Float.ceil(max(stop - start, 0) / 2592000) |> round
   end
 end

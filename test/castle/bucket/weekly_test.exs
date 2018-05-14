@@ -1,7 +1,7 @@
-defmodule Castle.BigQueryTimestampRollupsWeeklyTest do
+defmodule Castle.CastleBucketWeeklyTest do
   use Castle.BigQueryCase, async: true
 
-  import BigQuery.TimestampRollups.Weekly
+  import Castle.Bucket.Weekly
 
   defp format_floor(str), do: mutate_dtim(str, &floor/1)
   defp format_ceiling(str), do: mutate_dtim(str, &ceiling/1)

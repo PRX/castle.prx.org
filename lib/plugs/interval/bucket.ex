@@ -1,10 +1,10 @@
-defmodule Castle.Plugs.Interval.Buckets do
+defmodule Castle.Plugs.Interval.Bucket do
 
   @timestamp_buckets [
-    BigQuery.TimestampRollups.Daily,
-    BigQuery.TimestampRollups.Hourly,
-    BigQuery.TimestampRollups.Monthly,
-    BigQuery.TimestampRollups.Weekly,
+    Castle.Bucket.Daily,
+    Castle.Bucket.Hourly,
+    Castle.Bucket.Monthly,
+    Castle.Bucket.Weekly,
   ]
   @max_in_window 1000
 
@@ -19,10 +19,10 @@ defmodule Castle.Plugs.Interval.Buckets do
   end
   def parse(%{assigns: %{interval: %{from: from, to: to}}} = conn) do
     best_guess = case Timex.to_unix(to) - Timex.to_unix(from) do
-      s when s > 31104000 -> BigQuery.TimestampRollups.Monthly # > 360 days
-      s when s > 6048000 -> BigQuery.TimestampRollups.Weekly # > 70 days
-      s when s > 345600 -> BigQuery.TimestampRollups.Daily # > 4 days
-      _ -> BigQuery.TimestampRollups.Hourly
+      s when s > 31104000 -> Castle.Bucket.Monthly # > 360 days
+      s when s > 6048000 -> Castle.Bucket.Weekly # > 70 days
+      s when s > 345600 -> Castle.Bucket.Daily # > 4 days
+      _ -> Castle.Bucket.Hourly
     end
     validate_window(conn, best_guess)
   end

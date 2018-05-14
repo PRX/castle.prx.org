@@ -1,22 +1,20 @@
-defmodule BigQuery.TimestampRollups.Weekly do
-  @behaviour BigQuery.TimestampRollup
+defmodule Castle.Bucket.Hourly do
+  @behaviour Castle.Bucket
 
-  def name, do: "WEEK"
+  def name, do: "HOUR"
 
-  def rollup, do: "TIMESTAMP_TRUNC(timestamp, WEEK)"
+  def rollup, do: "TIMESTAMP_TRUNC(timestamp, HOUR)"
 
-  def is_a?(param), do: Enum.member?(["1w", "WEEK"], param)
+  def is_a?(param), do: Enum.member?(["1h", "HOUR"], param)
 
   def floor(time) do
-    Timex.beginning_of_week(time, 7)
+    seconds = Timex.to_unix(time)
+    Timex.from_unix(seconds - rem(seconds, 3600))
   end
 
   def ceiling(time) do
-    if Timex.compare(floor(time), time) == 0 do
-      time
-    else
-      Timex.end_of_week(time, 7) |> Timex.shift(microseconds: 1)
-    end
+    seconds = Timex.to_unix(time)
+    Timex.from_unix(round(Float.ceil(seconds / 3600) * 3600))
   end
 
   def next(time) do
@@ -37,6 +35,6 @@ defmodule BigQuery.TimestampRollups.Weekly do
   def count_range(from, to) do
     start = floor(from) |> Timex.to_unix()
     stop = ceiling(to) |> Timex.to_unix()
-    Float.ceil(max(stop - start, 0) / 604800) |> round
+    Float.ceil(max(stop - start, 0) / 3600) |> round
   end
 end
