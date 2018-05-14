@@ -12,9 +12,9 @@ defmodule Castle.PlugsIntervalTimeToTest do
     assert Timex.to_unix(time_to) == 1491055451
   end
 
-  test "rounds up query dates", %{conn: conn} do
+  test "parses query dates", %{conn: conn} do
     {:ok, time_to} = call_time_to(conn, "2017-04-01")
-    assert Timex.to_unix(time_to) == 1491091199
+    assert Timex.to_unix(time_to) == 1491004800
   end
 
   test "does not round up full timestamps", %{conn: conn} do
