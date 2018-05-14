@@ -24,7 +24,7 @@ defmodule CastleWeb.API.EpisodeView do
       id: episode.id,
       title: episode.title,
       subtitle: episode.subtitle,
-      publishedAt: episode.published_at,
+      publishedAt: format_dtim(episode.published_at),
       downloads: trends_json(episode.total_downloads, trends),
       _links: episode_links(conn, episode),
     }
@@ -53,4 +53,10 @@ defmodule CastleWeb.API.EpisodeView do
 
   defp episode_image_link(links, nil), do: links
   defp episode_image_link(links, url), do: Map.put(links, "prx:image", %{href: url})
+
+  defp format_dtim(nil), do: nil
+  defp format_dtim(dtim) do
+    {:ok, formatted} = Timex.format(dtim, "{ISO:Extended:Z}")
+    formatted
+  end
 end
