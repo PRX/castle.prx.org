@@ -11,7 +11,7 @@ defmodule Castle.CastleBucketWeeklyTest do
 
   test "has basic data" do
     assert name() == "WEEK"
-    assert rollup() == "TIMESTAMP_TRUNC(timestamp, WEEK)"
+    assert rollup() == "week"
     assert is_a?("1w") == true
     assert is_a?("WEEK") == true
     assert is_a?("1m") == false

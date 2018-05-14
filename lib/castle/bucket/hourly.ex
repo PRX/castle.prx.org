@@ -3,7 +3,7 @@ defmodule Castle.Bucket.Hourly do
 
   def name, do: "HOUR"
 
-  def rollup, do: "TIMESTAMP_TRUNC(timestamp, HOUR)"
+  def rollup, do: "hour"
 
   def is_a?(param), do: Enum.member?(["1h", "HOUR"], param)
 

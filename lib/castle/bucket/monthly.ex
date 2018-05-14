@@ -3,7 +3,7 @@ defmodule Castle.Bucket.Monthly do
 
   def name, do: "MONTH"
 
-  def rollup, do: "TIMESTAMP_TRUNC(timestamp, MONTH)"
+  def rollup, do: "month"
 
   def is_a?(param), do: Enum.member?(["1M", "MONTH"], param)
 

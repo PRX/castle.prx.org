@@ -11,7 +11,7 @@ defmodule Castle.CastleBucketMonthlyTest do
 
   test "has basic data" do
     assert name() == "MONTH"
-    assert rollup() == "TIMESTAMP_TRUNC(timestamp, MONTH)"
+    assert rollup() == "month"
     assert is_a?("1M") == true
     assert is_a?("MONTH") == true
     assert is_a?("1w") == false

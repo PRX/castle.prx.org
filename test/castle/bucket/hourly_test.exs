@@ -11,7 +11,7 @@ defmodule Castle.CastleBucketHourlyTest do
 
   test "has basic data" do
     assert name() == "HOUR"
-    assert rollup() == "TIMESTAMP_TRUNC(timestamp, HOUR)"
+    assert rollup() == "hour"
     assert is_a?("1h") == true
     assert is_a?("HOUR") == true
     assert is_a?("1w") == false

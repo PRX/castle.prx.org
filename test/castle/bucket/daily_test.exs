@@ -11,7 +11,7 @@ defmodule Castle.CastleBucketDailyTest do
 
   test "has basic data" do
     assert name() == "DAY"
-    assert rollup() == "TIMESTAMP_TRUNC(timestamp, DAY)"
+    assert rollup() == "day"
     assert is_a?("1d") == true
     assert is_a?("DAY") == true
     assert is_a?("1w") == false

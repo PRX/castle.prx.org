@@ -3,7 +3,7 @@ defmodule Castle.Bucket.Weekly do
 
   def name, do: "WEEK"
 
-  def rollup, do: "TIMESTAMP_TRUNC(timestamp, WEEK)"
+  def rollup, do: "week"
 
   def is_a?(param), do: Enum.member?(["1w", "WEEK"], param)
 

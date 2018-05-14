@@ -3,7 +3,7 @@ defmodule Castle.Bucket.Daily do
 
   def name, do: "DAY"
 
-  def rollup, do: "TIMESTAMP_TRUNC(timestamp, DAY)"
+  def rollup, do: "day"
 
   def is_a?(param), do: Enum.member?(["1d", "DAY"], param)
 
