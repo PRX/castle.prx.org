@@ -16,7 +16,6 @@ config :castle, Castle.Repo,
 
 # External clients
 config :castle, :redis, Castle.FakeRedis
-config :castle, :bigquery, BigQuery
 
 # Run against a different redis database, so we're not messing with dev data
 config :castle, :redis_database, 2

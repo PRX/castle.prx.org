@@ -35,7 +35,6 @@ config :phoenix, :stacktrace_depth, 20
 
 # External clients
 config :castle, :redis, Castle.Redis.Api
-config :castle, :bigquery, BigQuery
 
 # Uncomment to run jobs in development
 # config :castle, Castle.Scheduler,

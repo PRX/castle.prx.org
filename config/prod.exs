@@ -20,7 +20,6 @@ config :logger, level: :info
 
 # External clients
 config :castle, :redis, Castle.Redis.Api
-config :castle, :bigquery, BigQuery
 
 # Scheduled jobs
 config :castle, Castle.Scheduler,
