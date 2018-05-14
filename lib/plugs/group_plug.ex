@@ -68,7 +68,7 @@ defmodule Castle.Plugs.Group do
 
   def get(name, limit \\ nil) do
     if Map.has_key?(@groups, name) do
-      struct!(BigQuery.Grouping, @groups[name])
+      struct!(Castle.Grouping, @groups[name])
       |> Map.put(:limit, limit || @groups[name].limit)
     else
       nil
@@ -77,7 +77,7 @@ defmodule Castle.Plugs.Group do
 
   defp set_grouping(%{status: nil, params: %{"group" => grouping}} = conn) do
     if Map.has_key?(@groups, grouping) do
-      assign conn, :group, struct!(BigQuery.Grouping, @groups[grouping])
+      assign conn, :group, struct!(Castle.Grouping, @groups[grouping])
     else
       options = @groups |> Map.keys() |> Enum.join(", ")
       conn

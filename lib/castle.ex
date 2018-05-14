@@ -16,4 +16,9 @@ defmodule Castle do
     @callback count_range(%DateTime{}, %DateTime{}) :: pos_integer()
   end
 
+  defmodule Grouping do
+    @enforce_keys [:name, :join, :groupby, :limit]
+    defstruct [:name, :join, :groupby, limit: 10]
+  end
+
 end
