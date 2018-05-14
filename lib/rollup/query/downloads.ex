@@ -19,26 +19,30 @@ defmodule Castle.Rollup.Query.Downloads do
     Castle.Repo.all from h in Castle.HourlyDownload,
       where: h.podcast_id == ^id and h.dtim >= ^from and h.dtim < ^to,
       select: %{time: fragment("date_trunc('week',dtim+interval '1 day')-interval '1 day' as time"), count: sum(h.count)},
-      group_by: fragment("time")
+      group_by: fragment("time"),
+      order_by: [asc: fragment("time")]
   end
   defp query_podcasts(id, from, to, trunc) do
     Castle.Repo.all from h in Castle.HourlyDownload,
       where: h.podcast_id == ^id and h.dtim >= ^from and h.dtim < ^to,
       select: %{time: fragment("date_trunc(?,dtim) as time", ^trunc), count: sum(h.count)},
-      group_by: fragment("time")
+      group_by: fragment("time"),
+      order_by: [asc: fragment("time")]
   end
 
   defp query_episodes(id, from, to, "week") do
     Castle.Repo.all from h in Castle.HourlyDownload,
       where: h.episode_id == ^id and h.dtim >= ^from and h.dtim < ^to,
       select: %{time: fragment("date_trunc('week',dtim+interval '1 day')-interval '1 day' as time"), count: sum(h.count)},
-      group_by: fragment("time")
+      group_by: fragment("time"),
+      order_by: [asc: fragment("time")]
   end
   defp query_episodes(id, from, to, trunc) do
     Castle.Repo.all from h in Castle.HourlyDownload,
       where: h.episode_id == ^id and h.dtim >= ^from and h.dtim < ^to,
       select: %{time: fragment("date_trunc(?,dtim) as time", ^trunc), count: sum(h.count)},
-      group_by: fragment("time")
+      group_by: fragment("time"),
+      order_by: [asc: fragment("time")]
   end
 
   defp format_results([]), do: []
