@@ -50,6 +50,7 @@ table = dataset.create_table 'dt_downloads' do |table|
     schema.string 'feeder_episode'
     schema.string 'program'
     schema.string 'path'
+    schema.string 'clienthash'
     schema.string 'digest'
     schema.integer 'ad_count'
     schema.boolean 'is_duplicate'
@@ -58,20 +59,17 @@ table = dataset.create_table 'dt_downloads' do |table|
     # request data
     schema.string 'remote_referrer'
     schema.string 'remote_agent'
+    schema.string 'remote_ip'
 
     # derived data
     schema.integer 'agent_name_id'
     schema.integer 'agent_type_id'
     schema.integer 'agent_os_id'
-    schema.integer 'geoname_id'
-    schema.integer 'registered_country_geoname_id'
-    schema.integer 'represented_country_geoname_id'
-    schema.boolean 'is_anonymous_proxy'
-    schema.boolean 'is_satellite_provider'
+    schema.integer 'city_geoname_id'
+    schema.integer 'country_geoname_id'
     schema.string 'postal_code'
     schema.float 'latitude'
     schema.float 'longitude'
-    schema.integer 'accuracy_radius'
   end
 end
 puts 'ok'
