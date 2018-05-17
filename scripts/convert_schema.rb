@@ -6,8 +6,11 @@ require 'base64'
 require 'ipaddr'
 require 'google/cloud/storage'
 require 'maxmind_geoip2'
+require 'securerandom'
 
-options = {numdays: 1, local: false}
+STDOUT.sync = true
+
+options = {local: false}
 parser = OptionParser.new do |opt|
   opt.banner = %q(Usage: convert_schema.rb [options]
 
@@ -16,7 +19,6 @@ parser = OptionParser.new do |opt|
   opt.on('-p', '--project PROJECT', 'BigQuery project name') { |o| options[:project] = o }
   opt.on('-d', '--dataset DATASET', 'BigQuery dataset name') { |o| options[:dataset] = o }
   opt.on('-b', '--bucket BUCKET', 'Storage bucket name') { |o| options[:bucket] = o }
-  opt.on('-n', '--numdays days', OptionParser::OctalInteger, 'Number of days of data to copy') { |o| options[:numdays] = o }
   opt.on('-l', '--local', 'Use local google creds') { |o| options[:local] = true }
 end
 parser.parse!
@@ -57,8 +59,7 @@ def lookip(literal_ip)
   if masked_ip.nil?
     [nil, {}]
   else
-    IP_LOOKUP_CACHE[clean_ip] ||= MaxmindGeoIP2.locate(clean_ip) || {}
-    [masked_ip, IP_LOOKUP_CACHE[clean_ip]]
+    [masked_ip, MaxmindGeoIP2.locate(clean_ip) || {}]
   end
 end
 def sha256(str)
@@ -96,81 +97,87 @@ in_days = in_files.map{|f| f.name.gsub("#{IN_PATH}/", '').split('/').first}.uniq
 puts "#{in_files.count} files, #{in_days.count} days"
 print "  scanning gs://#{options[:bucket]}/#{OUT_PATH} -> "
 out_files = bucket.files(prefix: "#{OUT_PATH}/")
-out_days = out_files.map{|f| f.name.match(/(\d{4})(\d{2})(\d{2})/).to_a.drop(1).join('-')}
+out_days = out_files.map{|f| f.name.match(/(\d{4})(\d{2})(\d{2})/).to_a.drop(1).join('-')}.uniq
 puts "#{out_files.count} files, #{out_days.count} days"
 print "  finding missing days -> "
-todo = (in_days - out_days).sort.reverse
-puts "#{todo.count} todo"
-todo = todo.first(options[:numdays])
-puts "  processing #{todo.count} now"
+todos = (in_days - out_days).sort.reverse
+puts "#{todos.count} todo"
+date = todos.first
+print "  getting lock for #{date} -> "
+lock_uuid = SecureRandom.uuid
+lock_path = "#{OUT_PATH}/downloads_#{date.gsub('-', '')}.lock"
+bucket.create_file StringIO.new(lock_uuid), lock_path
+lock = bucket.file(lock_path).download()
+if lock.string == lock_uuid
+  puts 'ok'
+else
+  abort 'someone stole it from us!!!'
+end
 
 # (3) download source csv files
-puts "Downloading dump files..."
-todo_infiles = {}
-todo.each do |date|
-  puts "  #{date}:"
-  todo_infiles[date] = []
-  FileUtils.mkdir_p("#{HERE}/tmp/#{IN_PATH}/#{date}")
-  bucket.files(prefix: "#{IN_PATH}/#{date}/").each do |file|
-    print "    #{File.basename(file.name)} (#{file.size / 1000 / 1000} mb) -> "
-    path = "#{HERE}/tmp/#{IN_PATH}/#{date}/#{File.basename(file.name)}"
-    todo_infiles[date] << path
-    if File.exists?(path) && File.size(path) == file.size
-      puts 'already downloaded'
-    else
-      file.download(path)
-      puts 'done'
-    end
+puts "Downloading #{date} dump files..."
+todo_infiles = []
+FileUtils.mkdir_p("#{HERE}/tmp/#{IN_PATH}/#{date}")
+bucket.files(prefix: "#{IN_PATH}/#{date}/").each do |file|
+  print "  #{File.basename(file.name)} (#{file.size / 1000 / 1000} mb) -> "
+  path = "#{HERE}/tmp/#{IN_PATH}/#{date}/#{File.basename(file.name)}"
+  todo_infiles << path
+  if File.exists?(path) && File.size(path) == file.size
+    puts 'already downloaded'
+  else
+    file.download(path)
+    puts 'done'
   end
 end
 
 # (4) the real work (slow)
-puts "Converting schemas..."
-todo.each do |date|
-  puts "  #{date}:"
-  FileUtils.mkdir_p("#{HERE}/tmp/#{OUT_PATH}")
-  CSV.open("#{HERE}/tmp/#{OUT_PATH}/downloads_#{date.gsub('-','')}.csv", 'w') do |dest_csv|
-    dest_csv << %w(
-      timestamp request_uuid
-      feeder_podcast feeder_episode program path
-      clienthash digest ad_count is_duplicate cause
-      remote_referrer remote_agent remote_ip
-      agent_name_id agent_type_id agent_os_id
-      city_geoname_id country_geoname_id postal_code latitude longitude
-    )
-    todo_infiles[date].each do |path|
-      print "    #{File.basename(path)} -> "
-      count = 0
-      CSV.foreach(path, headers: true) do |row|
-        clienthash = sha256(row['path'] + row['remote_ip'] + row['remote_agent'])
-        referer = nil
-        masked_ip, loc = lookip(row['remote_ip'])
-        dest_csv << [
-          row['timestamp'], row['request_uuid'],
-          row['feeder_podcast'], row['feeder_episode'], row['program'], row['path'],
-          clienthash, row['digest'], row['ad_count'], row['is_duplicate'], row['cause'],
-          referer, row['remote_agent'], masked_ip,
-          row['agent_name_id'], row['agent_type_id'], row['agent_os_id'],
-          loc['city_geoname_id'], loc['country_geoname_id'], loc['postal_code'], loc['latitude'], loc['longitude']
-        ]
-        count += 1
-        print "(#{count / 100000 / 10.0}m) " if count % 100000 == 0
-      end
-      puts "#{count} rows"
+puts "Converting #{date} schemas..."
+FileUtils.mkdir_p("#{HERE}/tmp/#{OUT_PATH}")
+CSV.open("#{HERE}/tmp/#{OUT_PATH}/downloads_#{date.gsub('-','')}.csv", 'w') do |dest_csv|
+  dest_csv << %w(
+    timestamp request_uuid
+    feeder_podcast feeder_episode program path
+    clienthash digest ad_count is_duplicate cause
+    remote_referrer remote_agent remote_ip
+    agent_name_id agent_type_id agent_os_id
+    city_geoname_id country_geoname_id postal_code latitude longitude
+  )
+  todo_infiles.each do |path|
+    print "  #{File.basename(path)} -> "
+    count = 0
+    CSV.foreach(path, headers: true) do |row|
+      clienthash = sha256(row['path'] + row['remote_ip'] + row['remote_agent'])
+      referer = nil
+      masked_ip, loc = lookip(row['remote_ip'])
+      dest_csv << [
+        row['timestamp'], row['request_uuid'],
+        row['feeder_podcast'], row['feeder_episode'], row['program'], row['path'],
+        clienthash, row['digest'], row['ad_count'], row['is_duplicate'], row['cause'],
+        referer, row['remote_agent'], masked_ip,
+        row['agent_name_id'], row['agent_type_id'], row['agent_os_id'],
+        loc['city_geoname_id'], loc['country_geoname_id'], loc['postal_code'], loc['latitude'], loc['longitude']
+      ]
+      count += 1
+      print "(#{count / 100000 / 10.0}m) " if count % 100000 == 0
     end
+    puts "#{count} rows"
   end
 end
 
 # (5) gzip and re-upload
-puts "Uploading new files"
-todo.each do |date|
-  name = "downloads_#{date.gsub('-','')}.csv"
-  path = "#{HERE}/tmp/#{OUT_PATH}/#{name}"
-  puts "  #{File.basename(path)}"
-  print "  gzipping #{File.size(path) / 1000 / 1000} mb -> "
-  `gzip #{path}`
-  puts "#{File.size(path + '.gz') / 1000 / 1000} mb"
-  print "  uploading to gs:#{options[:bucket]}/#{OUT_PATH}/#{name}.gz -> "
-  bucket.create_file "#{path}.gz", "#{OUT_PATH}/#{name}.gz"
-  puts "ok"
-end
+puts "Uploading #{date} out-file"
+name = "downloads_#{date.gsub('-','')}.csv"
+path = "#{HERE}/tmp/#{OUT_PATH}/#{name}"
+puts "  #{File.basename(path)}"
+print "  gzipping #{File.size(path) / 1000 / 1000} mb -> "
+`gzip #{path}`
+puts "#{File.size(path + '.gz') / 1000 / 1000} mb"
+print "  uploading to gs:#{options[:bucket]}/#{OUT_PATH}/#{name}.gz -> "
+bucket.create_file "#{path}.gz", "#{OUT_PATH}/#{name}.gz"
+puts "ok"
+print "  unlocking -> "
+bucket.file(lock_path).delete()
+puts "ok"
+print "  cleanup -> "
+FileUtils.rm_rf("#{HERE}/tmp/migrate_downloads")
+puts "ok"
