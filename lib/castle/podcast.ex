@@ -13,7 +13,6 @@ defmodule Castle.Podcast do
     field :created_at, :utc_datetime
     field :updated_at, :utc_datetime
     field :published_at, :utc_datetime
-    field :total_downloads, :integer
   end
 
   def changeset(podcast, attrs) do

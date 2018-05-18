@@ -39,6 +39,6 @@ config :castle, :redis, Castle.Redis.Api
 # Uncomment to run jobs in development
 # config :castle, Castle.Scheduler,
 #   jobs: [
-#     {"* * * * *", {Mix.Tasks.Castle.Rollup.Downloads, :run, [["--lock", "--total"]]}},
+#     {"* * * * *", {Mix.Tasks.Castle.Rollup.Downloads, :run, [["--lock"]]}},
 #     {"* * * * *", {Mix.Tasks.Feeder.Sync, :run, [["--lock"]]}},
 #   ]

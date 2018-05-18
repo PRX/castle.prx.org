@@ -14,7 +14,6 @@ defmodule Castle.Episode do
     field :created_at, :utc_datetime
     field :updated_at, :utc_datetime
     field :published_at, :utc_datetime
-    field :total_downloads, :integer
   end
 
   @doc false
