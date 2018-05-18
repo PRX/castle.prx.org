@@ -1,5 +1,8 @@
 defmodule CastleWeb.API.PodcastController do
   use CastleWeb, :controller
+  alias Castle.Rollup.Query.Trends, as: Trends
+
+  @redis Application.get_env(:castle, :redis)
 
   plug Castle.Plugs.ParseInt, "id" when action == :show
 
@@ -15,7 +18,9 @@ defmodule CastleWeb.API.PodcastController do
       nil ->
         send_resp conn, 404, "Podcast #{id} not found"
       podcast ->
-        trends = Castle.Rollup.Query.Trends.podcast_trends(id)
+        trends = @redis.podcast_trends_cache id, fn(to_dtim) ->
+          Trends.podcast_trends(id, to_dtim)
+        end
         render conn, "show.json", conn: conn, podcast: podcast, trends: trends
     end
   end

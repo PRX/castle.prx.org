@@ -24,13 +24,12 @@ defmodule Castle.API.EpisodeViewTest do
     assert hd(embedded).title == "one"
     assert hd(embedded).subtitle == "one"
     assert hd(embedded).publishedAt == "2017-04-09T21:45:00Z"
-    assert hd(embedded).downloads.total == 1
   end
 
   test "show.json", %{conn: conn} do
     time = get_dtim("2017-04-09T21:45:00Z")
-    trends = %{today: 1, yesterday: 2, this7days: 3, previous7days: 4}
-    ep = %{id: "guid1", podcast_id: 1, title: "one", subtitle: "one", total_downloads: 999, published_at: time, image_url: nil}
+    trends = %{today: 1, yesterday: 2, this7days: 3, previous7days: 4, total: 999}
+    ep = %{id: "guid1", podcast_id: 1, title: "one", subtitle: "one", published_at: time, image_url: nil}
     doc = render("show.json", %{conn: conn, episode: ep, trends: trends})
     assert doc.id == "guid1"
     assert doc.title == "one"

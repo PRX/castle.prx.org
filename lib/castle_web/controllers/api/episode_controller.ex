@@ -1,5 +1,8 @@
 defmodule CastleWeb.API.EpisodeController do
   use CastleWeb, :controller
+  alias Castle.Rollup.Query.Trends, as: Trends
+
+  @redis Application.get_env(:castle, :redis)
 
   def index(conn, %{"podcast_id" => podcast_id} = params) do
     {page, per} = parse_paging(params)
@@ -23,7 +26,9 @@ defmodule CastleWeb.API.EpisodeController do
           nil ->
             send_resp conn, 404, "Episode #{id} not found"
           episode ->
-            trends = Castle.Rollup.Query.Trends.episode_trends(id)
+            trends = @redis.episode_trends_cache id, fn(to_dtim) ->
+              Trends.episode_trends(id, to_dtim)
+            end
             render conn, "show.json", conn: conn, episode: episode, trends: trends
         end
     end

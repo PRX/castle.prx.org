@@ -19,19 +19,18 @@ defmodule CastleWeb.API.EpisodeView do
     episode_json(episode, trends, conn)
   end
 
-  defp episode_json(episode, trends, conn) do
+  defp episode_json(episode, nil, conn) do
     %{
       id: episode.id,
       title: episode.title,
       subtitle: episode.subtitle,
       publishedAt: format_dtim(episode.published_at),
-      downloads: trends_json(episode.total_downloads, trends),
       _links: episode_links(conn, episode),
     }
   end
-
-  defp trends_json(total_count, nil), do: %{total: total_count}
-  defp trends_json(total_count, trends), do: Map.put(trends, :total, total_count)
+  defp episode_json(episode, trends, conn) do
+    episode_json(episode, nil, conn) |> Map.put(:downloads, trends)
+  end
 
   defp episode_links(conn, episode) do
     %{

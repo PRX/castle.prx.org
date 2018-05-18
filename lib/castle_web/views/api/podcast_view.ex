@@ -16,18 +16,17 @@ defmodule CastleWeb.API.PodcastView do
     podcast_json(podcast, trends, conn)
   end
 
-  defp podcast_json(podcast, trends, conn) do
+  defp podcast_json(podcast, nil, conn) do
     %{
       id: podcast.id,
       title: podcast.title,
       subtitle: podcast.subtitle,
-      downloads: trends_json(podcast.total_downloads, trends),
       _links: podcast_links(conn, podcast),
     }
   end
-
-  defp trends_json(total_count, nil), do: %{total: total_count}
-  defp trends_json(total_count, trends), do: Map.put(trends, :total, total_count)
+  defp podcast_json(podcast, trends, conn) do
+    podcast_json(podcast, nil, conn) |> Map.put(:downloads, trends)
+  end
 
   defp podcast_links(conn, podcast) do
     %{

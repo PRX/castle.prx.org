@@ -1,5 +1,5 @@
 defmodule Castle.API.PodcastControllerTest do
-  use Castle.ConnCase, async: true
+  use Castle.ConnCase, async: false
 
   setup do
     Castle.Repo.insert!(%Castle.Podcast{id: 123, title: "one"})

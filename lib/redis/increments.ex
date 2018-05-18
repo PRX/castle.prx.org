@@ -41,10 +41,12 @@ defmodule Castle.Redis.Increments do
 
   defp cache_hget([], _id, _range), do: nil
   defp cache_hget(keys, id, range) do
-    vals = Conn.hget(keys, id) |> Enum.map(fn([_exists, val]) -> val end)
-    case Enum.all?(vals, &(&1 != nil)) do
-      false -> nil
-      true -> format_values(vals, range)
+    vals = Conn.hget(keys, id)
+    all_keys_existed = Enum.all?(vals, fn([exists, _]) -> exists end)
+    if all_keys_existed do
+      Enum.map(vals, fn([_, val]) -> val || 0 end) |> format_values(range)
+    else
+      nil
     end
   end
 

@@ -21,12 +21,11 @@ defmodule Castle.API.PodcastViewTest do
     assert hd(embedded).id == 1
     assert hd(embedded).title == "one"
     assert hd(embedded).subtitle == "one"
-    assert hd(embedded).downloads.total == 1
   end
 
   test "show.json", %{conn: conn} do
-    trends = %{today: 1, yesterday: 2, this7days: 3, previous7days: 4}
-    pod = %{id: 1, title: "one", subtitle: "one", total_downloads: 999, image_url: nil}
+    trends = %{today: 1, yesterday: 2, this7days: 3, previous7days: 4, total: 999}
+    pod = %{id: 1, title: "one", subtitle: "one", image_url: nil}
     doc = render("show.json", %{conn: conn, podcast: pod, trends: trends})
     assert doc.id == 1
     assert doc.title == "one"

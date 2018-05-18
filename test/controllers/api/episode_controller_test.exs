@@ -1,5 +1,5 @@
 defmodule Castle.API.EpisodeControllerTest do
-  use Castle.ConnCase, async: true
+  use Castle.ConnCase, async: false
 
   @guid1 "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
   @guid2 "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
