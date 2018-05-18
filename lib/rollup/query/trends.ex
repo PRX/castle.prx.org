@@ -53,7 +53,7 @@ defmodule Castle.Rollup.Query.Trends do
     }
   end
 
-  defp format_results(trends, total, now \\ Timex.now) do
+  defp format_results(trends, total, now) do
     today = Timex.beginning_of_day(now)
     tomorrow = Timex.shift(today, days: 1)
     %{

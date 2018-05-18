@@ -37,10 +37,26 @@ defmodule Castle.Redis do
   ) :: result_with_new_interval
 
   @doc """
+  Cache podcast trends/totals (including INCRs)
+  """
+  @callback podcast_trends_cache(
+    id      :: pos_integer,
+    work_fn :: (() -> result)
+  ) :: result
+
+  @doc """
   Get very-recent podcast download INCRs.
   """
   @callback episode_increments(
     guid :: String.t,
     intv :: interval
   ) :: result_with_new_interval
+
+  @doc """
+  Cache episode trends/totals (including INCRs)
+  """
+  @callback episode_trends_cache(
+    guid    :: String.t,
+    work_fn :: (() -> result)
+  ) :: result
 end
