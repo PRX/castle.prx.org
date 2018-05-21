@@ -6,7 +6,7 @@ defmodule Castle.BigQueryBaseQueryTest do
   @tag :external
   test "queries with a plain string" do
     {result, meta} = query("""
-      SELECT * FROM #{Env.get(:bq_impressions_table)}
+      SELECT * FROM dt_impressions
       WHERE is_duplicate = true
       AND _PARTITIONTIME = TIMESTAMP("2017-10-29")
       LIMIT 2
@@ -25,7 +25,7 @@ defmodule Castle.BigQueryBaseQueryTest do
   @tag :external
   test "queries with parameters" do
     {result, meta} = query(%{is_dup: true, lim: 2}, """
-      SELECT * FROM #{Env.get(:bq_impressions_table)}
+      SELECT * FROM dt_impressions
       WHERE is_duplicate = @is_dup
       AND _PARTITIONTIME = TIMESTAMP("2017-10-29")
       LIMIT @lim
@@ -44,7 +44,7 @@ defmodule Castle.BigQueryBaseQueryTest do
   @tag :external
   test "loads all pages of results" do
     {result, meta} = query(%{is_dup: true, lim: 215}, """
-      SELECT * FROM #{Env.get(:bq_impressions_table)}
+      SELECT * FROM dt_impressions
       WHERE is_duplicate = @is_dup
       AND _PARTITIONTIME = TIMESTAMP("2017-10-29")
       LIMIT @lim
