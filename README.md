@@ -110,15 +110,6 @@ marking the day as "complete".
 mix castle.rollup.downloads [--lock,--date [YYYYMMDD],--count [INT]]
 ```
 
-### Totals Rollup
-
-*DEPRECATED* These "all time total" rollups are deprecated, and will soon be
-replaced by the Postgres rollups.
-
-```
-mix castle.rollup.totals [--lock]
-```
-
 ## Testing
 
 ```
