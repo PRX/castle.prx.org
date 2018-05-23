@@ -27,12 +27,7 @@ defmodule Castle.HourlyDownload do
     |> Enum.sum()
   end
   def upsert_all(rows) do
-    Castle.Repo.insert_all Castle.HourlyDownload, Enum.map(rows, &parse_row/1)
+    Castle.Repo.insert_all Castle.HourlyDownload, rows
     length(rows)
   end
-
-  defp parse_row(%{podcast_id: id, episode_guid: guid, hour: hour, count: count}) do
-    %{podcast_id: id, episode_id: guid, dtim: hour, count: count}
-  end
-  defp parse_row(row), do: row
 end
