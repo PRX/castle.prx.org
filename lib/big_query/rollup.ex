@@ -5,6 +5,8 @@ defmodule BigQuery.Rollup do
 
   defdelegate hourly_downloads(), to: BigQuery.Rollup.HourlyDownloads, as: :query
   defdelegate hourly_downloads(d), to: BigQuery.Rollup.HourlyDownloads, as: :query
+  defdelegate daily_geo_subdivs(), to: BigQuery.Rollup.DailyGeoSubdivs, as: :query
+  defdelegate daily_geo_subdivs(d), to: BigQuery.Rollup.DailyGeoSubdivs, as: :query
 
   def for_day(dtim, query_fn) do
     now = Timex.now()
