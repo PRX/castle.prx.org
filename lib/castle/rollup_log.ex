@@ -8,17 +8,18 @@ defmodule Castle.RollupLog do
   schema "rollup_logs" do
     field :table_name, :string
     field :date, :date
+    field :complete, :boolean, default: false
     timestamps()
   end
 
   def changeset(rollup_log, attrs) do
     rollup_log
-    |> cast(attrs, [:table_name, :date])
-    |> validate_required([:table_name, :date])
+    |> cast(attrs, [:table_name, :date, :complete])
+    |> validate_required([:table_name, :date, :complete])
   end
 
   def upsert(log) do
-    conflict = [set: [updated_at: Timex.now()]]
+    conflict = [set: [updated_at: Timex.now(), complete: log.complete]]
     target = [:table_name, :date]
     Castle.Repo.insert!(log, on_conflict: conflict, conflict_target: target)
   end
@@ -26,7 +27,8 @@ defmodule Castle.RollupLog do
   def find_missing(table_name, limit, to_date \\ nil) do
     query = """
       SELECT range.date FROM (#{select_range(to_date)}) as range
-      WHERE range.date NOT IN (SELECT date FROM rollup_logs WHERE table_name = $1)
+      WHERE range.date NOT IN
+        (SELECT date FROM rollup_logs WHERE table_name = $1 AND complete = true)
       ORDER BY range.date DESC limit $2
       """ |> String.replace("\n", " ")
     {:ok, result} = Ecto.Adapters.SQL.query(Castle.Repo, query, [table_name, limit])
