@@ -66,7 +66,7 @@ puts '-> ok'
 puts "inserting into #{options[:dataset]}.agentnames..."
 print '  uploading agentnames.json job '
 json = File.open("#{HERE}/tmp/agentnames.json.gz")
-job = table.load(json, format: 'json', create: 'never', write: 'empty')
+job = table.load_job(json, format: 'json', create: 'never', write: 'empty')
 puts '-> done'
 print '  running job '
 job.wait_until_done!
