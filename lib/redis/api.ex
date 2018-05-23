@@ -5,23 +5,19 @@ defmodule Castle.Redis.Api do
     to: Castle.Redis.ResponseCache,
     as: :cached
 
-  defdelegate interval(key_prefix, intv, identifier, work_fn),
-    to: Castle.Redis.IntervalCache,
-    as: :interval
+  defdelegate podcast_increments(id, interval),
+    to: Castle.Redis.Increments,
+    as: :get_podcast
 
-  defdelegate partition(key_prefix, worker_fns),
-    to: Castle.Redis.PartitionCache,
-    as: :partition
+  defdelegate podcast_trends_cache(id, work_fn),
+    to: Castle.Redis.TrendsCache,
+    as: :podcast_trends
 
-  defdelegate partition(key_prefix, combiner_fn, worker_fns),
-    to: Castle.Redis.PartitionCache,
-    as: :partition
+  defdelegate episode_increments(id, interval),
+    to: Castle.Redis.Increments,
+    as: :get_episode
 
-  defdelegate partition_get(key_prefix, num_parts),
-    to: Castle.Redis.PartitionCache,
-    as: :partition_get
-
-  defdelegate partition_get(key_prefix, num_parts, combiner_fn),
-    to: Castle.Redis.PartitionCache,
-    as: :partition_get
+    defdelegate episode_trends_cache(id, work_fn),
+      to: Castle.Redis.TrendsCache,
+      as: :episode_trends
 end

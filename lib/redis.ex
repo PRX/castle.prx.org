@@ -1,6 +1,6 @@
 defmodule Castle.Redis do
   @typedoc """
-  A response + metadata tuple.
+  A response object.
   """
   @type result :: {%{} | [%{}], %{}}
 
@@ -10,16 +10,14 @@ defmodule Castle.Redis do
   @type dated_result :: {%DateTime{}, %{} | [%{}], %{}}
 
   @typedoc """
-  The worker function for a partition, called with the datetime returned by the
-  previous partition, and returning the datetime for the next partition to
-  start on.
-  """
-  @type partition_worker :: (date :: %DateTime{} -> dated_result)
-
-  @typedoc """
   An interval timeframe
   """
   @type interval :: %{from: %DateTime{}, to: %DateTime{}, seconds: pos_integer()}
+
+  @typedoc """
+  A cached result plus an updated interval that excludes the cached result
+  """
+  @type result_with_new_interval :: {dated_result, interval}
 
   @doc """
   Cache the results of a function call.
@@ -31,48 +29,34 @@ defmodule Castle.Redis do
   ) :: result
 
   @doc """
-  Cache a list of intervals for a time range. The worker function will be called
-  with a different from-dtim if there were any cache hits.
+  Get very-recent podcast download INCRs.
   """
-  @callback interval(
-    key_prefix :: String.t,
-    intv       :: interval,
-    identifier :: String.t,
-    work_fn    :: (new_from :: %DateTime{} -> result)
+  @callback podcast_increments(
+    id   :: pos_integer,
+    intv :: interval
+  ) :: result_with_new_interval
+
+  @doc """
+  Cache podcast trends/totals (including INCRs)
+  """
+  @callback podcast_trends_cache(
+    id      :: pos_integer,
+    work_fn :: (() -> result)
   ) :: result
 
   @doc """
-  Cache multiple partitions, passing the start-date of the next partition to
-  the next worker function.
+  Get very-recent podcast download INCRs.
   """
-  @callback partition(
-    key_prefix :: String.t,
-    worker_fns :: [partition_worker]
-  ) :: result
+  @callback episode_increments(
+    guid :: String.t,
+    intv :: interval
+  ) :: result_with_new_interval
 
   @doc """
-  Cache multiple partitions with a custom function to combine result data.
+  Cache episode trends/totals (including INCRs)
   """
-  @callback partition(
-    key_prefix  :: String.t,
-    combiner_fn :: (results :: [%{}] -> [%{}]),
-    worker_fns  :: [partition_worker]
-  ) :: result
-
-  @doc """
-  Get partition data only from redis - will return empty result on cache miss
-  """
-  @callback partition(
-    key_prefix :: String.t,
-    num_parts  :: pos_integer()
-  ) :: result
-
-  @doc """
-  Get partition data with a custom combiner
-  """
-  @callback partition(
-    key_prefix :: String.t,
-    num_parts  :: pos_integer(),
-    combiner_fn :: (results :: [%{}] -> [%{}])
+  @callback episode_trends_cache(
+    guid    :: String.t,
+    work_fn :: (() -> result)
   ) :: result
 end

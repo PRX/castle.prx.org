@@ -23,6 +23,18 @@ defmodule Castle.Episode do
     |> validate_required([:podcast_id])
   end
 
+  def recent(pid, limit, page) do
+    offset = (page - 1) * limit
+    Castle.Repo.all(from e in Castle.Episode, where: e.podcast_id == ^pid, limit: ^limit, offset: ^offset, order_by: [desc: :published_at])
+  end
+  def recent(limit, page) do
+    offset = (page - 1) * limit
+    Castle.Repo.all(from e in Castle.Episode, limit: ^limit, offset: ^offset, order_by: [desc: :published_at])
+  end
+
+  def total(pid), do: Castle.Repo.one(from e in Castle.Episode, where: e.podcast_id == ^pid, select: count("*"))
+  def total, do: Castle.Repo.one(from e in Castle.Episode, select: count("*"))
+
   def max_updated_at() do
     Castle.Repo.one(from e in Castle.Episode, select: max(e.updated_at))
   end

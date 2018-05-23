@@ -11,10 +11,11 @@ defmodule Castle.Plugs.Interval.TimeTo do
   end
 
   defp parse_dtim(dtim_string) do
-    if String.length(dtim_string) == 10 do
-      Timex.parse(dtim_string, "{YYYY}-{0M}-{0D}")
-    else
-      Timex.parse(dtim_string, "{ISO:Extended}")
+    format = case String.length(dtim_string) do
+      8 -> "{YYYY}{0M}{0D}"
+      10 -> "{YYYY}-{0M}-{0D}"
+      _ -> "{ISO:Extended}"
     end
+    Timex.parse(dtim_string, format)
   end
 end

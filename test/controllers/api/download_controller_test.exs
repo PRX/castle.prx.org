@@ -1,109 +1,77 @@
 defmodule Castle.API.DownloadControllerTest do
-  use Castle.ConnCase, async: false
+  use Castle.ConnCase, async: true
+  use Castle.TimeHelpers
 
-  import Mock
+  @id 123
+  @guid "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+
+  setup do
+    Castle.Repo.insert!(%Castle.Podcast{id: @id, title: "pod1"})
+    Castle.Repo.insert!(%Castle.Episode{id: @guid, podcast_id: @id, title: "ep1"})
+    do_insert("2017-03-27T12:00:00", 1)
+    do_insert("2017-04-02T14:00:00", 2)
+    do_insert("2017-04-04T10:00:00", 3)
+    do_insert("2017-04-05T04:00:00", 4)
+    []
+  end
 
   test "requires query params", %{conn: conn} do
-    with_mock BigQuery, fake_data() do
-      resp = conn |> get_podcast(123) |> response(400)
-      assert resp =~ ~r/missing required/i
-      resp = conn |> get_podcast(123, from: "blah") |> response(400)
-      assert resp =~ ~r/bad from param/i
-      resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-21") |> json_response(200)
-      assert resp["id"] == 123
-    end
+    resp = conn |> get_podcast(123) |> response(400)
+    assert resp =~ ~r/missing required/i
+    resp = conn |> get_podcast(123, from: "blah") |> response(400)
+    assert resp =~ ~r/bad from param/i
+    resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-05") |> json_response(200)
+    assert resp["id"] == 123
   end
 
   test "validates group params", %{conn: conn} do
-    with_mock BigQuery, fake_groups() do
-      resp = conn |> get_podcast(123, from: "2017-04-01", group: "blah") |> response(400)
-      assert resp =~ ~r/bad group param/i
-      resp = conn |> get_podcast(123, from: "2017-04-01", group: "city") |> json_response(200)
-      assert resp["id"] == 123
-    end
+    resp = conn |> get_podcast(123, from: "2017-04-01", group: "blah") |> response(400)
+    assert resp =~ ~r/bad group param/i
+    resp = conn |> get_podcast(123, from: "2017-04-01", group: "city") |> json_response(200)
+    assert resp["id"] == 123
   end
 
   test "responds with downloads for a podcast", %{conn: conn} do
-    with_mock BigQuery, fake_data() do
-      resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-21", interval: "1d") |> json_response(200)
-      assert resp["id"] == 123
-      assert resp["interval"]["name"] == "DAY"
-      assert length(resp["downloads"]) == 20
-      assert hd(resp["downloads"]) == ["2017-04-01T00:00:00Z", 0]
-    end
-  end
-
-  test "responds with grouped downloads for a podcast", %{conn: conn} do
-    with_mock BigQuery, fake_groups() do
-      resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-21", interval: "1d", group: "city") |> json_response(200)
-      assert resp["id"] == 123
-      assert resp["interval"]["name"] == "DAY"
-      assert length(resp["groups"]) == 1
-      assert hd(resp["groups"]) == "foo"
-      assert length(resp["downloads"]) == 20
-      assert hd(resp["downloads"]) == ["2017-04-01T00:00:00Z", 0]
-    end
+    resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-05", interval: "1d") |> json_response(200)
+    assert resp["id"] == 123
+    assert resp["interval"]["name"] == "DAY"
+    assert resp["interval"]["from"] == "2017-04-01T00:00:00Z"
+    assert resp["interval"]["to"] == "2017-04-05T00:00:00Z"
+    assert length(resp["downloads"]) == 4
+    assert Enum.at(resp["downloads"], 0) == ["2017-04-01T00:00:00Z", 0]
+    assert Enum.at(resp["downloads"], 1) == ["2017-04-02T00:00:00Z", 2]
+    assert Enum.at(resp["downloads"], 2) == ["2017-04-03T00:00:00Z", 0]
+    assert Enum.at(resp["downloads"], 3) == ["2017-04-04T00:00:00Z", 3]
   end
 
   test "responds with downloads for an episode", %{conn: conn} do
-    with_mock BigQuery, fake_data() do
-      resp = conn |> get_episode("hello", from: "2017-04-01", to: "2017-04-21", interval: "1d") |> json_response(200)
-      assert resp["guid"] == "hello"
-      assert resp["interval"]["name"] == "DAY"
-      assert length(resp["downloads"]) == 20
-      assert hd(resp["downloads"]) == ["2017-04-01T00:00:00Z", 0]
-    end
-  end
-
-  test "responds with grouped downloads for an episode", %{conn: conn} do
-    with_mock BigQuery, fake_groups() do
-      resp = conn |> get_episode("hello", from: "2017-04-01", to: "2017-04-21", interval: "1d", group: "country") |> json_response(200)
-      assert resp["guid"] == "hello"
-      assert resp["interval"]["name"] == "DAY"
-      assert length(resp["groups"]) == 1
-      assert hd(resp["groups"]) == "foo"
-      assert length(resp["downloads"]) == 20
-      assert hd(resp["downloads"]) == ["2017-04-01T00:00:00Z", 0]
-    end
+    resp = conn |> get_episode(@guid, from: "2017-04-02T11:12:13", to: "2017-04-02T15:16:17", interval: "HOUR") |> json_response(200)
+    assert resp["id"] == @guid
+    assert resp["interval"]["name"] == "HOUR"
+    assert resp["interval"]["from"] == "2017-04-02T11:00:00Z"
+    assert resp["interval"]["to"] == "2017-04-02T16:00:00Z"
+    assert length(resp["downloads"]) == 5
+    assert Enum.at(resp["downloads"], 0) == ["2017-04-02T11:00:00Z", 0]
+    assert Enum.at(resp["downloads"], 1) == ["2017-04-02T12:00:00Z", 0]
+    assert Enum.at(resp["downloads"], 2) == ["2017-04-02T13:00:00Z", 0]
+    assert Enum.at(resp["downloads"], 3) == ["2017-04-02T14:00:00Z", 2]
+    assert Enum.at(resp["downloads"], 4) == ["2017-04-02T15:00:00Z", 0]
   end
 
   defp get_podcast(conn, id, query_params \\ %{}) do
     conn |> get(api_podcast_download_path(conn, :index, id, query_params))
   end
 
-  defp get_episode(conn, guid, query_params) do
-    conn |> get(api_episode_download_path(conn, :index, guid, query_params))
+  defp get_episode(conn, id, query_params) do
+    conn |> get(api_episode_download_path(conn, :index, id, query_params))
   end
 
-  defp fake_data do
-    [
-      podcast_downloads: &downloads/1,
-      episode_downloads: &downloads/1,
-    ]
-  end
-
-  defp fake_groups do
-    [
-      podcast_downloads: &group_downloads/3,
-      episode_downloads: &group_downloads/3,
-    ]
-  end
-
-  defp group_downloads(_id, _interval, _group) do
-    {:ok, start, _} = DateTime.from_iso8601("2017-04-01T00:00:00Z")
-    {Enum.map(0..19, &group_download(&1, start)), %{meta: "data"}}
-  end
-
-  defp group_download(num, start_dtim) do
-    %{count: num, time: Timex.shift(start_dtim, days: num), display: "foo", rank: 1}
-  end
-
-  defp downloads(_interval) do
-    {:ok, start, _} = DateTime.from_iso8601("2017-04-01T00:00:00Z")
-    {Enum.map(0..19, &download(&1, start)), %{meta: "data"}}
-  end
-
-  defp download(num, start_dtim) do
-    {Timex.shift(start_dtim, days: num), %{123 => num, "hello" => num}}
+  defp do_insert(dtim_str, count) do
+    Castle.HourlyDownload.upsert %{
+      podcast_id: @id,
+      episode_id: @guid,
+      dtim: get_dtim(dtim_str),
+      count: count
+    }
   end
 end

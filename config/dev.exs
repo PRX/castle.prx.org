@@ -35,12 +35,10 @@ config :phoenix, :stacktrace_depth, 20
 
 # External clients
 config :castle, :redis, Castle.Redis.Api
-config :castle, :bigquery, BigQuery
 
 # Uncomment to run jobs in development
 # config :castle, Castle.Scheduler,
 #   jobs: [
-#     {"* * * * *", {Mix.Tasks.Castle.Rollup.Totals, :run, [["--lock"]]}},
 #     {"* * * * *", {Mix.Tasks.Castle.Rollup.Downloads, :run, [["--lock"]]}},
 #     {"* * * * *", {Mix.Tasks.Feeder.Sync, :run, [["--lock"]]}},
 #   ]

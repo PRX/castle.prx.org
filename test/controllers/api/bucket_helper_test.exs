@@ -2,6 +2,8 @@ defmodule Castle.API.BucketHelperTest do
   use Castle.ConnCase, async: true
   use Castle.TimeHelpers
 
+  import CastleWeb.API.BucketHelper
+
   setup do
     [
       from: get_dtim("2017-03-26T00:00:00Z"),
@@ -30,22 +32,20 @@ defmodule Castle.API.BucketHelperTest do
   end
 
   test "works with a bigquery interval", %{from: from, to: to} do
-    interval = %BigQuery.Interval{
+    interval = %Castle.Interval{
       from: from,
       to: to,
-      rollup: BigQuery.TimestampRollups.Hourly,
-      bucket: BigQuery.TimestampRollups.Daily,
+      bucket: Castle.Bucket.Daily,
     }
     data = bucketize([], interval)
     assert_times(data)
   end
 
   test "adjust the start time for the first interval bucket", %{to: to} do
-    interval = %BigQuery.Interval{
+    interval = %Castle.Interval{
       from: get_dtim("2017-03-26T12:00:00Z"),
       to: to,
-      rollup: BigQuery.TimestampRollups.Hourly,
-      bucket: BigQuery.TimestampRollups.Daily,
+      bucket: Castle.Bucket.Daily,
     }
     data = bucketize([], interval)
     assert length(data) == 3
@@ -95,11 +95,6 @@ defmodule Castle.API.BucketHelperTest do
     assert Enum.at(data, 0).count == 0
     assert Enum.at(data, 1).count == 4
     assert Enum.at(data, 2).count == 5
-  end
-
-  defp bucketize(original_data, buckets) do
-    {data, _meta} = CastleWeb.API.BucketHelper.bucketize({original_data, %{}}, buckets)
-    data
   end
 
   defp assert_times(data) do

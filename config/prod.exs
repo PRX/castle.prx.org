@@ -20,12 +20,10 @@ config :logger, level: :info
 
 # External clients
 config :castle, :redis, Castle.Redis.Api
-config :castle, :bigquery, BigQuery
 
 # Scheduled jobs
 config :castle, Castle.Scheduler,
   jobs: [
-    {"*/5 * * * *", {Mix.Tasks.Castle.Rollup.Totals, :run, [["--lock"]]}},
     {"6 * * * *", {Mix.Tasks.Castle.Rollup.Downloads, :run, [["--lock"]]}},
     {"* * * * *", {Mix.Tasks.Feeder.Sync, :run, [["--lock"]]}},
   ]

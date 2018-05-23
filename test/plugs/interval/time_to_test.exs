@@ -17,6 +17,11 @@ defmodule Castle.PlugsIntervalTimeToTest do
     assert Timex.to_unix(time_to) == 1491004800
   end
 
+  test "does not round up full timestamps", %{conn: conn} do
+    {:ok, time_to} = call_time_to(conn, "2017-04-01T00:00:00Z")
+    assert Timex.to_unix(time_to) == 1491004800
+  end
+
   test "converts to utc", %{conn: conn} do
     {:ok, time_to} = call_time_to(conn, "2017-04-01T08:04:11-06:00 Etc/GMT+6")
     {:ok, offset} = Timex.format(time_to, "{Z}")
