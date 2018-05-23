@@ -25,6 +25,15 @@ defmodule Castle.RollupLogTest do
     assert "#{Enum.at(result, 3).date}" == "2018-04-20"
   end
 
+  test "ignores incomplete logs" do
+    upsert build_log("foobar", 2018, 4, 24)
+    upsert build_log("foobar2", 2018, 4, 23, false)
+    result = find_missing("foobar", 2, "2018-04-25")
+    assert length(result) == 2
+    assert "#{Enum.at(result, 0).date}" == "2018-04-25"
+    assert "#{Enum.at(result, 1).date}" == "2018-04-23"
+  end
+
   test "finds empty range" do
     result = find_missing("foobar", 100, "1995-01-01")
     assert length(result) == 0
@@ -62,7 +71,7 @@ defmodule Castle.RollupLogTest do
     assert Timex.diff(final.updated_at, log2.updated_at, :seconds) == 0
   end
 
-  defp build_log(name, year, month, day) do
-    %Castle.RollupLog{table_name: name, date: Ecto.Date.from_erl({year, month, day})}
+  defp build_log(name, year, month, day, complete \\ true) do
+    %Castle.RollupLog{table_name: name, date: Ecto.Date.from_erl({year, month, day}), complete: complete}
   end
 end
