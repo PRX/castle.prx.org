@@ -5,6 +5,10 @@ defmodule BigQuery.Rollup do
 
   defdelegate hourly_downloads(), to: BigQuery.Rollup.HourlyDownloads, as: :query
   defdelegate hourly_downloads(d), to: BigQuery.Rollup.HourlyDownloads, as: :query
+  defdelegate daily_geo_countries(), to: BigQuery.Rollup.DailyGeoCountries, as: :query
+  defdelegate daily_geo_countries(d), to: BigQuery.Rollup.DailyGeoCountries, as: :query
+  defdelegate daily_geo_metros(), to: BigQuery.Rollup.DailyGeoMetros, as: :query
+  defdelegate daily_geo_metros(d), to: BigQuery.Rollup.DailyGeoMetros, as: :query
   defdelegate daily_geo_subdivs(), to: BigQuery.Rollup.DailyGeoSubdivs, as: :query
   defdelegate daily_geo_subdivs(d), to: BigQuery.Rollup.DailyGeoSubdivs, as: :query
 

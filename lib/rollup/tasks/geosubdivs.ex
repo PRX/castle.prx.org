@@ -1,10 +1,10 @@
-defmodule Mix.Tasks.Castle.Rollup.Geosubdiv do
+defmodule Mix.Tasks.Castle.Rollup.Geosubdivs do
   use Castle.Rollup.Task
 
-  @shortdoc "Rollup bigquery geo subdivisions by day"
+  @shortdoc "Rollup bigquery geo iso subdivisions by day"
 
   @table "daily_geo_subdivs"
-  @lock "lock.rollup.geosubdiv"
+  @lock "lock.rollup.geosubdivs"
 
   def run(args) do
     {:ok, _started} = Application.ensure_all_started(:castle)

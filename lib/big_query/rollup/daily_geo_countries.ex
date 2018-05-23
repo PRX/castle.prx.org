@@ -1,4 +1,4 @@
-defmodule BigQuery.Rollup.DailyGeoSubdivs do
+defmodule BigQuery.Rollup.DailyGeoCountries do
   alias BigQuery.Base.Query, as: Query
 
   def query(), do: query(Timex.now)
@@ -15,13 +15,12 @@ defmodule BigQuery.Rollup.DailyGeoSubdivs do
       ANY_VALUE(feeder_podcast) as podcast_id,
       feeder_episode as episode_id,
       country_iso_code,
-      subdivision_1_iso_code,
       count(*) as count
-    FROM dt_downloads JOIN production.geonames ON (city_geoname_id = geoname_id)
+    FROM dt_downloads JOIN production.geonames ON (country_geoname_id = geoname_id)
     WHERE EXTRACT(DATE from timestamp) = @date_str AND is_duplicate = false
       AND feeder_podcast IS NOT NULL AND feeder_episode IS NOT NULL
-      AND country_iso_code IS NOT NULL AND subdivision_1_iso_code IS NOT NULL
-    GROUP BY feeder_episode, country_iso_code, subdivision_1_iso_code
+      AND country_iso_code IS NOT NULL
+    GROUP BY feeder_episode, country_iso_code
     """
   end
 
