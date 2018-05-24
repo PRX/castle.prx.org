@@ -1,6 +1,8 @@
 defmodule Castle.Rollup.Query.Trends do
   import Ecto.Query
 
+  @timeout 15000
+
   def podcast_trends(id, now \\ Timex.now) do
     start = Timex.beginning_of_day(now) |> Timex.shift(days: -13)
 
@@ -18,7 +20,7 @@ defmodule Castle.Rollup.Query.Trends do
 
     t1 = Task.async(get_trends)
     t2 = Task.async(get_total)
-    format_results Task.await(t1), Task.await(t2), now
+    format_results Task.await(t1, @timeout), Task.await(t2, @timeout), now
   end
 
   def episode_trends(id, now \\ Timex.now) do
@@ -38,7 +40,7 @@ defmodule Castle.Rollup.Query.Trends do
 
     t1 = Task.async(get_trends)
     t2 = Task.async(get_total)
-    format_results Task.await(t1), Task.await(t2), now
+    format_results Task.await(t1, @timeout), Task.await(t2, @timeout), now
   end
 
   def add_cached(trends, cached, now \\ Timex.now) do
