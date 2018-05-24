@@ -24,7 +24,7 @@ config :castle, :redis, Castle.Redis.Api
 # Scheduled jobs
 config :castle, Castle.Scheduler,
   jobs: [
-    {"6 * * * *", {Mix.Tasks.Castle.Rollup.Downloads, :run, [["--lock"]]}},
+    {"15,45 * * * *", {Mix.Tasks.Castle.Rollup.Downloads, :run, [["--lock"]]}},
     {"* * * * *", {Mix.Tasks.Feeder.Sync, :run, [["--lock"]]}},
   ]
 
