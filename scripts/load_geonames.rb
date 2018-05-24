@@ -34,28 +34,28 @@ abort "Dataset '#{options[:dataset]}' does not exist!" unless dataset
 puts 'looking for geolite2 city csv...'
 Dir.mkdir("#{HERE}/tmp") unless Dir.exists?("#{HERE}/tmp")
 if !options[:refresh] && File.exists?("#{HERE}/tmp/GeoLite2-City-Locations-en.csv")
-  puts "  already exists!"
+  puts '  GeoLite2-City-Locations-en.csv -> already exists!'
 else
-  print '  GeoLite2-City-CSV.zip -> downloading '
+  print '  downloading GeoLite2-City-CSV.zip -> '
+  FileUtils.rm_f("#{HERE}/tmp/GeoLite2-City-Locations-en.csv")
   File.open("#{HERE}/tmp/GeoLite2-City-CSV.zip", 'wb') do |file|
     open('http://geolite.maxmind.com/download/geoip/database/GeoLite2-City-CSV.zip', 'rb') do |download|
       file.write(download.read)
     end
   end
-  puts '-> unzipping ->'
+  puts 'ok'
+
+  print '  unzipping GeoLite2-City-Locations-en.csv -> '
   Zip::File.open("#{HERE}/tmp/GeoLite2-City-CSV.zip") do |zipfile|
-    zipfile.each do |entry|
-      if entry.name =~ /Locations-en/
-        name = entry.name.split('/').last
-        print "    #{name} -> "
-        entry.extract("#{HERE}/tmp/#{name}")
-        puts 'ok'
-      end
-    end
+    entry = zipfile.find {|e| e.name =~ /Locations-en/}
+    name = entry.name.split('/').last
+    entry.extract("#{HERE}/tmp/#{name}")
   end
-  puts '  cleaning up '
+  puts 'ok'
+
+  print '  cleaning up -> '
   File.delete("#{HERE}/tmp/GeoLite2-City-CSV.zip")
-  puts '-> ok'
+  puts 'ok'
 end
 
 puts 'formatting location csv...'
@@ -96,7 +96,7 @@ puts '-> ok'
 puts "inserting into #{options[:dataset]}.geonames..."
 print '  uploading geonames.json job (this could take awhile) '
 json = File.open("#{HERE}/tmp/geonames.json.gz")
-job = table.load(json, format: 'json', create: 'never', write: 'empty')
+job = table.load_job(json, format: 'json', create: 'never', write: 'empty')
 puts '-> done'
 print '  running job '
 job.wait_until_done!
