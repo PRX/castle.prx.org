@@ -1,9 +1,7 @@
 defmodule Castle.BigQueryRollupTest do
-  use Castle.BigQueryCase, async: false
-  use Castle.TimeHelpers
+  use Castle.BigQueryCase
 
   import BigQuery.Rollup
-  import Mock
 
   test "gets nothing for future days" do
     {results, meta} = for_day get_dtim("2030-01-01"), fn(_) -> ["nothing"] end
@@ -13,25 +11,21 @@ defmodule Castle.BigQueryRollupTest do
     assert meta.hours_complete == 0
   end
 
-  test "gets partial for today" do
-    with_mock Timex, [:passthrough], [now: fn() -> get_dtim("2017-05-01T15:14:13Z") end] do
-      {results, meta} = for_day Timex.now, fn(_) -> {["something"], %{meta: "data"}} end
-      assert length(results) == 1
-      assert results == ["something"]
-      assert_time Timex.to_date(meta.day), "2017-05-01T00:00:00Z"
-      assert meta.complete == false
-      assert meta.hours_complete == 14
-    end
+  test_with_bq "gets partial for today", "2017-05-01T15:14:13Z", [] do
+    {results, meta} = for_day Timex.now, fn(_) -> {["something"], %{meta: "data"}} end
+    assert length(results) == 1
+    assert results == ["something"]
+    assert_time Timex.to_date(meta.day), "2017-05-01T00:00:00Z"
+    assert meta.complete == false
+    assert meta.hours_complete == 14
   end
 
-  test "gets complete for the past" do
-    with_mock Timex, [:passthrough], [now: fn() -> get_dtim("2017-05-01T15:14:13Z") end] do
-      {results, meta} = for_day get_dtim("2017-04-29"), fn(_) -> {["something"], %{meta: "data"}} end
-      assert length(results) == 1
-      assert results == ["something"]
-      assert_time Timex.to_date(meta.day), "2017-04-29T00:00:00Z"
-      assert meta.complete == true
-    end
+  test_with_bq "gets complete for the past", "2017-05-01T15:14:13Z", [] do
+    {results, meta} = for_day get_dtim("2017-04-29"), fn(_) -> {["something"], %{meta: "data"}} end
+    assert length(results) == 1
+    assert results == ["something"]
+    assert_time Timex.to_date(meta.day), "2017-04-29T00:00:00Z"
+    assert meta.complete == true
   end
 
   test "does not indicate a day is complete until 15 minutes after" do

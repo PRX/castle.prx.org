@@ -1,8 +1,36 @@
 defmodule Castle.BigQueryCase do
-  use ExUnit.CaseTemplate
+  use ExUnit.CaseTemplate, async: false
+
+  defmacro test_with_bq(name, mock_result, do: expression) do
+    quote do
+      test_with_bq unquote(name), nil, unquote(mock_result), do: unquote(expression)
+    end
+  end
+  defmacro test_with_bq(name, now_str, mock_result, do: expression) do
+    quote do
+      test unquote(name) do
+        query = fn(_params, _sql) ->
+          data = unquote(mock_result)
+          {data, %{bytes: 1, megabytes: 1, cached: false, total: length(data)}}
+        end
+        with_mock BigQuery.Base.Query, [query: query] do
+          if unquote(now_str) do
+            now = [now: fn() -> get_dtim(unquote(now_str)) end]
+            with_mock Timex, [:passthrough], now, do: unquote(expression)
+          else
+            unquote(expression)
+          end
+        end
+      end
+    end
+  end
 
   using do
     quote do
+      import Mock
+      import Castle.BigQueryCase
+      use Castle.TimeHelpers
+
       defp interval(from_str, to_str, rollup) do
         {:ok, start, _} = DateTime.from_iso8601(from_str)
         {:ok, finish, _} = DateTime.from_iso8601(to_str)

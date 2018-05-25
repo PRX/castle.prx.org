@@ -1,16 +1,16 @@
-defmodule Castle.BigQueryRollupHourlyDownloadsTest do
+defmodule Castle.BigQueryRollupDailyGeoSubdivsTest do
   use Castle.BigQueryCase
 
-  import BigQuery.Rollup.HourlyDownloads
+  import BigQuery.Rollup.DailyGeoSubdivs
 
-  test_with_bq "gets empty hourly downloads in the past", [] do
+  test_with_bq "gets empty geo subdivs in the past", [] do
     {results, meta} = query(get_dtim("2016-01-01T05:04:00Z"))
     assert length(results) == 0
     assert_time meta.day, "2016-01-01T00:00:00Z"
     assert meta.complete == true
   end
 
-  test "gets empty hourly downloads in the future" do
+  test "gets empty geo subdivs in the future" do
     {results, meta} = query(get_dtim("2030-01-01"))
     assert length(results) == 0
     assert_time meta.day, "2030-01-01T00:00:00Z"
@@ -18,10 +18,10 @@ defmodule Castle.BigQueryRollupHourlyDownloadsTest do
     assert meta.hours_complete == 0
   end
 
-  test_with_bq "gets a partial day of downloads", "2017-05-01T05:14:37Z", [
-    %{podcast_id: 1, episode_id: "a", hour: 2, count: 123},
-    %{podcast_id: 2, episode_id: "b", hour: 6, count: 456},
-    %{podcast_id: 1, episode_id: "a", hour: 1, count: 789},
+  test_with_bq "gets a partial day of geo subdivs", "2017-05-01T05:14:37Z", [
+    %{podcast_id: 1, episode_id: "a", country_iso_code: "US", subdivision_1_iso_code: "MN", count: 123},
+    %{podcast_id: 2, episode_id: "b", country_iso_code: "US", subdivision_1_iso_code: "MN", count: 456},
+    %{podcast_id: 1, episode_id: "a", country_iso_code: "US", subdivision_1_iso_code: "MN", count: 789},
   ] do
     {results, meta} = query(get_dtim("2017-05-01"))
     assert length(results) == 3
@@ -30,18 +30,19 @@ defmodule Castle.BigQueryRollupHourlyDownloadsTest do
     assert meta.hours_complete == 4
     assert hd(results).podcast_id == 1
     assert hd(results).episode_id == "a"
+    assert hd(results).country_iso_code == "US"
+    assert hd(results).subdivision_1_iso_code == "MN"
     assert hd(results).count == 123
-    assert_time Enum.at(results, 0).dtim, "2017-05-01T02:00:00Z"
-    assert_time Enum.at(results, 1).dtim, "2017-05-01T06:00:00Z"
-    assert_time Enum.at(results, 2).dtim, "2017-05-01T01:00:00Z"
+    assert hd(results).day == ~D[2017-05-01]
   end
 
   @tag :external
   test "actually gets data" do
     {results, meta} = query(get_dtim("2017-05-01"))
-    assert length(results) == 24248
+    assert length(results) == 48440
     assert_time meta.day, "2017-05-01T00:00:00Z"
     assert meta.complete == true
-    assert format_dtim(hd(results).dtim) =~ ~r/2017-05-01T[0-2][0-9]:00:00/
+    assert hd(results).day == ~D[2017-05-01]
+    assert hd(results).metro_code > 0
   end
 end
