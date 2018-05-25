@@ -24,11 +24,11 @@ defmodule Castle.MonthlyDownload do
     Castle.Repo.insert!(download, on_conflict: conflict, conflict_target: target)
   end
 
-  def upsert_all!([]), do: 0
-  def upsert_all!(rows) when length(rows) > 5000 do
-    Enum.chunk_every(rows, 5000) |> Enum.map(&upsert_all!/1) |> Enum.sum()
+  def upsert_all([]), do: 0
+  def upsert_all(rows) when length(rows) > 5000 do
+    Enum.chunk_every(rows, 5000) |> Enum.map(&upsert_all/1) |> Enum.sum()
   end
-  def upsert_all!(rows) do
+  def upsert_all(rows) do
     conflict = :replace_all
     target = [:episode_id, :month]
     Castle.Repo.insert_all Castle.MonthlyDownload, rows, on_conflict: conflict, conflict_target: target

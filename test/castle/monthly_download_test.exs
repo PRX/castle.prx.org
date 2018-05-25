@@ -7,7 +7,7 @@ defmodule Castle.MonthlyDownloadTest do
   @guid "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 
   test "upserts all" do
-    upsert_all! [
+    upsert_all [
       %{podcast_id: @id, episode_id: @guid, month: ~D[2018-01-01], count: 10},
       %{podcast_id: @id, episode_id: @guid, month: ~D[2018-02-01], count: 11},
       %{podcast_id: @id, episode_id: @guid, month: ~D[2018-03-01], count: 12}

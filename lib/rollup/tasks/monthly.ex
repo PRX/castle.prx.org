@@ -19,7 +19,7 @@ defmodule Mix.Tasks.Castle.Rollup.Monthly do
 
   def rollup(rollup_log) do
     Logger.info "Rollup.MonthlyDownloads.#{rollup_log.date} querying"
-    results = rollup_log.date |> Castle.Rollup.Query.MonthlyDownloads.all()
+    results = rollup_log.date |> Castle.Rollup.Query.MonthlyDownloads.from_hourly()
     Logger.info "Rollup.MonthlyDownloads.#{rollup_log.date} upserting #{length(results)}"
     Castle.MonthlyDownload.upsert_all(results)
     if is_past_month?(rollup_log.date) do

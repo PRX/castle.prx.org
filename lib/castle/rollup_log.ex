@@ -2,8 +2,9 @@ defmodule Castle.RollupLog do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @beginning_of_time "2017-04-01"
   @buffer_seconds 300
+  @beginning_of_time ~D[2017-04-01]
+  def beginning_of_time, do: @beginning_of_time
 
   schema "rollup_logs" do
     field :table_name, :string
