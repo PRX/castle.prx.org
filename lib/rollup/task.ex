@@ -5,6 +5,7 @@ defmodule Castle.Rollup.Task do
       import Castle.Redis.Lock
       require Logger
 
+      Module.register_attribute __MODULE__, :interval, accumulate: false, persist: true
       Module.register_attribute __MODULE__, :table, accumulate: false, persist: true
       Module.register_attribute __MODULE__, :lock, accumulate: false, persist: true
       Module.register_attribute __MODULE__, :lock_ttl, accumulate: false, persist: true
@@ -12,6 +13,7 @@ defmodule Castle.Rollup.Task do
       Module.register_attribute __MODULE__, :default_count, accumulate: false, persist: true
 
       # defaults
+      @interval "day"
       @table "does_not_exist"
       @lock "lock.rollup"
       @lock_ttl 50
@@ -45,18 +47,19 @@ defmodule Castle.Rollup.Task do
         [%Castle.RollupLog{table_name: table_name(), date: parse_date(date_str)}]
       end
       defp find_rollup_logs(%{count: count}) do
-        Castle.RollupLog.find_missing(table_name(), count)
+        case get_attribute(:interval) do
+          "month" -> Castle.RollupLog.find_missing_months table_name(), count
+          "day" -> Castle.RollupLog.find_missing_days table_name(), count
+        end
       end
-      defp find_rollup_logs(_opts) do
-        Castle.RollupLog.find_missing table_name(), get_attribute(:default_count)
-      end
+      defp find_rollup_logs(_opts), do: find_rollup_logs(%{count: get_attribute(:default_count)})
 
       defp set_complete(rollup_log) do
-        rollup_log |> Map.put(:complete, true) |> Castle.RollupLog.upsert()
+        rollup_log |> Map.put(:complete, true) |> Castle.RollupLog.upsert!()
       end
 
       defp set_incomplete(rollup_log) do
-        rollup_log |> Map.put(:complete, false) |> Castle.RollupLog.upsert()
+        rollup_log |> Map.put(:complete, false) |> Castle.RollupLog.upsert!()
       end
 
       defp table_name do
@@ -70,7 +73,11 @@ defmodule Castle.Rollup.Task do
           _ -> "{ISO:Extended}"
         end
         case Timex.parse(str, format) do
-          {:ok, dtim} -> Timex.to_date(dtim)
+          {:ok, dtim} ->
+            case get_attribute(:interval) do
+              "month" -> dtim |> Timex.beginning_of_month |> Timex.to_date
+              "day" -> dtim |> Timex.beginning_of_day |> Timex.to_date
+            end
           _ -> raise "Invalid date provided: #{str}"
         end
       end

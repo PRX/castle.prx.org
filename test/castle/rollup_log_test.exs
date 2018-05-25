@@ -5,7 +5,7 @@ defmodule Castle.RollupLogTest do
   import Castle.RollupLog
 
   test "finds an entirely missing range" do
-    result = find_missing("foobar", 4, "2018-04-25")
+    result = find_missing_days("foobar", 4, "2018-04-25")
     assert length(result) == 4
     assert "#{Enum.at(result, 0).date}" == "2018-04-25"
     assert "#{Enum.at(result, 1).date}" == "2018-04-24"
@@ -14,10 +14,10 @@ defmodule Castle.RollupLogTest do
   end
 
   test "finds partial missing range" do
-    upsert build_log("foobar", 2018, 4, 24)
-    upsert build_log("foobar2", 2018, 4, 23)
-    upsert build_log("foobar", 2018, 4, 22)
-    result = find_missing("foobar", 4, "2018-04-25")
+    upsert! build_log("foobar", 2018, 4, 24)
+    upsert! build_log("foobar2", 2018, 4, 23)
+    upsert! build_log("foobar", 2018, 4, 22)
+    result = find_missing_days("foobar", 4, "2018-04-25")
     assert length(result) == 4
     assert "#{Enum.at(result, 0).date}" == "2018-04-25"
     assert "#{Enum.at(result, 1).date}" == "2018-04-23"
@@ -26,17 +26,27 @@ defmodule Castle.RollupLogTest do
   end
 
   test "ignores incomplete logs" do
-    upsert build_log("foobar", 2018, 4, 24)
-    upsert build_log("foobar2", 2018, 4, 23, false)
-    result = find_missing("foobar", 2, "2018-04-25")
+    upsert! build_log("foobar", 2018, 4, 24)
+    upsert! build_log("foobar2", 2018, 4, 23, false)
+    result = find_missing_days("foobar", 2, "2018-04-25")
     assert length(result) == 2
     assert "#{Enum.at(result, 0).date}" == "2018-04-25"
     assert "#{Enum.at(result, 1).date}" == "2018-04-23"
   end
 
   test "finds empty range" do
-    result = find_missing("foobar", 100, "1995-01-01")
+    result = find_missing_days("foobar", 100, "1995-01-01")
     assert length(result) == 0
+  end
+
+  test "finds monthly range" do
+    upsert! build_log("foobar", 2018, 3, 1)
+    result = find_missing_months "foobar", 4, get_dtim("2018-04-25")
+    assert length(result) == 4
+    assert "#{Enum.at(result, 0).date}" == "2018-04-01"
+    assert "#{Enum.at(result, 1).date}" == "2018-02-01"
+    assert "#{Enum.at(result, 2).date}" == "2018-01-01"
+    assert "#{Enum.at(result, 3).date}" == "2017-12-01"
   end
 
   test "updates rows that have already been inserted" do
@@ -53,7 +63,7 @@ defmodule Castle.RollupLogTest do
     assert_time log1.inserted_at, "2018-04-22T22:00:00Z"
     assert_time log1.updated_at, "2018-04-22T23:00:00Z"
 
-    log2 = upsert build_log("foobar", 2018, 4, 22)
+    log2 = upsert! build_log("foobar", 2018, 4, 22)
     assert log2.id == id
     assert log2.table_name == "foobar"
     assert "#{log2.date}" == "2018-04-22"

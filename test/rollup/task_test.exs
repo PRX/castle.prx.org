@@ -18,6 +18,12 @@ defmodule Castle.RollupTaskTest do
     def undone(log), do: set_incomplete(log)
   end
 
+  defmodule MonthlyTask do
+    use Castle.Rollup.Task
+    @interval "month"
+    def run(_args), do: nil
+  end
+
   setup do
     redis_clear("lock.rollup.*")
     []
@@ -42,7 +48,7 @@ defmodule Castle.RollupTaskTest do
     assert [:locked] == FakeTask.do_rollup [date: "20180101", lock: true], fn(_) -> "val2" end
   end
 
-  test "iterates through dates" do
+  test "iterates through days" do
     today = Timex.now |> Timex.to_date
     yesterday = today |> Timex.shift(days: -1)
     roll1 = FakeTask.do_rollup [], fn(log) ->
@@ -57,5 +63,16 @@ defmodule Castle.RollupTaskTest do
     assert [today] == roll1
     assert [yesterday] == roll2
     assert [yesterday] == roll3
+  end
+
+  test "iterates through months" do
+    this_month = Timex.now |> Timex.beginning_of_month |> Timex.to_date
+    last_month = Timex.shift(this_month, months: -1)
+    prev_month = Timex.shift(this_month, months: -2)
+    rolls = MonthlyTask.do_rollup [count: 3], fn(log) -> log.date end
+    assert length(rolls) == 3
+    assert Enum.at(rolls, 0) == this_month
+    assert Enum.at(rolls, 1) == last_month
+    assert Enum.at(rolls, 2) == prev_month
   end
 end
