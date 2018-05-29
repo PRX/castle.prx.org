@@ -43,7 +43,7 @@ config :castle, :redis, Castle.Redis.Api
 config :castle, Castle.Scheduler,
   jobs: [
     # {"* * * * *", {Feeder.Sync,         :run, [["--lock"]]}},
-    # {"* * * * *", {Rollup.Downloads,    :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Hourly,       :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.Monthly,      :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.Geocountries, :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.Geometros,    :run, [["--lock"]]}},

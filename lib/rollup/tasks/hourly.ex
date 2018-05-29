@@ -1,10 +1,10 @@
-defmodule Mix.Tasks.Castle.Rollup.Downloads do
+defmodule Mix.Tasks.Castle.Rollup.Hourly do
   use Castle.Rollup.Task
 
   @shortdoc "Rollup bigquery downloads by hour"
 
   @table "hourly_downloads"
-  @lock "lock.rollup.downloads"
+  @lock "lock.rollup.hourly_downloads"
 
   def run(args) do
     {:ok, _started} = Application.ensure_all_started(:castle)
