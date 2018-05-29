@@ -1,5 +1,8 @@
 use Mix.Config
 
+alias Mix.Tasks.Feeder, as: Feeder
+alias Mix.Tasks.Castle.Rollup, as: Rollup
+
 # For production, we configure the host to read the PORT
 # from the system environment. Therefore, you will need
 # to set PORT=80 before running your server.
@@ -24,8 +27,12 @@ config :castle, :redis, Castle.Redis.Api
 # Scheduled jobs
 config :castle, Castle.Scheduler,
   jobs: [
-    {"15,45 * * * *", {Mix.Tasks.Castle.Rollup.Downloads, :run, [["--lock"]]}},
-    {"* * * * *", {Mix.Tasks.Feeder.Sync, :run, [["--lock"]]}},
+    {"* * * * *",     {Feeder.Sync,         :run, [["--lock"]]}},
+    {"15,45 * * * *", {Rollup.Downloads,    :run, [["--lock"]]}},
+    {"15 6 * * *",    {Rollup.Monthly,      :run, [["--lock"]]}},
+    {"20,50 * * * *", {Rollup.Geocountries, :run, [["--lock"]]}},
+    {"25,55 * * * *", {Rollup.Geometros,    :run, [["--lock"]]}},
+    {"30,0 * * * *",  {Rollup.Geosubdivs,   :run, [["--lock"]]}},
   ]
 
 # ## SSL Support
