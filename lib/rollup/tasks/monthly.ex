@@ -6,6 +6,7 @@ defmodule Mix.Tasks.Castle.Rollup.Monthly do
   @interval "month"
   @table "monthly_downloads"
   @lock "lock.rollup.monthly_downloads"
+  @default_count 10
 
   def run(args) do
     {:ok, _started} = Application.ensure_all_started(:castle)
