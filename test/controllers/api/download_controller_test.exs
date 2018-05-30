@@ -4,10 +4,15 @@ defmodule Castle.API.DownloadControllerTest do
 
   @id 123
   @guid "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+  @id2 456
+  @guid2 "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
 
   setup do
-    Castle.Repo.insert!(%Castle.Podcast{id: @id, title: "pod1"})
+    System.put_env("DEV_AUTH", "999")
+    Castle.Repo.insert!(%Castle.Podcast{id: @id, title: "pod1", account_id: 999})
+    Castle.Repo.insert!(%Castle.Podcast{id: @id2, title: "pod2", account_id: 888})
     Castle.Repo.insert!(%Castle.Episode{id: @guid, podcast_id: @id, title: "ep1"})
+    Castle.Repo.insert!(%Castle.Episode{id: @guid2, podcast_id: @id2, title: "ep2"})
     do_insert("2017-03-27T12:00:00", 1)
     do_insert("2017-04-02T14:00:00", 2)
     do_insert("2017-04-04T10:00:00", 3)
@@ -56,6 +61,26 @@ defmodule Castle.API.DownloadControllerTest do
     assert Enum.at(resp["downloads"], 2) == ["2017-04-02T13:00:00Z", 0]
     assert Enum.at(resp["downloads"], 3) == ["2017-04-02T14:00:00Z", 2]
     assert Enum.at(resp["downloads"], 4) == ["2017-04-02T15:00:00Z", 0]
+  end
+
+  test "renders podcast 404s", %{conn: conn} do
+    resp = conn |> get(api_podcast_download_path(conn, :index, 999, %{from: "2018-04-01"}))
+    assert resp.status == 404
+  end
+
+  test "renders episode 404s", %{conn: conn} do
+    resp = conn |> get(api_episode_download_path(conn, :index, "999", %{from: "2018-04-01"}))
+    assert resp.status == 404
+  end
+
+  test "renders podcast 403s", %{conn: conn} do
+    resp = conn |> get(api_podcast_download_path(conn, :index, "456", %{from: "2018-04-01"}))
+    assert resp.status == 403
+  end
+
+  test "renders episode 403s", %{conn: conn} do
+    resp = conn |> get(api_episode_download_path(conn, :index, @guid2, %{from: "2018-04-01"}))
+    assert resp.status == 403
   end
 
   defp get_podcast(conn, id, query_params \\ %{}) do

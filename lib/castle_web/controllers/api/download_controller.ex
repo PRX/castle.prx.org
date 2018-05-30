@@ -5,25 +5,26 @@ defmodule CastleWeb.API.DownloadController do
 
   @redis Application.get_env(:castle, :redis)
 
-  plug Castle.Plugs.ParseInt, "podcast_id"
+  plug Castle.Plugs.AuthPodcast, "podcast_id"
+  plug Castle.Plugs.AuthEpisode, "episode_guid"
 
-  def index(%{assigns: %{interval: intv}} = conn, %{"podcast_id" => id}) do
-    raw_data = case @redis.podcast_increments(id, intv) do
-      {nil, _} -> Downloads.podcast(id, intv)
+  def index(%{assigns: %{podcast: podcast, interval: intv}} = conn, _params) do
+    raw_data = case @redis.podcast_increments(podcast.id, intv) do
+      {nil, _} -> Downloads.podcast(podcast.id, intv)
       {cached, nil} -> cached
-      {cached, new_intv} -> Downloads.podcast(id, new_intv) ++ cached
+      {cached, new_intv} -> Downloads.podcast(podcast.id, new_intv) ++ cached
     end
     data = bucketize(raw_data, intv)
-    render conn, "download.json", id: id, interval: intv, downloads: data
+    render conn, "download.json", id: podcast.id, interval: intv, downloads: data
   end
 
-  def index(%{assigns: %{interval: intv}} = conn, %{"episode_guid" => id}) do
-    raw_data = case @redis.episode_increments(id, intv) do
-      {nil, _} -> Downloads.episode(id, intv)
+  def index(%{assigns: %{episode: episode, interval: intv}} = conn, _params) do
+    raw_data = case @redis.episode_increments(episode.id, intv) do
+      {nil, _} -> Downloads.episode(episode.id, intv)
       {cached, nil} -> cached
-      {cached, new_intv} -> Downloads.episode(id, new_intv) ++ cached
+      {cached, new_intv} -> Downloads.episode(episode.id, new_intv) ++ cached
     end
     data = bucketize(raw_data, intv)
-    render conn, "download.json", id: id, interval: intv, downloads: data
+    render conn, "download.json", id: episode.id, interval: intv, downloads: data
   end
 end
