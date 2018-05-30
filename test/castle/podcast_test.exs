@@ -9,9 +9,9 @@ defmodule Castle.PodcastTest do
   end
 
   test "gets the max updated_at timestamp" do
-    insert!(%Castle.Podcast{id: 1, updated_at: get_dtim("2018-04-25T04:00:00Z")})
-    insert!(%Castle.Podcast{id: 2, updated_at: get_dtim("2018-04-25T02:00:00Z")})
-    insert!(%Castle.Podcast{id: 3, updated_at: get_dtim("2018-04-25T18:00:00Z")})
+    insert!(%Castle.Podcast{id: 1, account_id: 123, updated_at: get_dtim("2018-04-25T04:00:00Z")})
+    insert!(%Castle.Podcast{id: 2, account_id: 456, updated_at: get_dtim("2018-04-25T02:00:00Z")})
+    insert!(%Castle.Podcast{id: 3, account_id: 123, updated_at: get_dtim("2018-04-25T18:00:00Z")})
     assert_time max_updated_at(), "2018-04-25T18:00:00Z"
   end
 
@@ -63,5 +63,24 @@ defmodule Castle.PodcastTest do
     from_feeder(%{"id" => 123, "itunesImage" => %{"url" => "http://foo.bar/itunes.jpg"}})
     assert podcast = get(Castle.Podcast, 123)
     assert podcast.image_url == "http://foo.bar/itunes.jpg"
+  end
+
+  test "gets paged recent podcasts for accounts" do
+    insert!(%Castle.Podcast{id: 1, account_id: 123})
+    insert!(%Castle.Podcast{id: 2, account_id: 456})
+    insert!(%Castle.Podcast{id: 3, account_id: 123})
+    podcasts = recent([123], 10, 1)
+    assert length(podcasts) == 2
+    assert Enum.at(podcasts, 0).id == 1
+    assert Enum.at(podcasts, 1).id == 3
+  end
+
+  test "gets total podcasts for accounts" do
+    insert!(%Castle.Podcast{id: 1, account_id: 123})
+    insert!(%Castle.Podcast{id: 2, account_id: 456})
+    insert!(%Castle.Podcast{id: 3, account_id: 123})
+    assert total([]) == 0
+    assert total([123]) == 2
+    assert total([123, 456]) == 3
   end
 end
