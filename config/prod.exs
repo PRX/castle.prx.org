@@ -33,6 +33,7 @@ config :castle, Castle.Scheduler,
     {"20,50 * * * *", {Rollup.Geocountries, :run, [["--lock"]]}},
     {"25,55 * * * *", {Rollup.Geometros,    :run, [["--lock"]]}},
     {"30,0 * * * *",  {Rollup.Geosubdivs,   :run, [["--lock"]]}},
+    {"35,5 * * * *",  {Rollup.Agents,       :run, [["--lock"]]}},
   ]
 
 # ## SSL Support
