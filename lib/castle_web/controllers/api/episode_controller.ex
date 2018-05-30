@@ -4,33 +4,29 @@ defmodule CastleWeb.API.EpisodeController do
 
   @redis Application.get_env(:castle, :redis)
 
-  def index(conn, %{"podcast_id" => podcast_id} = params) do
+  plug Castle.Plugs.AuthPodcast, "podcast_id"
+  plug Castle.Plugs.AuthEpisode, "id"
+
+  def index(%{assigns: %{podcast: podcast}} = conn, params) do
     {page, per} = parse_paging(params)
-    episodes = Castle.Episode.recent(podcast_id, per, page)
-    paging = %{page: page, per: per, total: Castle.Episode.total(podcast_id), podcast_id: podcast_id}
+    episodes = Castle.Episode.recent(podcast.id, per, page)
+    total = Castle.Episode.total(podcast.id)
+    paging = %{page: page, per: per, total: total, podcast_id: podcast.id}
     render conn, "index.json", conn: conn, episodes: episodes, paging: paging
   end
-  def index(conn, params) do
+  def index(%{prx_user: user} = conn, params) do
     {page, per} = parse_paging(params)
-    episodes = Castle.Episode.recent(per, page)
-    paging = %{page: page, per: per, total: Castle.Episode.total()}
+    accounts = Map.keys(user.auths)
+    episodes = Castle.Episode.recent(accounts, per, page)
+    total = Castle.Episode.total(accounts)
+    paging = %{page: page, per: per, total: total}
     render conn, "index.json", conn: conn, episodes: episodes, paging: paging
   end
 
-  def show(conn, %{"id" => id}) do
-    case Ecto.UUID.cast(id) do
-      :error ->
-        send_resp conn, 404, "Episode #{id} not found"
-      {:ok, uuid} ->
-        case Castle.Repo.get(Castle.Episode, uuid) do
-          nil ->
-            send_resp conn, 404, "Episode #{id} not found"
-          episode ->
-            trends = @redis.episode_trends_cache id, fn(to_dtim) ->
-              Trends.episode_trends(id, to_dtim)
-            end
-            render conn, "show.json", conn: conn, episode: episode, trends: trends
-        end
+  def show(%{assigns: %{episode: episode}} = conn, _params) do
+    trends = @redis.episode_trends_cache episode.id, fn(to_dtim) ->
+      Trends.episode_trends(episode.id, to_dtim)
     end
+    render conn, "show.json", conn: conn, episode: episode, trends: trends
   end
 end
