@@ -86,7 +86,8 @@ end
 print '  creating '
 table = dataset.create_table 'geonames' do |schema|
   schema.integer 'geoname_id', mode: :required
-  (FIELDS - ['geoname_id']).each do |name|
+  schema.integer 'metro_code'
+  (FIELDS - ['geoname_id', 'metro_code']).each do |name|
     schema.string name
   end
 end

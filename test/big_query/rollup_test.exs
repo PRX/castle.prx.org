@@ -1,40 +1,31 @@
 defmodule Castle.BigQueryRollupTest do
-  use Castle.BigQueryCase, async: false
-  use Castle.TimeHelpers
+  use Castle.BigQueryCase
 
   import BigQuery.Rollup
-  import Mock
 
-  @tag :external
-  test "gets empty hourly downloads in the past" do
-    {results, meta} = hourly_downloads(get_dtim("2016-01-01T05:04:00Z"))
-    assert length(results) == 0
-    assert_time meta.day, "2016-01-01T00:00:00Z"
-    assert meta.complete == true
-  end
-
-  test "gets empty hourly downloads in the future" do
-    {results, meta} = hourly_downloads(get_dtim("2030-01-01"))
+  test "gets nothing for future days" do
+    {results, meta} = for_day get_dtim("2030-01-01"), fn(_) -> ["nothing"] end
     assert length(results) == 0
     assert_time meta.day, "2030-01-01T00:00:00Z"
     assert meta.complete == false
     assert meta.hours_complete == 0
   end
 
-  @tag :external
-  test "gets a partial day of downloads" do
-    with_mock Timex, [:passthrough], [now: fn() -> get_dtim("2017-05-01T05:14:37Z") end] do
-      {results, meta} = hourly_downloads(get_dtim("2017-05-01"))
-      assert length(results) == 24248 # known
-      assert_time meta.day, "2017-05-01T00:00:00Z"
-      assert meta.complete == false
-      assert meta.hours_complete == 4
+  test_with_bq "gets partial for today", "2017-05-01T15:14:13Z", [] do
+    {results, meta} = for_day Timex.now, fn(_) -> {["something"], %{meta: "data"}} end
+    assert length(results) == 1
+    assert results == ["something"]
+    assert_time Timex.to_date(meta.day), "2017-05-01T00:00:00Z"
+    assert meta.complete == false
+    assert meta.hours_complete == 14
+  end
 
-      assert format_dtim(hd(results).hour) =~ ~r/2017-05-01T[0-2][0-9]:00:00/
-      assert is_binary hd(results).episode_guid
-      assert is_number hd(results).podcast_id
-      assert hd(results).count > 0
-    end
+  test_with_bq "gets complete for the past", "2017-05-01T15:14:13Z", [] do
+    {results, meta} = for_day get_dtim("2017-04-29"), fn(_) -> {["something"], %{meta: "data"}} end
+    assert length(results) == 1
+    assert results == ["something"]
+    assert_time Timex.to_date(meta.day), "2017-04-29T00:00:00Z"
+    assert meta.complete == true
   end
 
   test "does not indicate a day is complete until 15 minutes after" do

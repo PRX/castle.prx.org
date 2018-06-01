@@ -1,6 +1,8 @@
 defmodule Castle.Rollup.Query.Trends do
   import Ecto.Query
 
+  alias Castle.Rollup.Query.MonthlyDownloads, as: MonthlyDownload
+
   @timeout 15000
 
   def podcast_trends(id, now \\ Timex.now) do
@@ -13,9 +15,10 @@ defmodule Castle.Rollup.Query.Trends do
         group_by: fragment("dtim::date")
     end
     get_total = fn ->
-      Castle.Repo.one from h in Castle.HourlyDownload,
-        where: h.podcast_id == ^id and h.dtim < ^now,
-        select: sum(h.count)
+      {count, until_date} = MonthlyDownload.podcast_total_until(id)
+      hour_count = Castle.Repo.one from h in Castle.HourlyDownload, select: sum(h.count),
+        where: h.podcast_id == ^id and h.dtim >= ^Timex.to_datetime(until_date) and h.dtim < ^now
+      count + (hour_count || 0)
     end
 
     t1 = Task.async(get_trends)
@@ -33,9 +36,10 @@ defmodule Castle.Rollup.Query.Trends do
         group_by: fragment("dtim::date")
     end
     get_total = fn ->
-      Castle.Repo.one from h in Castle.HourlyDownload,
-        where: h.episode_id == ^id and h.dtim < ^now,
-        select: sum(h.count)
+      {count, until_date} = MonthlyDownload.episode_total_until(id)
+      hour_count = Castle.Repo.one from h in Castle.HourlyDownload, select: sum(h.count),
+        where: h.episode_id == ^id and h.dtim >= ^Timex.to_datetime(until_date) and h.dtim < ^now
+      count + (hour_count || 0)
     end
 
     t1 = Task.async(get_trends)

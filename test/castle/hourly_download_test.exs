@@ -35,7 +35,7 @@ defmodule Castle.HourlyDownloadTest do
   defp do_upsert_all(dtim, count), do: do_upsert_all([{dtim, count}])
   defp do_upsert_all(rows) when is_list(rows) do
     rows
-      |> Enum.map(fn({dtim, count}) -> %{podcast_id: @id, episode_guid: @guid, hour: get_dtim(dtim), count: count} end)
+      |> Enum.map(fn({dtim, count}) -> %{podcast_id: @id, episode_id: @guid, dtim: get_dtim(dtim), count: count} end)
       |> upsert_all()
   end
 

@@ -1,21 +1,22 @@
-defmodule Castle.HourlyDownload do
+defmodule Castle.DailyGeoMetro do
   use Ecto.Schema
   import Ecto.Changeset
 
   @primary_key false
 
-  schema "hourly_downloads" do
+  schema "daily_geo_metros" do
     field :podcast_id, :integer
     field :episode_id, :binary_id
-    field :dtim, :utc_datetime
+    field :metro_code, :integer
+    field :day, :date
     field :count, :integer
   end
 
   @doc false
   def changeset(download, attrs) do
     download
-    |> cast(attrs, [:podcast_id, :episode_id, :dtim, :count])
-    |> validate_required([:podcast_id, :episode_id, :dtim, :count])
+    |> cast(attrs, [:podcast_id, :episode_id, :metro_code, :day, :count])
+    |> validate_required([:podcast_id, :episode_id, :metro_code, :day, :count])
   end
 
   def upsert(row), do: upsert_all([row])
@@ -27,7 +28,7 @@ defmodule Castle.HourlyDownload do
     |> Enum.sum()
   end
   def upsert_all(rows) do
-    Castle.Repo.insert_all Castle.HourlyDownload, rows
+    Castle.Repo.insert_all Castle.DailyGeoMetro, rows
     length(rows)
   end
 end

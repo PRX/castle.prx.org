@@ -93,21 +93,28 @@ mix feeder.sync [--lock,--all,--force]
 
 ### Downloads Rollup
 
-This task queries BigQuery for hourly downloads on a single day, and inserts
-that day of data into Postgres.  It also updates the `rollup_logs` to keep track
-of which days have already been rolled up.
+These tasks query BigQuery for `dt_downloads` on a single day, and inserts that
+day of data into Postgres.  It also updates the `rollup_logs` to keep  track
+track of which days have already been rolled up, and marks them as "complete"
+days if that day is in the past.
 
-By default, this task will find 5 incomplete days (not present in `rollup_logs`)
+The only exception to this is the `monthly_downloads` table, which is calculated
+from the `hourly_downloads` to provide more efficient access to podcast/episode
+"total" downloads, without having to scan every partition of hourly data.
+
+By default, most tasks will find 5 incomplete days (not present in `rollup_logs`)
 and process those.  But you can change that number with the `--count 99` flag.  
-Or explicitly rollup a certain day with `--date 20180425`.
+Or explicitly rollup a certain day with `--date 20180425`.  Rollup operations
+are idempotent, you can run them repeatedly for the same day/month.
 
-Since the rollup operation is idempotent, you can run it on the current day
-repeatedly.  But a record will only be added to the `rollup_logs` table 15
-minutes after midnight, to make sure BigQuery is completely accurate before
-marking the day as "complete".
+These are all the rollup tasks available:
 
 ```
-mix castle.rollup.downloads [--lock,--date [YYYYMMDD],--count [INT]]
+mix castle.rollup.hourly [--lock,--date [YYYYMMDD],--count [INT]]
+mix castle.rollup.monthly [--lock,--date [YYYYMMDD],--count [INT]]
+mix castle.rollup.geocountries [--lock,--date [YYYYMMDD],--count [INT]]
+mix castle.rollup.geometros [--lock,--date [YYYYMMDD],--count [INT]]
+mix castle.rollup.geosubdivs [--lock,--date [YYYYMMDD],--count [INT]]
 ```
 
 ## Testing
