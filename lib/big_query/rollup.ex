@@ -1,21 +1,27 @@
 defmodule BigQuery.Rollup do
-  import BigQuery.Base.Query
 
   # a day isn't "complete" until this many seconds after it's over
   @buffer_seconds 900
 
-  # get a single day of downloads bucketed by hours
-  def hourly_downloads(), do: hourly_downloads(Timex.now)
-  def hourly_downloads(dtim) do
+  defdelegate hourly_downloads(), to: BigQuery.Rollup.HourlyDownloads, as: :query
+  defdelegate hourly_downloads(d), to: BigQuery.Rollup.HourlyDownloads, as: :query
+  defdelegate daily_geo_countries(), to: BigQuery.Rollup.DailyGeoCountries, as: :query
+  defdelegate daily_geo_countries(d), to: BigQuery.Rollup.DailyGeoCountries, as: :query
+  defdelegate daily_geo_metros(), to: BigQuery.Rollup.DailyGeoMetros, as: :query
+  defdelegate daily_geo_metros(d), to: BigQuery.Rollup.DailyGeoMetros, as: :query
+  defdelegate daily_geo_subdivs(), to: BigQuery.Rollup.DailyGeoSubdivs, as: :query
+  defdelegate daily_geo_subdivs(d), to: BigQuery.Rollup.DailyGeoSubdivs, as: :query
+
+  def for_day(dtim, query_fn) do
     now = Timex.now()
     day = Timex.beginning_of_day(dtim)
     case completion_state(day, now) do
       :none ->
         {[], %{day: day, complete: false, hours_complete: 0}}
       :partial ->
-        query_hourly_downloads(day) |> set_meta(:complete, false) |> set_meta(:hours_complete, hours_complete(now))
+        query_fn.(day) |> set_meta(:day, day) |> set_meta(:complete, false) |> set_meta(:hours_complete, hours_complete(now))
       :complete ->
-        query_hourly_downloads(day) |> set_meta(:complete, true)
+        query_fn.(day) |> set_meta(:day, day) |> set_meta(:complete, true)
     end
   end
 
@@ -31,30 +37,6 @@ defmodule BigQuery.Rollup do
   end
 
   def hours_complete(now), do: Timex.shift(now, seconds: -@buffer_seconds).hour
-
-  defp query_hourly_downloads(day) do
-    sql = """
-      SELECT
-        ANY_VALUE(feeder_podcast) as podcast_id,
-        feeder_episode as episode_guid,
-        EXTRACT(HOUR from timestamp) as hour,
-        count(*) as count
-      FROM dt_downloads
-      WHERE EXTRACT(DATE from timestamp) = @date_str AND is_duplicate = false
-        AND feeder_podcast IS NOT NULL AND feeder_episode IS NOT NULL
-      GROUP BY feeder_episode, hour
-      """
-    {:ok, date_str} = Timex.format(day, "{YYYY}-{0M}-{0D}")
-    {results, meta} = query(%{date_str: date_str}, sql)
-    {
-      Enum.map(results, &(format_result(&1, day))),
-      Map.put(meta, :day, day)
-    }
-  end
-
-  defp format_result(row, day) do
-    Map.put(row, :hour, Timex.shift(day, hours: row.hour))
-  end
 
   defp set_meta({results, meta}, key, value) do
     {results, Map.put(meta, key, value)}

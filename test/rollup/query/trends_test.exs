@@ -9,14 +9,14 @@ defmodule Castle.RollupQueryTrendsTest do
 
   setup do
     now = get_dtim("2018-04-24T13:22:09")
-    do_insert("2018-04-24T14:00:00", 1)
-    do_insert("2018-04-24T13:00:00", 2)
-    do_insert("2018-04-24T01:00:00", 3)
-    do_insert("2018-04-23T22:00:00", 4)
-    do_insert("2018-04-22T09:00:00", 5)
-    do_insert("2018-04-17T08:00:00", 6)
-    do_insert("2018-04-11T08:00:00", 7)
-    do_insert("2018-04-10T08:00:00", 8)
+    upsert_hourly("2018-04-24T14:00:00", 1)
+    upsert_hourly("2018-04-24T13:00:00", 2)
+    upsert_hourly("2018-04-24T01:00:00", 3)
+    upsert_hourly("2018-04-23T22:00:00", 4)
+    upsert_hourly("2018-04-22T09:00:00", 5)
+    upsert_hourly("2018-04-17T08:00:00", 6)
+    upsert_hourly("2018-04-11T08:00:00", 7)
+    upsert_hourly("2018-04-10T08:00:00", 8)
     [now: now]
   end
 
@@ -64,12 +64,36 @@ defmodule Castle.RollupQueryTrendsTest do
     assert combined_trends.previous7days == trends.previous7days + 4
   end
 
-  defp do_insert(dtim_str, count) do
-    Castle.HourlyDownload.upsert %{
-      podcast_id: @id,
-      episode_id: @guid,
-      dtim: get_dtim(dtim_str),
-      count: count
-    }
+  test "adds monthly downloads to trends data", %{now: now} do
+    upsert_monthly(~D[2018-01-01], 100)
+
+    upsert_log("monthly_downloads", ~D[2018-01-01], false)
+    trends1 = podcast_trends(@id, now)
+    upsert_log("monthly_downloads", ~D[2018-01-01], true)
+    trends2 = podcast_trends(@id, now)
+
+    assert trends2.total == trends1.total + 100
+  end
+
+  test "ignores hourly data already covered by monthly", %{now: now} do
+    upsert_monthly(~D[2018-04-01], 100)
+    upsert_log("monthly_downloads", ~D[2018-04-01], true)
+    trends = podcast_trends(@id, now)
+    assert trends.total == 100
+  end
+
+  defp upsert_hourly(dtim_str, count) do
+    %{podcast_id: @id, episode_id: @guid, dtim: get_dtim(dtim_str), count: count}
+    |> Castle.HourlyDownload.upsert()
+  end
+
+  defp upsert_monthly(date, count) do
+    [%{podcast_id: @id, episode_id: @guid, month: date, count: count}]
+    |> Castle.MonthlyDownload.upsert_all()
+  end
+
+  defp upsert_log(tbl, date, complete) do
+    %Castle.RollupLog{table_name: tbl, date: date, complete: complete}
+    |> Castle.RollupLog.upsert!()
   end
 end

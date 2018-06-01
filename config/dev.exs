@@ -1,5 +1,8 @@
 use Mix.Config
 
+alias Mix.Tasks.Feeder, as: Feeder
+alias Mix.Tasks.Castle.Rollup, as: Rollup
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
@@ -37,8 +40,12 @@ config :phoenix, :stacktrace_depth, 20
 config :castle, :redis, Castle.Redis.Api
 
 # Uncomment to run jobs in development
-# config :castle, Castle.Scheduler,
-#   jobs: [
-#     {"* * * * *", {Mix.Tasks.Castle.Rollup.Downloads, :run, [["--lock"]]}},
-#     {"* * * * *", {Mix.Tasks.Feeder.Sync, :run, [["--lock"]]}},
-#   ]
+config :castle, Castle.Scheduler,
+  jobs: [
+    # {"* * * * *", {Feeder.Sync,         :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Hourly,       :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Monthly,      :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Geocountries, :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Geometros,    :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Geosubdivs,   :run, [["--lock"]]}},
+  ]
