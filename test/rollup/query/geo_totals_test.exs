@@ -23,20 +23,20 @@ defmodule Castle.RollupQueryGeoTotalsTest do
     test "totals a podcast", %{t1: t1, t2: t2} do
       totals = podcast(@id, t1, t2, "geocountry")
       assert length(totals) == 3
-      assert Enum.at(totals, 0).country_iso_code == "CA"
+      assert Enum.at(totals, 0).group == "CA"
       assert Enum.at(totals, 0).count == 33
-      assert Enum.at(totals, 1).country_iso_code == "FR"
+      assert Enum.at(totals, 1).group == "FR"
       assert Enum.at(totals, 1).count == 22
-      assert Enum.at(totals, 2).country_iso_code == "US"
+      assert Enum.at(totals, 2).group == "US"
       assert Enum.at(totals, 2).count == 11
     end
 
     test "totals an episode", %{t1: t1, t2: t2} do
       totals = episode(@guid1, t1, t2, "geocountry")
       assert length(totals) == 2
-      assert Enum.at(totals, 0).country_iso_code == "FR"
+      assert Enum.at(totals, 0).group == "FR"
       assert Enum.at(totals, 0).count == 22
-      assert Enum.at(totals, 1).country_iso_code == "US"
+      assert Enum.at(totals, 1).group == "US"
       assert Enum.at(totals, 1).count == 11
     end
   end
@@ -56,22 +56,18 @@ defmodule Castle.RollupQueryGeoTotalsTest do
     test "totals a podcast", %{t1: t1, t2: t2} do
       totals = podcast(@id, t1, t2, "geosubdiv")
       assert length(totals) == 2
-      assert Enum.at(totals, 0).country_iso_code == "US"
-      assert Enum.at(totals, 0).subdivision_1_iso_code == "CA"
-      assert Enum.at(totals, 0).count == 22
-      assert Enum.at(totals, 1).country_iso_code == "US"
-      assert Enum.at(totals, 1).subdivision_1_iso_code == "CO"
-      assert Enum.at(totals, 1).count == 44
+      assert Enum.at(totals, 0).group == "US-CO"
+      assert Enum.at(totals, 0).count == 44
+      assert Enum.at(totals, 1).group == "US-CA"
+      assert Enum.at(totals, 1).count == 22
     end
 
     test "totals an episode", %{t1: t1, t2: t2} do
       totals = episode(@guid1, t1, t2, "geosubdiv")
       assert length(totals) == 2
-      assert Enum.at(totals, 0).country_iso_code == "US"
-      assert Enum.at(totals, 0).subdivision_1_iso_code == "CA"
+      assert Enum.at(totals, 0).group == "US-CA"
       assert Enum.at(totals, 0).count == 22
-      assert Enum.at(totals, 1).country_iso_code == "US"
-      assert Enum.at(totals, 1).subdivision_1_iso_code == "CO"
+      assert Enum.at(totals, 1).group == "US-CO"
       assert Enum.at(totals, 1).count == 11
     end
 
@@ -92,18 +88,18 @@ defmodule Castle.RollupQueryGeoTotalsTest do
     test "totals a podcast", %{t1: t1, t2: t2} do
       totals = podcast(@id, t1, t2, "geometro")
       assert length(totals) == 2
-      assert Enum.at(totals, 0).metro_code == 5432
-      assert Enum.at(totals, 0).count == 22
-      assert Enum.at(totals, 1).metro_code == 9876
-      assert Enum.at(totals, 1).count == 44
+      assert Enum.at(totals, 0).group == 9876
+      assert Enum.at(totals, 0).count == 44
+      assert Enum.at(totals, 1).group == 5432
+      assert Enum.at(totals, 1).count == 22
     end
 
     test "totals an episode", %{t1: t1, t2: t2} do
       totals = episode(@guid1, t1, t2, "geometro")
       assert length(totals) == 2
-      assert Enum.at(totals, 0).metro_code == 5432
+      assert Enum.at(totals, 0).group == 5432
       assert Enum.at(totals, 0).count == 22
-      assert Enum.at(totals, 1).metro_code == 9876
+      assert Enum.at(totals, 1).group == 9876
       assert Enum.at(totals, 1).count == 11
     end
 
