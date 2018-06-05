@@ -5,9 +5,6 @@ defmodule CastleWeb.API.DownloadController do
 
   @redis Application.get_env(:castle, :redis)
 
-  plug Castle.Plugs.AuthPodcast, "podcast_id"
-  plug Castle.Plugs.AuthEpisode, "episode_guid"
-
   def index(%{assigns: %{podcast: podcast, interval: intv}} = conn, _params) do
     raw_data = case @redis.podcast_increments(podcast.id, intv) do
       {nil, _} -> Downloads.podcast(podcast.id, intv)

@@ -4,8 +4,6 @@ defmodule CastleWeb.API.PodcastController do
 
   @redis Application.get_env(:castle, :redis)
 
-  plug Castle.Plugs.AuthPodcast, "id"
-
   def index(%{prx_user: user} = conn, params) do
     {page, per} = parse_paging(params)
     accounts = Map.keys(user.auths)
