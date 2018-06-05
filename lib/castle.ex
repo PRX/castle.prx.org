@@ -17,8 +17,8 @@ defmodule Castle do
   end
 
   defmodule Grouping do
-    @enforce_keys [:name, :join, :groupby, :limit]
-    defstruct [:name, :join, :groupby, limit: 10]
+    @enforce_keys [:name]
+    defstruct [:name, limit: 10]
   end
 
 end

@@ -9,8 +9,14 @@ defmodule CastleWeb.Router do
   pipeline :authorized_episode, do: plug Castle.Plugs.AuthEpisode
 
   pipeline :hourly_metrics, do: plug Castle.Plugs.Interval, min: "HOUR"
-  pipeline :daily_metrics, do: plug Castle.Plugs.Interval, min: "DAY"
-  pipeline :total_metrics, do: plug Castle.Plugs.Interval, min: "DAY", skip_bucket: true
+  pipeline :ranked_metrics do
+    plug Castle.Plugs.Interval, min: "DAY"
+    plug Castle.Plugs.Group
+  end
+  pipeline :total_metrics do
+    plug Castle.Plugs.Interval, min: "DAY", skip_bucket: true
+    plug Castle.Plugs.Group
+  end
 
   scope "/", CastleWeb do
     pipe_through :api
@@ -36,6 +42,14 @@ defmodule CastleWeb.Router do
         pipe_through :hourly_metrics
         resources "/", DownloadController, only: [:index]
       end
+      scope "/:id/ranks", as: :podcast do
+        pipe_through :ranked_metrics
+        resources "/", RankController, only: [:index]
+      end
+      scope "/:id/totals", as: :podcast do
+        pipe_through :total_metrics
+        resources "/", TotalController, only: [:index]
+      end
     end
 
     resources "/episodes", EpisodeController, only: [:index]
@@ -48,6 +62,14 @@ defmodule CastleWeb.Router do
       scope "/:id/downloads", as: :episode do
         pipe_through :hourly_metrics
         resources "/", DownloadController, only: [:index]
+      end
+      scope "/:id/ranks", as: :episode do
+        pipe_through :ranked_metrics
+        resources "/", RankController, only: [:index]
+      end
+      scope "/:id/totals", as: :episode do
+        pipe_through :total_metrics
+        resources "/", TotalController, only: [:index]
       end
     end
 
