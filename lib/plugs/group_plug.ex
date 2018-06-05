@@ -1,62 +1,11 @@
 defmodule Castle.Plugs.Group do
   import Plug.Conn
 
-  @groups %{
-    "city" => %{
-      name: "city",
-      join: "geonames on (city_id = geoname_id)",
-      groupby: "city_name",
-      limit: 10,
-    },
-    "metrocode" => %{
-      name: "metrocode",
-      join: "geonames on (city_id = geoname_id)",
-      groupby: "metro_code",
-      limit: 10,
-    },
-    "subdiv1" => %{
-      name: "subdiv1",
-      join: "geonames on (city_id = geoname_id)",
-      groupby: "subdivision_1_iso_code",
-      limit: 10,
-    },
-    "subdiv2" => %{
-      name: "subdiv2",
-      join: "geonames on (city_id = geoname_id)",
-      groupby: "subdivision_2_iso_code",
-      limit: 10,
-    },
-    "country" => %{
-      name: "country",
-      join: "geonames on (country_id = geoname_id)",
-      groupby: "country_name",
-      limit: 10,
-    },
-    "countryiso" => %{
-      name: "country",
-      join: "geonames on (country_id = geoname_id)",
-      groupby: "country_iso_code",
-      limit: 10,
-    },
-    "agentname" => %{
-      name: "agentname",
-      join: "agentnames on (agent_name_id = agentname_id)",
-      groupby: "tag",
-      limit: 10
-    },
-    "agenttype" => %{
-      name: "agenttype",
-      join: "agentnames on (agent_type_id = agentname_id)",
-      groupby: "tag",
-      limit: 10
-    },
-    "agentos" => %{
-      name: "agentos",
-      join: "agentnames on (agent_os_id = agentname_id)",
-      groupby: "tag",
-      limit: 10
-    },
-  }
+  @groups [
+    "geocountry",
+    "geosubdiv",
+    "geometro",
+  ]
 
   def init(default), do: default
 
@@ -64,38 +13,37 @@ defmodule Castle.Plugs.Group do
     conn
     |> set_grouping()
     |> set_grouping_limit()
-  end
-
-  def get(name, limit \\ nil) do
-    if Map.has_key?(@groups, name) do
-      struct!(Castle.Grouping, @groups[name])
-      |> Map.put(:limit, limit || @groups[name].limit)
-    else
-      nil
-    end
+    |> require_group()
   end
 
   defp set_grouping(%{status: nil, params: %{"group" => grouping}} = conn) do
-    if Map.has_key?(@groups, grouping) do
-      assign conn, :group, struct!(Castle.Grouping, @groups[grouping])
+    if Enum.member?(@groups, grouping) do
+      assign conn, :group, %Castle.Grouping{name: grouping}
     else
-      options = @groups |> Map.keys() |> Enum.join(", ")
       conn
-      |> send_resp(400, "Bad group param: use one of #{options}")
+      |> send_resp(400, "Bad group param: use one of #{Enum.join(@groups, ", ")}")
       |> halt()
     end
   end
   defp set_grouping(conn), do: conn
 
-  defp set_grouping_limit(%{status: nil, assigns: %{group: group}, params: %{"grouplimit" => limit}} = conn) do
+  defp set_grouping_limit(%{status: nil, assigns: %{group: group}, params: %{"limit" => limit}} = conn) do
     case Integer.parse(limit) do
       {num, ""} ->
         assign conn, :group, Map.put(group, :limit, num)
       _ ->
         conn
-        |> send_resp(400, "grouplimit is not an integer")
+        |> send_resp(400, "limit is not an integer")
         |> halt()
     end
   end
   defp set_grouping_limit(conn), do: conn
+
+  defp require_group(%{status: nil, assigns: %{group: _group}} = conn), do: conn
+  defp require_group(%{status: nil} = conn) do
+    conn
+    |> send_resp(400, "You must set a group param: #{Enum.join(@groups, ", ")}")
+    |> halt()
+  end
+  defp require_group(conn), do: conn
 end
