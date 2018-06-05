@@ -48,4 +48,5 @@ config :castle, Castle.Scheduler,
     # {"* * * * *", {Rollup.Geocountries, :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.Geometros,    :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.Geosubdivs,   :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Agents,       :run, [["--lock"]]}},
   ]

@@ -1,6 +1,6 @@
 defmodule BigQuery.Base.HTTP do
 
-  @timeout 30000
+  @timeout 45000
   @bq_base "https://www.googleapis.com/bigquery/v2"
   @options [{:timeout, @timeout}, {:recv_timeout, @timeout}]
 
