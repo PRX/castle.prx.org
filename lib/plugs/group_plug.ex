@@ -2,6 +2,21 @@ defmodule Castle.Plugs.Group do
   import Plug.Conn
 
   @groups %{
+    "agentname" => %{
+      name: "agentname",
+      ranks: Castle.Rollup.Query.AgentRanks,
+      totals: Castle.Rollup.Query.AgentTotals,
+    },
+    "agenttype" => %{
+      name: "agenttype",
+      ranks: Castle.Rollup.Query.AgentRanks,
+      totals: Castle.Rollup.Query.AgentTotals,
+    },
+    "agentos" => %{
+      name: "agentos",
+      ranks: Castle.Rollup.Query.AgentRanks,
+      totals: Castle.Rollup.Query.AgentTotals,
+    },
     "geocountry" => %{
       name: "geocountry",
       ranks: Castle.Rollup.Query.GeoRanks,
