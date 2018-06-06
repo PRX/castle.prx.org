@@ -14,7 +14,7 @@ defmodule Castle.Rollup.Query.GeoRanks do
       |> where_timeframe(from, to)
       |> order_by([t], [asc: fragment("time"), asc: fragment("grouping")])
       |> Castle.Repo.all
-    {top_n, data}
+    {top_n ++ [nil], data}
   end
 
   def episode(id, %{from: from, to: to, bucket: bucket}, %{name: grouping_name, limit: num}) do
@@ -29,7 +29,7 @@ defmodule Castle.Rollup.Query.GeoRanks do
       |> where_timeframe(from, to)
       |> order_by([t], [asc: fragment("time"), asc: fragment("grouping")])
       |> Castle.Repo.all
-    {top_n, data}
+    {top_n ++ [nil], data}
   end
 
   defp table("geocountry"), do: Castle.DailyGeoCountry
@@ -38,7 +38,7 @@ defmodule Castle.Rollup.Query.GeoRanks do
 
   defp select_fields(query, "week") do
     select(query, [t], %{count: sum(t.count)})
-    |> select_merge([t], %{time: fragment("date_trunc('week',day+interval '1 day')-interval '1 day'::date as time")})
+    |> select_merge([t], %{time: fragment("date_trunc('week',day+interval '1 day')::date-interval '1 day' as time")})
     |> group_by([t], [fragment("time")])
   end
   defp select_fields(query, trunc) do

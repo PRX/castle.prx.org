@@ -1,11 +1,23 @@
 defmodule Castle.Plugs.Group do
   import Plug.Conn
 
-  @groups [
-    "geocountry",
-    "geosubdiv",
-    "geometro",
-  ]
+  @groups %{
+    "geocountry" => %{
+      name: "geocountry",
+      ranks: Castle.Rollup.Query.GeoRanks,
+      totals: Castle.Rollup.Query.GeoTotals,
+    },
+    "geosubdiv" => %{
+      name: "geosubdiv",
+      ranks: Castle.Rollup.Query.GeoRanks,
+      totals: Castle.Rollup.Query.GeoTotals,
+    },
+    "geometro" => %{
+      name: "geometro",
+      ranks: Castle.Rollup.Query.GeoRanks,
+      totals: Castle.Rollup.Query.GeoTotals,
+    },
+  }
 
   def init(default), do: default
 
@@ -17,11 +29,12 @@ defmodule Castle.Plugs.Group do
   end
 
   defp set_grouping(%{status: nil, params: %{"group" => grouping}} = conn) do
-    if Enum.member?(@groups, grouping) do
-      assign conn, :group, %Castle.Grouping{name: grouping}
+    if Map.has_key?(@groups, grouping) do
+      assign conn, :group, struct!(Castle.Grouping, @groups[grouping])
     else
+      options = @groups |> Map.keys() |> Enum.join(", ")
       conn
-      |> send_resp(400, "Bad group param: use one of #{Enum.join(@groups, ", ")}")
+      |> send_resp(400, "Bad group param: use one of #{options}")
       |> halt()
     end
   end
@@ -41,8 +54,9 @@ defmodule Castle.Plugs.Group do
 
   defp require_group(%{status: nil, assigns: %{group: _group}} = conn), do: conn
   defp require_group(%{status: nil} = conn) do
+    options = @groups |> Map.keys() |> Enum.join(", ")
     conn
-    |> send_resp(400, "You must set a group param: #{Enum.join(@groups, ", ")}")
+    |> send_resp(400, "You must set a group param: #{options}")
     |> halt()
   end
   defp require_group(conn), do: conn

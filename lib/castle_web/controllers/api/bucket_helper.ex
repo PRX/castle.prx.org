@@ -10,6 +10,11 @@ defmodule CastleWeb.API.BucketHelper do
     combine_data(buckets, data)
   end
 
+  # bucketize, but with groupings
+  def bucketize_groups(ranks, data, intv) do
+    filter_and_bucket_groups(ranks, data, intv) |> List.zip |> refactor_groups(ranks)
+  end
+
   # make sure first bucket reflects the ACTUAL start time
   defp adjust_range(start_at, [_first | rest]), do: [start_at] ++ rest
   defp adjust_range(_start_at, []), do: []
@@ -42,5 +47,18 @@ defmodule CastleWeb.API.BucketHelper do
   # out of buckets - add remaining times to last bucket
   defp combine_data(bucket, count, [], [%{count: c} | rest_data]) do
     combine_data(bucket, count + c, [], rest_data)
+  end
+
+  defp filter_and_bucket_groups(groups, data, intv) do
+    Enum.map groups, fn(group) ->
+      data |> Enum.filter(&(&1.group == group)) |> bucketize(intv)
+    end
+  end
+
+  defp refactor_groups([], _groups), do: []
+  defp refactor_groups([data | rest], groups) do
+    list_data = Tuple.to_list(data)
+    counts = Enum.map(list_data, &(&1.count))
+    [%{time: hd(list_data).time, counts: counts, ranks: groups}] ++ refactor_groups(rest, groups)
   end
 end

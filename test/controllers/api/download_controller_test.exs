@@ -29,13 +29,6 @@ defmodule Castle.API.DownloadControllerTest do
     assert resp["id"] == 123
   end
 
-  test "validates group params", %{conn: conn} do
-    resp = conn |> get_podcast(123, from: "2017-04-01", group: "blah") |> response(400)
-    assert resp =~ ~r/bad group param/i
-    resp = conn |> get_podcast(123, from: "2017-04-01", group: "city") |> json_response(200)
-    assert resp["id"] == 123
-  end
-
   test "responds with downloads for a podcast", %{conn: conn} do
     resp = conn |> get_podcast(123, from: "2017-04-01", to: "2017-04-05", interval: "1d") |> json_response(200)
     assert resp["id"] == 123

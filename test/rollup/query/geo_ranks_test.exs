@@ -26,7 +26,7 @@ defmodule Castle.RollupQueryGeoRanksTest do
 
     test "ranks a podcast", %{t1: t1, t2: t2} do
       {ranks, datas} = podcast(@id, t1, t2, "day", "geocountry", 2)
-      assert ranks == ["US", "AE"]
+      assert ranks == ["US", "AE", nil]
       assert length(datas) == 4
       assert_result datas, 0, "AE", 44, "2018-04-24"
       assert_result datas, 1, "US", 11, "2018-04-24"
@@ -36,7 +36,7 @@ defmodule Castle.RollupQueryGeoRanksTest do
 
     test "ranks an episode", %{t1: t1, t2: t2} do
       {ranks, datas} = episode(@guid1, t1, t2, "day", "geocountry", 2)
-      assert ranks == ["AE", "CA"]
+      assert ranks == ["AE", "CA", nil]
       assert length(datas) == 3
       assert_result datas, 0, "AE", 44, "2018-04-24"
       assert_result datas, 1, "CA", 33, "2018-04-24"
@@ -61,7 +61,7 @@ defmodule Castle.RollupQueryGeoRanksTest do
 
     test "ranks a podcast", %{t1: t1, t2: t2} do
       {ranks, datas} = podcast(@id, t1, t2, "day", "geosubdiv", 2)
-      assert ranks == ["US-CO", "US-MN"]
+      assert ranks == ["US-CO", "US-MN", nil]
       assert length(datas) == 4
       assert_result datas, 0, "US-CO", 11, "2018-04-24"
       assert_result datas, 1, nil, 22, "2018-04-24"
@@ -71,7 +71,7 @@ defmodule Castle.RollupQueryGeoRanksTest do
 
     test "ranks an episode", %{t1: t1, t2: t2} do
       {ranks, datas} = episode(@guid1, t1, t2, "day", "geosubdiv", 2)
-      assert ranks == ["US-MN", "US-CA"]
+      assert ranks == ["US-MN", "US-CA", nil]
       assert length(datas) == 3
       assert_result datas, 0, "US-CA", 22, "2018-04-24"
       assert_result datas, 1, nil, 11, "2018-04-24"
@@ -96,7 +96,7 @@ defmodule Castle.RollupQueryGeoRanksTest do
 
     test "ranks a podcast", %{t1: t1, t2: t2} do
       {ranks, datas} = podcast(@id, t1, t2, "day", "geometro", 2)
-      assert ranks == [1234, 9876]
+      assert ranks == [1234, 9876, nil]
       assert length(datas) == 4
       assert_result datas, 0, 9876, 11, "2018-04-24"
       assert_result datas, 1, nil, 22, "2018-04-24"
@@ -106,7 +106,7 @@ defmodule Castle.RollupQueryGeoRanksTest do
 
     test "ranks an episode", %{t1: t1, t2: t2} do
       {ranks, datas} = episode(@guid1, t1, t2, "day", "geometro", 2)
-      assert ranks == [1234, 5432]
+      assert ranks == [1234, 5432, nil]
       assert length(datas) == 3
       assert_result datas, 0, 5432, 22, "2018-04-24"
       assert_result datas, 1, nil, 11, "2018-04-24"

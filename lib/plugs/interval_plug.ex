@@ -39,7 +39,7 @@ defmodule Castle.Plugs.Interval do
     assign(conn, :interval, %{
       from: round_to.floor(intv.from),
       to: round_to.ceiling(intv.to),
-      bucket: intv.bucket,
+      bucket: Map.get(intv, :bucket),
     })
   end
   defp round_time_window(conn, _round_to), do: conn
