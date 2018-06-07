@@ -16,9 +16,8 @@ defmodule CastleWeb.Router do
     plug Plug.Logger
   end
 
-  def id_host, do: Env.get(:id_host)
   pipeline :authorized do
-    plug PrxAuth.Plug, required: true, iss: &CastleWeb.Router.id_host/0
+    plug Castle.Plugs.Auth
   end
 
   pipeline :metrics do

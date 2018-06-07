@@ -92,4 +92,46 @@ defmodule Castle.EpisodeTest do
     assert episode = get(Castle.Episode, @id1)
     assert episode.image_url == nil
   end
+
+  test "gets paged recent episodes for podcast" do
+    insert!(%Castle.Episode{id: @id1, podcast_id: 1})
+    insert!(%Castle.Episode{id: @id2, podcast_id: 2})
+    insert!(%Castle.Episode{id: @id3, podcast_id: 1})
+    episodes = recent(1, 10, 1)
+    assert length(episodes) == 2
+    assert Enum.at(episodes, 0).id == @id1
+    assert Enum.at(episodes, 1).id == @id3
+  end
+
+  test "gets paged recent episodes for accounts" do
+    insert!(%Castle.Podcast{id: 1, account_id: 123})
+    insert!(%Castle.Podcast{id: 2, account_id: 456})
+    insert!(%Castle.Episode{id: @id1, podcast_id: 1})
+    insert!(%Castle.Episode{id: @id2, podcast_id: 2})
+    insert!(%Castle.Episode{id: @id3, podcast_id: 1})
+    episodes = recent([123], 10, 1)
+    assert length(episodes) == 2
+    assert Enum.at(episodes, 0).id == @id1
+    assert Enum.at(episodes, 1).id == @id3
+  end
+
+  test "gets total episodes for podcast" do
+    insert!(%Castle.Episode{id: @id1, podcast_id: 1})
+    insert!(%Castle.Episode{id: @id2, podcast_id: 2})
+    insert!(%Castle.Episode{id: @id3, podcast_id: 1})
+    assert total(1) == 2
+    assert total(2) == 1
+    assert total(3) == 0
+  end
+
+  test "gets total episodes for accounts" do
+    insert!(%Castle.Podcast{id: 1, account_id: 123})
+    insert!(%Castle.Podcast{id: 2, account_id: 456})
+    insert!(%Castle.Episode{id: @id1, podcast_id: 1})
+    insert!(%Castle.Episode{id: @id2, podcast_id: 2})
+    insert!(%Castle.Episode{id: @id3, podcast_id: 1})
+    assert total([]) == 0
+    assert total([123]) == 2
+    assert total([123, 456]) == 3
+  end
 end

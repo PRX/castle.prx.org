@@ -4,24 +4,21 @@ defmodule CastleWeb.API.PodcastController do
 
   @redis Application.get_env(:castle, :redis)
 
-  plug Castle.Plugs.ParseInt, "id" when action == :show
+  plug Castle.Plugs.AuthPodcast, "id"
 
-  def index(conn, params) do
+  def index(%{prx_user: user} = conn, params) do
     {page, per} = parse_paging(params)
-    podcasts = Castle.Podcast.recent(per, page)
-    paging = %{page: page, per: per, total: Castle.Podcast.total()}
+    accounts = Map.keys(user.auths)
+    podcasts = Castle.Podcast.recent(accounts, per, page)
+    total = Castle.Podcast.total(accounts)
+    paging = %{page: page, per: per, total: total}
     render conn, "index.json", conn: conn, podcasts: podcasts, paging: paging
   end
 
-  def show(conn, %{"id" => id}) do
-    case Castle.Repo.get(Castle.Podcast, id) do
-      nil ->
-        send_resp conn, 404, "Podcast #{id} not found"
-      podcast ->
-        trends = @redis.podcast_trends_cache id, fn(to_dtim) ->
-          Trends.podcast_trends(id, to_dtim)
-        end
-        render conn, "show.json", conn: conn, podcast: podcast, trends: trends
+  def show(%{assigns: %{podcast: podcast}} = conn, _params) do
+    trends = @redis.podcast_trends_cache podcast.id, fn(to_dtim) ->
+      Trends.podcast_trends(podcast.id, to_dtim)
     end
+    render conn, "show.json", conn: conn, podcast: podcast, trends: trends
   end
 end

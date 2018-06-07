@@ -20,12 +20,16 @@ defmodule Castle.Podcast do
     |> cast(attrs, [:account_id, :title, :subtitle, :image_url, :created_at, :updated_at, :published_at])
   end
 
-  def recent(limit, page) do
+  def recent(accounts, limit, page) when is_list(accounts) do
     offset = (page - 1) * limit
-    Castle.Repo.all(from p in Castle.Podcast, limit: ^limit, offset: ^offset, order_by: [desc: :id])
+    Castle.Repo.all(from p in Castle.Podcast, where: p.account_id in ^accounts,
+      limit: ^limit, offset: ^offset, order_by: [asc: :title])
   end
 
-  def total, do: Castle.Repo.one(from p in Castle.Podcast, select: count("*"))
+  def total(accounts) when is_list(accounts) do
+    Castle.Repo.one(from p in Castle.Podcast, where: p.account_id in ^accounts,
+      select: count("*"))
+  end
 
   def max_updated_at do
     Castle.Repo.one(from p in Castle.Podcast, select: max(p.updated_at))

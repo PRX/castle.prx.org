@@ -71,6 +71,16 @@ iex -S mix phx.server
 iex -S mix
 ```
 
+### Authorization
+
+By default, Castle will restrict what podcasts you can see based on the
+account-ids granted to you by [ID](https://github.com/PRX/id.prx.org). If you
+want to impersonate other accounts, just set `DEV_AUTH=123,456,789` in your
+ENV to grant you access to that comma-separated list of account ids. You can
+also set `DEV_AUTH=*` to allow access to all accounts.
+
+Note that the `DEV_AUTH` ENV does not work at all in production environments.
+
 ## Tasks
 
 Background worker tasks are configured to run on a cron, in `config/prod.exs`.
