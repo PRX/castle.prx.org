@@ -14,7 +14,7 @@ defmodule CastleWeb.API.TotalView do
     %{name: name}
   end
 
-  defp interval_json(%{from: from, to: to, bucket: bucket}) do
+  defp interval_json(%{from: from, to: to, bucket: _bucket}) do
     %{from: format_dtim(from), to: format_dtim(to)}
   end
   defp interval_json(any), do: any
