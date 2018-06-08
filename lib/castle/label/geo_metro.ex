@@ -215,7 +215,8 @@ defmodule Castle.Label.GeoMetro do
     881 => "Spokane",
   }
 
-  def geo_metro(code) when is_integer(code) do
+  def find(nil), do: "Other"
+  def find(code) when is_integer(code) do
     @labels[code] || @default
   end
 

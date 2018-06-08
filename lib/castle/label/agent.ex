@@ -55,15 +55,8 @@ defmodule Castle.Label.Agent do
     50 => "webOS",
   }
 
-  def agent_name(id) when is_integer(id) do
-    @labels[id] || @default
-  end
-
-  def agent_type(id) when is_integer(id) do
-    @labels[id] || @default
-  end
-
-  def agent_os(id) when is_integer(id) do
+  def find(nil), do: "Other"
+  def find(id) when is_integer(id) do
     @labels[id] || @default
   end
 

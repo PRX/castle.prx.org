@@ -4,15 +4,15 @@ defmodule Castle.CastleLabelGeoMetroTest do
   import Castle.Label.GeoMetro
 
   test "gets metro/dma code names" do
-    assert geo_metro(512) == "Baltimore"
-    assert geo_metro(751) == "Denver"
-    assert geo_metro(676) == "Duluth-Superior"
+    assert find(512) == "Baltimore"
+    assert find(751) == "Denver"
+    assert find(676) == "Duluth-Superior"
   end
 
   test "gets unknowns" do
-    assert geo_metro(0) == "Unknown"
-    assert geo_metro(1) == "Unknown"
-    assert geo_metro(99999) == "Unknown"
+    assert find(0) == "Unknown"
+    assert find(1) == "Unknown"
+    assert find(99999) == "Unknown"
   end
 
 end

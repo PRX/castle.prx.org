@@ -4,15 +4,15 @@ defmodule Castle.CastleLabelGeoCountryTest do
   import Castle.Label.GeoCountry
 
   test "gets country names" do
-    assert geo_country("US") == "United States"
-    assert geo_country("CA") == "Canada"
-    assert geo_country("GB") == "United Kingdom"
+    assert find("US") == "United States"
+    assert find("CA") == "Canada"
+    assert find("GB") == "United Kingdom"
   end
 
   test "gets unknowns" do
-    assert geo_country("USA") == "Unknown"
-    assert geo_country("") == "Unknown"
-    assert geo_country("whatev") == "Unknown"
+    assert find("USA") == "Unknown"
+    assert find("") == "Unknown"
+    assert find("whatev") == "Unknown"
   end
 
 end

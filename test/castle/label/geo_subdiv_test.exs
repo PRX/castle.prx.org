@@ -4,14 +4,14 @@ defmodule Castle.CastleLabelGeoSubdivTest do
   import Castle.Label.GeoSubdiv
 
   test "gets subdivision names" do
-    assert geo_subdiv("US-CO") == "Colorado"
-    assert geo_subdiv("US-MN") == "Minnesota"
-    assert geo_subdiv("GB-SCT") == "Scotland"
+    assert find("US-CO") == "Colorado"
+    assert find("US-MN") == "Minnesota"
+    assert find("GB-SCT") == "Scotland"
   end
 
   test "gets unknowns" do
-    assert geo_subdiv("US") == "Unknown"
-    assert geo_subdiv("US-NOPE") == "Unknown"
+    assert find("US") == "Unknown"
+    assert find("US-NOPE") == "Unknown"
   end
 
 end

@@ -3302,11 +3302,12 @@ defmodule Castle.Label.GeoSubdiv do
     "ZW-MW" => "Mashonaland West",
   }
 
-  def geo_subdiv(code) do
+  def find(nil), do: "Other"
+  def find(code) do
     @labels[code] || @default
   end
-  def geo_subdiv(country_code, subdiv_code) do
-    geo_subdiv("#{country_code}-#{subdiv_code}")
+  def find(country_code, subdiv_code) do
+    find("#{country_code}-#{subdiv_code}")
   end
 
 end

@@ -255,7 +255,8 @@ defmodule Castle.Label.GeoCountry do
     "ZW" => "Zimbabwe",
   }
 
-  def geo_country("" <> code) do
+  def find(nil), do: "Other"
+  def find("" <> code) do
     @labels[code] || @default
   end
 
