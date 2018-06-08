@@ -6,31 +6,37 @@ defmodule Castle.Plugs.Group do
       name: "agentname",
       ranks: Castle.Rollup.Query.AgentRanks,
       totals: Castle.Rollup.Query.AgentTotals,
+      labels: Castle.Label.Agent,
     },
     "agenttype" => %{
       name: "agenttype",
       ranks: Castle.Rollup.Query.AgentRanks,
       totals: Castle.Rollup.Query.AgentTotals,
+      labels: Castle.Label.Agent,
     },
     "agentos" => %{
       name: "agentos",
       ranks: Castle.Rollup.Query.AgentRanks,
       totals: Castle.Rollup.Query.AgentTotals,
+      labels: Castle.Label.Agent,
     },
     "geocountry" => %{
       name: "geocountry",
       ranks: Castle.Rollup.Query.GeoRanks,
       totals: Castle.Rollup.Query.GeoTotals,
+      labels: Castle.Label.GeoCountry,
     },
     "geosubdiv" => %{
       name: "geosubdiv",
       ranks: Castle.Rollup.Query.GeoRanks,
       totals: Castle.Rollup.Query.GeoTotals,
+      labels: Castle.Label.GeoSubdiv,
     },
     "geometro" => %{
       name: "geometro",
       ranks: Castle.Rollup.Query.GeoRanks,
       totals: Castle.Rollup.Query.GeoTotals,
+      labels: Castle.Label.GeoMetro,
     },
   }
 
