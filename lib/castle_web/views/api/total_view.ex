@@ -6,7 +6,7 @@ defmodule CastleWeb.API.TotalView do
       id: id,
       group: group_json(group),
       interval: interval_json(intv),
-      downloads: Enum.map(data, &total_json/1),
+      downloads: totals_json(data, group),
     }
   end
 
@@ -19,7 +19,10 @@ defmodule CastleWeb.API.TotalView do
   end
   defp interval_json(any), do: any
 
-  defp total_json(%{group: group, count: count}), do: [group, count]
+  defp totals_json([], _group), do: []
+  defp totals_json([%{group: code, count: n} | rest], %{labels: labels} = group) do
+    [%{code: code, label: labels.find(code), count: n}] ++ totals_json(rest, group)
+  end
 
   defp format_dtim(dtim) do
     {:ok, formatted} = Timex.format(dtim, "{ISO:Extended:Z}")
