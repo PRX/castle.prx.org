@@ -1,12 +1,13 @@
 defmodule Castle.Plugs.Interval.TimeTo do
 
-  def parse(%{params: %{"to" => to_dtim}}) when is_bitstring(to_dtim) do
+  def parse(conn), do: parse(conn, %{})
+  def parse(%{params: %{"to" => to_dtim}}, _opts) when is_bitstring(to_dtim) do
     case parse_dtim(to_dtim) do
       {:ok, dtim} -> {:ok, Timex.Timezone.convert(dtim, :utc)}
       {:error, _err} -> {:error, "Bad to param: must be a valid ISO8601 date"}
     end
   end
-  def parse(_conn) do
+  def parse(_conn, _opts) do
     {:ok, Timex.now |> Timex.beginning_of_day |> Timex.shift(days: 1)}
   end
 

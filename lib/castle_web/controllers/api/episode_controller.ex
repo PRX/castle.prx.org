@@ -4,9 +4,6 @@ defmodule CastleWeb.API.EpisodeController do
 
   @redis Application.get_env(:castle, :redis)
 
-  plug Castle.Plugs.AuthPodcast, "podcast_id"
-  plug Castle.Plugs.AuthEpisode, "id"
-
   def index(%{assigns: %{podcast: podcast}} = conn, params) do
     {page, per} = parse_paging(params)
     episodes = Castle.Episode.recent(podcast.id, per, page)

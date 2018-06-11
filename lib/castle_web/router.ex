@@ -1,33 +1,25 @@
 defmodule CastleWeb.Router do
   use CastleWeb, :router
 
-  # pipeline :browser do
-  #   plug :accepts, ["html"]
-  #   plug :fetch_session
-  #   plug :fetch_flash
-  #   plug :protect_from_forgery
-  #   plug :put_secure_browser_headers
-  # end
+  pipeline :api, do: plug :accepts, ["json", "hal"]
+  pipeline :logged, do: plug Plug.Logger
 
-  pipeline :api do
-    plug :accepts, ["json", "hal"]
-  end
-  pipeline :logged do
-    plug Plug.Logger
-  end
+  pipeline :authorized, do: plug Castle.Plugs.Auth
+  pipeline :authorized_podcast, do: plug Castle.Plugs.AuthPodcast
+  pipeline :authorized_episode, do: plug Castle.Plugs.AuthEpisode
 
-  pipeline :authorized do
-    plug Castle.Plugs.Auth
+  pipeline :hourly_metrics, do: plug Castle.Plugs.Interval, min: "HOUR"
+  pipeline :ranked_metrics do
+    plug Castle.Plugs.Interval, min: "DAY"
+    plug Castle.Plugs.Group
   end
-
-  pipeline :metrics do
-    plug Castle.Plugs.Interval
+  pipeline :total_metrics do
+    plug Castle.Plugs.Interval, min: "DAY", skip_bucket: true
     plug Castle.Plugs.Group
   end
 
   scope "/", CastleWeb do
     pipe_through :api
-
     get "/", RedirectController, :index
     get "/api", RedirectController, :index
     get "/api/v1", API.RootController, :index, as: :api_root
@@ -38,20 +30,49 @@ defmodule CastleWeb.Router do
     pipe_through :logged
     pipe_through :authorized
 
-    resources "/podcasts", PodcastController, only: [:index, :show] do
-      resources "/episodes", EpisodeController, only: [:index, :show]
-    end
-    resources "/episodes", EpisodeController, only: [:index, :show]
+    resources "/podcasts", PodcastController, only: [:index]
 
-    scope "/podcasts", as: :podcast do
-      pipe_through :metrics
-      get "/:podcast_id/downloads", DownloadController, :index
+    scope "/podcasts" do
+      pipe_through :authorized_podcast
+
+      resources "/", PodcastController, only: [:show]
+      resources "/:id/episodes", EpisodeController, only: [:index], as: :podcast_episode
+
+      scope "/:id/downloads", as: :podcast do
+        pipe_through :hourly_metrics
+        resources "/", DownloadController, only: [:index]
+      end
+      scope "/:id/ranks", as: :podcast do
+        pipe_through :ranked_metrics
+        resources "/", RankController, only: [:index]
+      end
+      scope "/:id/totals", as: :podcast do
+        pipe_through :total_metrics
+        resources "/", TotalController, only: [:index]
+      end
     end
 
-    scope "/episodes", as: :episode do
-      pipe_through :metrics
-      get "/:episode_guid/downloads", DownloadController, :index
+    resources "/episodes", EpisodeController, only: [:index]
+
+    scope "/episodes" do
+      pipe_through :authorized_episode
+
+      resources "/", EpisodeController, only: [:show]
+
+      scope "/:id/downloads", as: :episode do
+        pipe_through :hourly_metrics
+        resources "/", DownloadController, only: [:index]
+      end
+      scope "/:id/ranks", as: :episode do
+        pipe_through :ranked_metrics
+        resources "/", RankController, only: [:index]
+      end
+      scope "/:id/totals", as: :episode do
+        pipe_through :total_metrics
+        resources "/", TotalController, only: [:index]
+      end
     end
+
   end
 
 end

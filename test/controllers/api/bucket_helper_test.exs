@@ -97,6 +97,26 @@ defmodule Castle.API.BucketHelperTest do
     assert Enum.at(data, 2).count == 5
   end
 
+  test "combines grouped data", %{from: from, to: to} do
+    interval = %Castle.Interval{from: from, to: to, bucket: Castle.Bucket.Daily}
+    raw = [
+      %{time: get_dtim("2017-03-26T10:00:00Z"), count: 1, group: "one"},
+      %{time: get_dtim("2017-03-27T11:00:00Z"), count: 2, group: "one"},
+      %{time: get_dtim("2017-03-27T11:00:00Z"), count: 2, group: nil},
+      %{time: get_dtim("2017-03-27T15:00:00Z"), count: 3, group: "two"},
+      %{time: get_dtim("2017-03-28T00:00:00Z"), count: 4, group: "one"},
+      %{time: get_dtim("2017-03-28T00:00:01Z"), count: 5, group: "two"},
+    ]
+    data = bucketize_groups(["two", "one", nil], raw, interval)
+    assert_times(data)
+    assert Enum.at(data, 0).ranks == ["two", "one", nil]
+    assert Enum.at(data, 1).ranks == ["two", "one", nil]
+    assert Enum.at(data, 2).ranks == ["two", "one", nil]
+    assert Enum.at(data, 0).counts == [0, 1, 0]
+    assert Enum.at(data, 1).counts == [3, 2, 2]
+    assert Enum.at(data, 2).counts == [5, 4, 0]
+  end
+
   defp assert_times(data) do
     assert length(data) == 3
     times = Enum.map(data, &(&1.time))

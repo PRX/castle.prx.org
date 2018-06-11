@@ -2,28 +2,27 @@ defmodule Castle.PlugsGroupTest do
   use Castle.ConnCase, async: true
 
   test "groups by country", %{conn: conn} do
-    group = get_group(conn, "country")
-    assert group.name == "country"
-    assert group.join == "geonames on (country_id = geoname_id)"
-    assert group.groupby == "country_name"
+    group = get_group(conn, "geocountry")
+    assert group.name == "geocountry"
     assert group.limit == 10
   end
 
-  test "groups by city", %{conn: conn} do
-    group = get_group(conn, "city")
-    assert group.name == "city"
-    assert group.join == "geonames on (city_id = geoname_id)"
-    assert group.groupby == "city_name"
+  test "groups by subdivision", %{conn: conn} do
+    group = get_group(conn, "geosubdiv")
+    assert group.name == "geosubdiv"
     assert group.limit == 10
   end
 
-  test "has no default grouping", %{conn: conn} do
-    assert get_group(conn) == nil
+  test "requires a grouping", %{conn: conn} do
+    conn = call_group(conn, nil, nil)
+    assert conn.status == 400
+    assert conn.halted == true
+    assert conn.resp_body =~ ~r/you must set a group param/i
   end
 
   test "overrides limits", %{conn: conn} do
-    assert get_group(conn, "country", "11").limit == 11
-    assert get_group(conn, "country", "2").limit == 2
+    assert get_group(conn, "geocountry", "11").limit == 11
+    assert get_group(conn, "geocountry", "2").limit == 2
   end
 
   test "validates groupings", %{conn: conn} do
@@ -34,19 +33,13 @@ defmodule Castle.PlugsGroupTest do
   end
 
   test "validates grouping limits", %{conn: conn} do
-    conn = call_group(conn, "country", "foo")
+    conn = call_group(conn, "geocountry", "foo")
     assert conn.status == 400
     assert conn.halted == true
-    assert conn.resp_body =~ ~r/grouplimit is not an integer/i
+    assert conn.resp_body =~ ~r/limit is not an integer/i
   end
 
-  test "manually gets a grouping" do
-    group = Castle.Plugs.Group.get("city", 4)
-    assert group.name == "city"
-    assert group.limit == 4
-  end
-
-  defp get_group(conn, group \\ nil, limit \\ nil) do
+  defp get_group(conn, group, limit \\ nil) do
     conn |> call_group(group, limit) |> Map.get(:assigns) |> Map.get(:group)
   end
 
@@ -57,6 +50,6 @@ defmodule Castle.PlugsGroupTest do
   defp set_group(conn, nil, nil), do: conn
   defp set_group(conn, group, nil), do: Map.merge(conn, %{params: %{"group" => group}})
   defp set_group(conn, group, limit) do
-    Map.merge(conn, %{params: %{"group" => group, "grouplimit" => limit}})
+    Map.merge(conn, %{params: %{"group" => group, "limit" => limit}})
   end
 end
