@@ -1,5 +1,5 @@
 defmodule Castle.RollupQueryTrendsTest do
-  use Castle.DataCase
+  use Castle.DataCase, async: false
   use Castle.TimeHelpers
 
   import Castle.Rollup.Query.Trends
