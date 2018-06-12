@@ -1,17 +1,17 @@
 defmodule CastleWeb.API.TotalView do
   use CastleWeb, :view
 
-  def render("total.json", %{id: id, interval: intv, group: group, downloads: data}) do
+  def render("total.json", %{id: id, interval: intv, group: group, ranks: data}) do
     %{
       id: id,
       group: group_json(group),
       interval: interval_json(intv),
-      downloads: totals_json(data, group),
+      ranks: totals_json(data, group),
     }
   end
 
   defp group_json(%{name: name}) do
-    %{name: name}
+    %{name: name, limit: nil}
   end
 
   defp interval_json(%{from: from, to: to, bucket: _bucket}) do
