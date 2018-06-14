@@ -43,7 +43,15 @@ defmodule CastleWeb.API.PodcastView do
       "prx:downloads": %{
         href: api_podcast_download_path(conn, :index, podcast.id) <> "{?interval,from,to}",
         templated: true,
-      }
+      },
+      "prx:ranks": %{
+        href: api_podcast_rank_path(conn, :index, podcast.id) <> "{?interval,from,to,group,limit}",
+       templated: true,
+      },
+      "prx:totals": %{
+        href: api_podcast_total_path(conn, :index, podcast.id) <> "{?from,to}",
+        templated: true,
+      },
     } |> podcast_image_link(podcast.image_url)
   end
 

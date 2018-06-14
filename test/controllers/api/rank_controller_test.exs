@@ -44,7 +44,7 @@ defmodule Castle.API.RankControllerTest do
     assert resp["interval"]["to"] == "2017-04-06T00:00:00Z"
     assert resp["group"]["name"] == "geosubdiv"
     assert resp["group"]["limit"] == 2
-    assert resp["ranks"] == ["GB-UK", "US-MN", nil]
+    assert Enum.map(resp["ranks"], &(&1["code"])) == ["GB-UK", "US-MN", nil]
     assert length(resp["downloads"]) == 5
     assert Enum.at(resp["downloads"], 0) == ["2017-04-01T00:00:00Z", [0, 1, 0]]
     assert Enum.at(resp["downloads"], 1) == ["2017-04-02T00:00:00Z", [0, 0, 2]]
@@ -60,7 +60,7 @@ defmodule Castle.API.RankControllerTest do
     assert resp["interval"]["to"] == "2017-04-06T00:00:00Z"
     assert resp["group"]["name"] == "geosubdiv"
     assert resp["group"]["limit"] == 10
-    assert resp["ranks"] == ["GB-UK", "US-MN", "US-CO", nil]
+    assert Enum.map(resp["ranks"], &(&1["code"])) == ["GB-UK", "US-MN", "US-CO", nil]
     assert length(resp["downloads"]) == 4
     assert Enum.at(resp["downloads"], 0) == ["2017-04-02T00:00:00Z", [0, 0, 2, 0]]
     assert Enum.at(resp["downloads"], 1) == ["2017-04-03T00:00:00Z", [0, 0, 0, 0]]

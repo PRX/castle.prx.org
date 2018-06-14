@@ -46,7 +46,15 @@ defmodule CastleWeb.API.EpisodeView do
       "prx:downloads": %{
         href: api_episode_download_path(conn, :index, episode.id) <> "{?interval,from,to}",
         templated: true,
-      }
+      },
+      "prx:ranks": %{
+        href: api_episode_rank_path(conn, :index, episode.id) <> "{?interval,from,to,group,limit}",
+       templated: true,
+      },
+      "prx:totals": %{
+        href: api_episode_total_path(conn, :index, episode.id) <> "{?from,to}",
+        templated: true,
+      },
     } |> episode_image_link(episode.image_url)
   end
 

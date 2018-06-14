@@ -42,10 +42,13 @@ defmodule Castle.API.TotalControllerTest do
     assert resp["id"] == 123
     assert resp["interval"]["from"] == "2017-04-01T00:00:00Z"
     assert resp["interval"]["to"] == "2017-04-06T00:00:00Z"
-    assert length(resp["downloads"]) == 3
-    assert Enum.at(resp["downloads"], 0) == ["US", 7]
-    assert Enum.at(resp["downloads"], 1) == ["AU", 4]
-    assert Enum.at(resp["downloads"], 2) == ["GB", 3]
+    assert length(resp["ranks"]) == 3
+    assert Enum.at(resp["ranks"], 0)["code"] == "US"
+    assert Enum.at(resp["ranks"], 0)["count"] == 7
+    assert Enum.at(resp["ranks"], 1)["code"] == "AU"
+    assert Enum.at(resp["ranks"], 1)["count"] == 4
+    assert Enum.at(resp["ranks"], 2)["code"] == "GB"
+    assert Enum.at(resp["ranks"], 2)["count"] == 3
   end
 
   test "responds with downloads for an episode", %{conn: conn} do
@@ -53,10 +56,13 @@ defmodule Castle.API.TotalControllerTest do
     assert resp["id"] == @guid
     assert resp["interval"]["from"] == "2017-04-02T00:00:00Z"
     assert resp["interval"]["to"] == "2017-04-06T00:00:00Z"
-    assert length(resp["downloads"]) == 3
-    assert Enum.at(resp["downloads"], 0) == ["US", 7]
-    assert Enum.at(resp["downloads"], 1) == ["AU", 4]
-    assert Enum.at(resp["downloads"], 2) == ["GB", 3]
+    assert length(resp["ranks"]) == 3
+    assert Enum.at(resp["ranks"], 0)["code"] == "US"
+    assert Enum.at(resp["ranks"], 0)["count"] == 7
+    assert Enum.at(resp["ranks"], 1)["code"] == "AU"
+    assert Enum.at(resp["ranks"], 1)["count"] == 4
+    assert Enum.at(resp["ranks"], 2)["code"] == "GB"
+    assert Enum.at(resp["ranks"], 2)["count"] == 3
   end
 
   test "renders podcast 404s", %{conn: conn} do
