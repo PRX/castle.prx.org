@@ -53,6 +53,22 @@ defmodule Castle.Label.Agent do
     48 => "ChromeOS",
     49 => "Linux",
     50 => "webOS",
+    51 => "gPodder",
+    52 => "iHeartRadio",
+    53 => "Juice Receiver",
+    54 => "Laughable",
+    55 => "Windows Media Player",
+    56 => "PodCruncher",
+    57 => "PodTrapper",
+    58 => "PodcastRepublic",
+    59 => "TED",
+    60 => "TuneIn",
+    61 => "Winamp",
+    62 => "Google Search App",
+    63 => "RSSRadio",
+    64 => "Roku",
+    65 => "ServeStream",
+    66 => "uTorrent",
   }
 
   def find(nil), do: "Other"
