@@ -5,13 +5,19 @@ defmodule Feeder.SyncEpisodes do
     case get_episodes(dtim) do
       {:error, err} -> {:error, err}
       {_ok_or_partial, total, docs} ->
-        {created, updated} = update_episodes(docs)
+        {created, updated} = with_podcast(docs) |> update_episodes()
         {:ok, created, updated, total - created - updated}
     end
   end
 
   defp get_episodes(nil), do: Feeder.Api.episodes()
   defp get_episodes(dtim), do: Timex.shift(dtim, milliseconds: 1) |> Feeder.Api.episodes()
+
+  defp with_podcast([]), do: []
+  defp with_podcast([%{"_links" => %{"prx:podcast" => _}} = doc | rest]) do
+    [doc] ++ with_podcast(rest)
+  end
+  defp with_podcast([_doc | rest]), do: with_podcast(rest)
 
   defp update_episodes(episode_docs) do
     created_count = episode_docs
