@@ -23,7 +23,11 @@ defmodule Feeder.SyncEpisodesTest do
     assert {:ok, 3, 0, 7} = Feeder.SyncEpisodes.sync()
   end
 
-  defp updates_and_creates(total) do
+  test_with_http "skips episodes with no podcast", %{@episodes => updates_and_creates(10, true)} do
+    assert {:ok, 2, 0, 8} = Feeder.SyncEpisodes.sync()
+  end
+
+  defp updates_and_creates(total, skip_podcast \\ false) do
     %{
       "total" => total,
       "_embedded" => %{
@@ -32,23 +36,28 @@ defmodule Feeder.SyncEpisodesTest do
             "id" => @id1,
             "title" => "one",
             "updatedAt" => "2018-04-25T05:00:00Z",
-            "_links" => %{"prx:podcast" => %{"href" => "/api/v1/podcasts/123"}}
+            "_links" => podcast_link(123, false)
           },
           %{
             "id" => @id2,
             "title" => "two-changed",
             "updatedAt" => "2018-04-25T05:00:00Z",
-            "_links" => %{"prx:podcast" => %{"href" => "/api/v1/podcasts/123"}}
+            "_links" => podcast_link(456, skip_podcast)
           },
           %{
             "id" => @id3,
             "title" => "three",
             "updatedAt" => "2018-04-25T05:00:00Z",
-            "_links" => %{"prx:podcast" => %{"href" => "/api/v1/podcasts/123"}}
+            "_links" => podcast_link(789, false)
           },
         ]
       }
     }
+  end
+
+  defp podcast_link(_id, true), do: %{}
+  defp podcast_link(id, false) do
+    %{"prx:podcast" => %{"href" => "/api/v1/podcasts/#{id}"}}
   end
 
 end
