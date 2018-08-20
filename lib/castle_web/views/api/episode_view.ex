@@ -52,7 +52,7 @@ defmodule CastleWeb.API.EpisodeView do
        templated: true,
       },
       "prx:totals": %{
-        href: api_episode_total_path(conn, :index, episode.id) <> "{?from,to}",
+        href: api_episode_total_path(conn, :index, episode.id) <> "{?from,to,group}",
         templated: true,
       },
     } |> episode_image_link(episode.image_url)

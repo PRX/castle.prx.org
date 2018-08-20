@@ -49,7 +49,7 @@ defmodule CastleWeb.API.PodcastView do
        templated: true,
       },
       "prx:totals": %{
-        href: api_podcast_total_path(conn, :index, podcast.id) <> "{?from,to}",
+        href: api_podcast_total_path(conn, :index, podcast.id) <> "{?from,to,group}",
         templated: true,
       },
     } |> podcast_image_link(podcast.image_url)
