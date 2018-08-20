@@ -45,7 +45,7 @@ defmodule CastleWeb.API.RootView do
           templated: true,
         }],
         "prx:podcast-totals": [%{
-          href: fix_path(api_podcast_total_path(conn, :index, "{id}") <> "{?interval,from,to,group}"),
+          href: fix_path(api_podcast_total_path(conn, :index, "{id}") <> "{?from,to,group}"),
           templated: true,
         }],
         "prx:episode-downloads": [%{
@@ -57,7 +57,7 @@ defmodule CastleWeb.API.RootView do
           templated: true,
         }],
         "prx:episode-totals": [%{
-          href: fix_path(api_episode_total_path(conn, :index, "{id}") <> "{?interval,from,to,group}"),
+          href: fix_path(api_episode_total_path(conn, :index, "{id}") <> "{?from,to,group}"),
           templated: true,
         }],
       }
