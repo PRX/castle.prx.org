@@ -1,6 +1,10 @@
 defmodule Castle.Repo do
   use Ecto.Repo, otp_app: :castle
 
+  defmodule NewRelic do
+    use NewRelixir.Plug.Repo, repo: Castle.Repo
+  end
+
   def init(_, opts) do
     {:ok, load_opts(opts, Mix.env)}
   end
