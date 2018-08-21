@@ -11,6 +11,7 @@ config :castle, Castle.Repo, adapter: Ecto.Adapters.Postgres, timeout: 30_000
 
 # Configures the endpoint
 config :castle, CastleWeb.Endpoint,
+  instrumenters: [NewRelixir.Instrumenters.Phoenix],
   url: [host: "localhost"],
   secret_key_base: "+DVZXtoG6yRaQrhCNCPNjdyhioRgRlrKMUDDlZkPLXCghP4NCJ+JafxydZD/QnOq",
   render_errors: [view: CastleWeb.ErrorView, accepts: ~w(html json hal)],
@@ -25,6 +26,8 @@ config :castle, :env_config,
   bq_project_id: System.get_env("BQ_PROJECT_ID") || "${BQ_PROJECT_ID}",
   bq_dataset: System.get_env("BQ_DATASET") || "${BQ_DATASET}",
   feeder_host: System.get_env("FEEDER_HOST") || "${FEEDER_HOST}",
+  new_relic_key: System.get_env("NEW_RELIC_KEY") || "${NEW_RELIC_KEY}",
+  new_relic_name: System.get_env("NEW_RELIC_NAME") || "${NEW_RELIC_NAME}",
   redis_host: System.get_env("REDIS_HOST") || "${REDIS_HOST}",
   redis_port: System.get_env("REDIS_PORT") || "${REDIS_PORT}",
   redis_pool_size: System.get_env("REDIS_POOL_SIZE") || "${REDIS_POOL_SIZE}",

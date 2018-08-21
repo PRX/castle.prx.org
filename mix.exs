@@ -30,7 +30,7 @@ defmodule Castle.Mixfile do
   defp apps, do: [
     :phoenix, :phoenix_pubsub, :phoenix_ecto, :postgrex, :phoenix_html,
     :cowboy, :logger, :gettext, :jose, :httpoison, :timex, :corsica, :prx_auth,
-    :memoize
+    :memoize, :new_relixir
   ]
 
   # Specifies which paths to compile per environment.
@@ -59,6 +59,7 @@ defmodule Castle.Mixfile do
      {:prx_auth, "~> 0.0.1"},
      {:memoize, "~> 1.2"},
      {:quantum, "~> 2.2"},
+     {:new_relixir, "~> 0.4"},
      {:dotenv, "~> 2.1", only: [:dev, :test]},
      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
      {:mock, "~> 0.3.1", only: :test}]
