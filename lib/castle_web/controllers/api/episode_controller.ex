@@ -1,6 +1,6 @@
 defmodule CastleWeb.API.EpisodeController do
   use CastleWeb, :controller
-  alias Castle.Rollup.Query.Trends, as: Trends
+  alias Castle.Rollup.Query.Totals, as: Totals
 
   @redis Application.get_env(:castle, :redis)
 
@@ -21,9 +21,9 @@ defmodule CastleWeb.API.EpisodeController do
   end
 
   def show(%{assigns: %{episode: episode}} = conn, _params) do
-    trends = @redis.episode_trends_cache episode.id, fn(to_dtim) ->
-      Trends.episode_trends(episode.id, to_dtim)
+    total = @redis.episode_totals_cache episode.id, fn(to_dtim) ->
+      Totals.episode_totals(episode.id, to_dtim)
     end
-    render conn, "show.json", conn: conn, episode: episode, trends: trends
+    render conn, "show.json", conn: conn, episode: episode, trends: %{total: total}
   end
 end
