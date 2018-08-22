@@ -37,9 +37,9 @@ defmodule Castle.Redis do
   ) :: result_with_new_interval
 
   @doc """
-  Cache podcast trends/totals (including INCRs)
+  Cache podcast totals (including INCRs)
   """
-  @callback podcast_trends_cache(
+  @callback podcast_totals_cache(
     id      :: pos_integer,
     work_fn :: (() -> result)
   ) :: result
@@ -53,9 +53,9 @@ defmodule Castle.Redis do
   ) :: result_with_new_interval
 
   @doc """
-  Cache episode trends/totals (including INCRs)
+  Cache episode totals (including INCRs)
   """
-  @callback episode_trends_cache(
+  @callback episode_totals_cache(
     guid    :: String.t,
     work_fn :: (() -> result)
   ) :: result

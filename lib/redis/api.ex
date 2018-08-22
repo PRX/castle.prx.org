@@ -9,15 +9,15 @@ defmodule Castle.Redis.Api do
     to: Castle.Redis.Increments,
     as: :get_podcast
 
-  defdelegate podcast_trends_cache(id, work_fn),
-    to: Castle.Redis.TrendsCache,
-    as: :podcast_trends
+  defdelegate podcast_totals_cache(id, work_fn),
+    to: Castle.Redis.TotalsCache,
+    as: :podcast_totals
 
   defdelegate episode_increments(id, interval),
     to: Castle.Redis.Increments,
     as: :get_episode
 
-    defdelegate episode_trends_cache(id, work_fn),
-      to: Castle.Redis.TrendsCache,
-      as: :episode_trends
+    defdelegate episode_totals_cache(id, work_fn),
+      to: Castle.Redis.TotalsCache,
+      as: :episode_totals
 end
