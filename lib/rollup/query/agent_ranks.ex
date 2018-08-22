@@ -13,7 +13,7 @@ defmodule Castle.Rollup.Query.AgentRanks do
       |> where_podcast(id)
       |> where_timeframe(from, to)
       |> order_by([t], [asc: fragment("time"), asc: fragment("grouping")])
-      |> Castle.Repo.all
+      |> Castle.Repo.NewRelic.all
     {top_n ++ [nil], data}
   end
 
@@ -28,7 +28,7 @@ defmodule Castle.Rollup.Query.AgentRanks do
       |> where_episode(id)
       |> where_timeframe(from, to)
       |> order_by([t], [asc: fragment("time"), asc: fragment("grouping")])
-      |> Castle.Repo.all
+      |> Castle.Repo.NewRelic.all
     {top_n ++ [nil], data}
   end
 
