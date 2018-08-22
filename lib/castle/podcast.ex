@@ -22,12 +22,12 @@ defmodule Castle.Podcast do
 
   def recent(accounts, limit, page) when is_list(accounts) do
     offset = (page - 1) * limit
-    Castle.Repo.all(from p in Castle.Podcast, where: p.account_id in ^accounts,
+    Castle.Repo.NewRelic.all(from p in Castle.Podcast, where: p.account_id in ^accounts,
       limit: ^limit, offset: ^offset, order_by: [asc: :title])
   end
 
   def total(accounts) when is_list(accounts) do
-    Castle.Repo.one(from p in Castle.Podcast, where: p.account_id in ^accounts,
+    Castle.Repo.NewRelic.one(from p in Castle.Podcast, where: p.account_id in ^accounts,
       select: count("*"))
   end
 
