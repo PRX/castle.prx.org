@@ -41,11 +41,11 @@ defmodule CastleWeb.API.RootView do
           templated: true,
         }],
         "prx:podcast-ranks": [%{
-          href: fix_path(api_podcast_rank_path(conn, :index, "{id}") <> "{?interval,from,to,group,limit}"),
+          href: fix_path(api_podcast_rank_path(conn, :index, "{id}") <> "{?interval,from,to,group,limit,filters}"),
           templated: true,
         }],
         "prx:podcast-totals": [%{
-          href: fix_path(api_podcast_total_path(conn, :index, "{id}") <> "{?from,to,group}"),
+          href: fix_path(api_podcast_total_path(conn, :index, "{id}") <> "{?from,to,group,filters}"),
           templated: true,
         }],
         "prx:episode-downloads": [%{
@@ -53,11 +53,11 @@ defmodule CastleWeb.API.RootView do
           templated: true,
         }],
         "prx:episode-ranks": [%{
-          href: fix_path(api_episode_rank_path(conn, :index, "{guid}") <> "{?interval,from,to,group,limit}"),
+          href: fix_path(api_episode_rank_path(conn, :index, "{guid}") <> "{?interval,from,to,group,limit,filters}"),
           templated: true,
         }],
         "prx:episode-totals": [%{
-          href: fix_path(api_episode_total_path(conn, :index, "{id}") <> "{?from,to,group}"),
+          href: fix_path(api_episode_total_path(conn, :index, "{id}") <> "{?from,to,group,filters}"),
           templated: true,
         }],
       }
