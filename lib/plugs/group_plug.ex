@@ -45,6 +45,7 @@ defmodule Castle.Plugs.Group do
   def call(conn, _default) do
     conn
     |> set_grouping()
+    |> set_grouping_filters()
     |> set_grouping_limit()
     |> require_group()
   end
@@ -60,6 +61,27 @@ defmodule Castle.Plugs.Group do
     end
   end
   defp set_grouping(conn), do: conn
+
+  defp set_grouping_filters(%{status: nil, assigns: %{group: group}, params: %{"filters" => filters}} = conn) do
+    case parse_filters String.split(filters, ",") do
+      [] -> conn
+      parsed ->
+        assign conn, :group, Map.put(group, :filters, Map.new(parsed))
+    end
+  end
+  defp set_grouping_filters(conn), do: conn
+
+  defp parse_filters([]), do: []
+  defp parse_filters([""]), do: []
+  defp parse_filters([filter | rest]) do
+    val = case String.split(filter, ["=", ":"], parts: 2, trim: true) do
+      [key] -> {String.to_atom(key), true}
+      [key, "true"] -> {String.to_atom(key), true}
+      [key, "false"] -> {String.to_atom(key), false}
+      [key, val] -> {String.to_atom(key), val}
+    end
+    [val] ++ parse_filters(rest)
+  end
 
   defp set_grouping_limit(%{status: nil, assigns: %{group: group}, params: %{"limit" => limit}} = conn) do
     case Integer.parse(limit) do

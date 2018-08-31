@@ -18,7 +18,7 @@ defmodule Castle do
 
   defmodule Grouping do
     @enforce_keys [:name, :ranks, :totals, :labels]
-    defstruct [:name, :ranks, :totals, :labels, limit: 10]
+    defstruct [:name, :ranks, :totals, :labels, :filters, limit: 10]
   end
 
 end
