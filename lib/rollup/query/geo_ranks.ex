@@ -2,31 +2,33 @@ defmodule Castle.Rollup.Query.GeoRanks do
   import Ecto.Query
   alias Castle.Rollup.Query.GeoTotals, as: GeoTotals
 
-  def podcast(id, %{from: from, to: to, bucket: bucket}, %{name: grouping_name, limit: num}) do
-    podcast(id, from, to, bucket.rollup, grouping_name, num)
+  def podcast(id, %{from: from, to: to, bucket: bucket}, %{name: name, limit: limit, filters: filters}) do
+    podcast(id, from, to, bucket.rollup, name, limit, filters)
   end
-  def podcast(id, from, to, trunc, grouping_name, grouping_limit) do
-    top_n = GeoTotals.podcast(id, from, to, grouping_name, grouping_limit) |> Enum.map(&(&1.group))
+  def podcast(id, from, to, trunc, grouping_name, limit, filters \\ nil) do
+    top_n = GeoTotals.podcast(id, from, to, grouping_name, limit, filters) |> Enum.map(&(&1.group))
     data = table(grouping_name)
       |> select_fields(trunc)
       |> select_grouping(grouping_name, top_n)
       |> where_podcast(id)
       |> where_timeframe(from, to)
+      |> where_filters(grouping_name, filters)
       |> order_by([t], [asc: fragment("time"), asc: fragment("grouping")])
       |> Castle.Repo.NewRelic.all
     {top_n ++ [nil], data}
   end
 
-  def episode(id, %{from: from, to: to, bucket: bucket}, %{name: grouping_name, limit: num}) do
-    episode(id, from, to, bucket.rollup, grouping_name, num)
+  def episode(id, %{from: from, to: to, bucket: bucket}, %{name: name, limit: limit, filters: filters}) do
+    episode(id, from, to, bucket.rollup, name, limit, filters)
   end
-  def episode(id, from, to, trunc, grouping_name, grouping_limit) do
-    top_n = GeoTotals.episode(id, from, to, grouping_name, grouping_limit) |> Enum.map(&(&1.group))
+  def episode(id, from, to, trunc, grouping_name, limit, filters \\ nil) do
+    top_n = GeoTotals.episode(id, from, to, grouping_name, limit, filters) |> Enum.map(&(&1.group))
     data = table(grouping_name)
       |> select_fields(trunc)
       |> select_grouping(grouping_name, top_n)
       |> where_episode(id)
       |> where_timeframe(from, to)
+      |> where_filters(grouping_name, filters)
       |> order_by([t], [asc: fragment("time"), asc: fragment("grouping")])
       |> Castle.Repo.NewRelic.all
     {top_n ++ [nil], data}
@@ -86,4 +88,10 @@ defmodule Castle.Rollup.Query.GeoRanks do
   defp where_timeframe(query, from, to) do
     where(query, [t], t.day >= ^from and t.day < ^to)
   end
+
+  defp where_filters(query, "geosubdiv", %{geocountry: codes}) do
+    codes_list = String.split(codes, "|", trim: true)
+    where(query, [t], t.country_iso_code in ^codes_list)
+  end
+  defp where_filters(query, _, _), do: query
 end

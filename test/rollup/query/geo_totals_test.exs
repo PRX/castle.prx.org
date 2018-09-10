@@ -50,16 +50,20 @@ defmodule Castle.RollupQueryGeoTotalsTest do
         day: ~D[2018-04-24], country_iso_code: "US", subdivision_1_iso_code: "CA"}
       Castle.DailyGeoSubdiv.upsert %{podcast_id: @id, episode_id: @guid2, count: 33,
         day: ~D[2018-04-25], country_iso_code: "US", subdivision_1_iso_code: "CO"}
+      Castle.DailyGeoSubdiv.upsert %{podcast_id: @id, episode_id: @guid2, count: 1,
+        day: ~D[2018-04-25], country_iso_code: "CA", subdivision_1_iso_code: "ON"}
       [t1: get_dtim("2018-04-24T00:00:00"), t2: get_dtim("2018-04-26T00:00:00")]
     end
 
     test "totals a podcast", %{t1: t1, t2: t2} do
       totals = podcast(@id, t1, t2, "geosubdiv")
-      assert length(totals) == 2
+      assert length(totals) == 3
       assert Enum.at(totals, 0).group == "US-CO"
       assert Enum.at(totals, 0).count == 44
       assert Enum.at(totals, 1).group == "US-CA"
       assert Enum.at(totals, 1).count == 22
+      assert Enum.at(totals, 2).group == "CA-ON"
+      assert Enum.at(totals, 2).count == 1
     end
 
     test "totals an episode", %{t1: t1, t2: t2} do
@@ -69,6 +73,13 @@ defmodule Castle.RollupQueryGeoTotalsTest do
       assert Enum.at(totals, 0).count == 22
       assert Enum.at(totals, 1).group == "US-CO"
       assert Enum.at(totals, 1).count == 11
+    end
+
+    test "filters by a country", %{t1: t1, t2: t2} do
+      totals = podcast(@id, t1, t2, "geosubdiv", nil, %{geocountry: "GB|CA"})
+      assert length(totals) == 1
+      assert Enum.at(totals, 0).group == "CA-ON"
+      assert Enum.at(totals, 0).count == 1
     end
 
   end

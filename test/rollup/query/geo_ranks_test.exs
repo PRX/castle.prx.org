@@ -52,6 +52,8 @@ defmodule Castle.RollupQueryGeoRanksTest do
         day: ~D[2018-04-24], country_iso_code: "US", subdivision_1_iso_code: "CO"}
       Castle.DailyGeoSubdiv.upsert %{podcast_id: @id, episode_id: @guid1, count: 22,
         day: ~D[2018-04-24], country_iso_code: "US", subdivision_1_iso_code: "CA"}
+      Castle.DailyGeoSubdiv.upsert %{podcast_id: @id, episode_id: @guid1, count: 1,
+        day: ~D[2018-04-24], country_iso_code: "CA", subdivision_1_iso_code: "ON"}
       Castle.DailyGeoSubdiv.upsert %{podcast_id: @id, episode_id: @guid2, count: 33,
         day: ~D[2018-04-25], country_iso_code: "US", subdivision_1_iso_code: "CO"}
       Castle.DailyGeoSubdiv.upsert %{podcast_id: @id, episode_id: @guid1, count: 44,
@@ -64,7 +66,7 @@ defmodule Castle.RollupQueryGeoRanksTest do
       assert ranks == ["US-CO", "US-MN", nil]
       assert length(datas) == 4
       assert_result datas, 0, "US-CO", 11, "2018-04-24"
-      assert_result datas, 1, nil, 22, "2018-04-24"
+      assert_result datas, 1, nil, 23, "2018-04-24"
       assert_result datas, 2, "US-CO", 33, "2018-04-25"
       assert_result datas, 3, "US-MN", 44, "2018-04-25"
     end
@@ -74,8 +76,15 @@ defmodule Castle.RollupQueryGeoRanksTest do
       assert ranks == ["US-MN", "US-CA", nil]
       assert length(datas) == 3
       assert_result datas, 0, "US-CA", 22, "2018-04-24"
-      assert_result datas, 1, nil, 11, "2018-04-24"
+      assert_result datas, 1, nil, 12, "2018-04-24"
       assert_result datas, 2, "US-MN", 44, "2018-04-25"
+    end
+
+    test "filters by a country", %{t1: t1, t2: t2} do
+      {ranks, datas} = podcast(@id, t1, t2, "day", "geosubdiv", 10, %{geocountry: "GB|CA"})
+      assert ranks == ["CA-ON", nil]
+      assert length(datas) == 1
+      assert_result datas, 0, "CA-ON", 1, "2018-04-24"
     end
 
   end

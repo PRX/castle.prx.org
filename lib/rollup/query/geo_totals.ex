@@ -1,31 +1,33 @@
 defmodule Castle.Rollup.Query.GeoTotals do
   import Ecto.Query
 
-  def podcast(id, %{from: from, to: to}, %{name: grouping_name}) do
-    podcast(id, from, to, grouping_name)
+  def podcast(id, %{from: from, to: to}, %{name: name, filters: filters}) do
+    podcast(id, from, to, name, nil, filters)
   end
-  def podcast(id, from, to, grouping_name, grouping_limit \\ nil) do
+  def podcast(id, from, to, grouping_name, limit \\ nil, filters \\ nil) do
     table(grouping_name)
     |> select([t], %{count: sum(t.count)})
     |> select_grouping(grouping_name)
     |> where_podcast(id)
     |> where_timeframe(from, to)
+    |> where_filters(grouping_name, filters)
     |> order_by([t], [desc: sum(t.count)])
-    |> with_limit(grouping_limit)
+    |> with_limit(limit)
     |> Castle.Repo.NewRelic.all
   end
 
-  def episode(id, %{from: from, to: to}, %{name: grouping_name}) do
-    episode(id, from, to, grouping_name)
+  def episode(id, %{from: from, to: to}, %{name: name, filters: filters}) do
+    episode(id, from, to, name, nil, filters)
   end
-  def episode(id, from, to, grouping_name, grouping_limit \\ nil) do
+  def episode(id, from, to, grouping_name, limit \\ nil, filters \\ nil) do
     table(grouping_name)
     |> select([t], %{count: sum(t.count)})
     |> select_grouping(grouping_name)
     |> where_episode(id)
     |> where_timeframe(from, to)
+    |> where_filters(grouping_name, filters)
     |> order_by([t], [desc: sum(t.count)])
-    |> with_limit(grouping_limit)
+    |> with_limit(limit)
     |> Castle.Repo.NewRelic.all
   end
 
@@ -57,6 +59,12 @@ defmodule Castle.Rollup.Query.GeoTotals do
   defp where_timeframe(query, from, to) do
     where(query, [t], t.day >= ^from and t.day < ^to)
   end
+
+  defp where_filters(query, "geosubdiv", %{geocountry: codes}) do
+    codes_list = String.split(codes, "|", trim: true)
+    where(query, [t], t.country_iso_code in ^codes_list)
+  end
+  defp where_filters(query, _, _), do: query
 
   defp with_limit(query, nil), do: query
   defp with_limit(query, num), do: limit(query, ^num)

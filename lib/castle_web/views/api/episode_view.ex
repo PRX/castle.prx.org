@@ -48,11 +48,11 @@ defmodule CastleWeb.API.EpisodeView do
         templated: true,
       },
       "prx:ranks": %{
-        href: api_episode_rank_path(conn, :index, episode.id) <> "{?interval,from,to,group,limit}",
+        href: api_episode_rank_path(conn, :index, episode.id) <> "{?interval,from,to,group,limit,filters}",
        templated: true,
       },
       "prx:totals": %{
-        href: api_episode_total_path(conn, :index, episode.id) <> "{?from,to,group}",
+        href: api_episode_total_path(conn, :index, episode.id) <> "{?from,to,group,filters}",
         templated: true,
       },
     } |> episode_image_link(episode.image_url)
