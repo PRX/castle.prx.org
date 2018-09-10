@@ -10,7 +10,7 @@ This project follows the [standards for PRX services](https://github.com/PRX/met
 
 ### Local
 
-To get started, make sure you have completed the [Phoenix install guide](http://www.phoenixframework.org/docs/installation).  Then:
+To get started, make sure you have completed the [Phoenix install guide](https://hexdocs.pm/phoenix/installation.html#content).  Then:
 
 ```
 # Get the code
@@ -125,6 +125,7 @@ mix castle.rollup.monthly [--lock,--date [YYYYMMDD],--count [INT]]
 mix castle.rollup.geocountries [--lock,--date [YYYYMMDD],--count [INT]]
 mix castle.rollup.geometros [--lock,--date [YYYYMMDD],--count [INT]]
 mix castle.rollup.geosubdivs [--lock,--date [YYYYMMDD],--count [INT]]
+mix castle.rollup.agents [--lock,--date [YYYYMMDD],--count [INT]]
 ```
 
 ## Testing
