@@ -79,6 +79,7 @@ defmodule Castle.Label.Agent do
     74 => "Sonos OS",
     75 => "Podbbang",
     76 => "HardCast",
+    77 => "Spotify",
   }
 
   def find(nil), do: "Other"
