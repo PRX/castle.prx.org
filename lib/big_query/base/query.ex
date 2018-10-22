@@ -21,15 +21,15 @@ defmodule BigQuery.Base.Query do
 
   defp post_params(sql, queryParams) do
     %{
-      "kind": "bigquery#queryRequest",
-      "query": sql,
-      "defaultDataset": %{
-        "datasetId": Env.get(:bq_dataset),
-        "projectId": Env.get(:bq_project_id)
+      kind: "bigquery#queryRequest",
+      query: sql,
+      defaultDataset: %{
+        datasetId: Env.get(:bq_dataset),
+        projectId: Env.get(:bq_project_id)
       },
-      "useLegacySql": false,
-      "parameterMode": "NAMED",
-      "queryParameters": parameterize(queryParams),
+      useLegacySql: false,
+      parameterMode: "NAMED",
+      queryParameters: parameterize(queryParams),
     }
   end
   defp post_params(sql, queryParams, nil) do

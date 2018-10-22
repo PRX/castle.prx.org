@@ -15,10 +15,10 @@ defmodule Castle.API.EpisodeViewTest do
 
     assert doc.count == 2
     assert doc.total == 2
-    assert doc[:"_links"][:"first"].href == "/api/v1/episodes?per=2"
-    assert doc[:"_links"][:"last"].href == "/api/v1/episodes?per=2"
+    assert doc[:_links][:first].href == "/api/v1/episodes?per=2"
+    assert doc[:_links][:last].href == "/api/v1/episodes?per=2"
 
-    embedded = doc[:"_embedded"][:"prx:items"]
+    embedded = doc[:_embedded][:"prx:items"]
     assert length(embedded) == 2
     assert hd(embedded).id == "guid1"
     assert hd(embedded).title == "one"
@@ -40,6 +40,6 @@ defmodule Castle.API.EpisodeViewTest do
     assert doc.downloads.yesterday == 2
     assert doc.downloads.this7days == 3
     assert doc.downloads.previous7days == 4
-    assert doc[:"_links"][:"prx:podcast"].href == "/api/v1/podcasts/1"
+    assert doc[:_links][:"prx:podcast"].href == "/api/v1/podcasts/1"
   end
 end
