@@ -4,7 +4,7 @@ defmodule Castle.Redis.Pool do
   def child_spec(_args) do
     children =
       for i <- 0..(@pool_size - 1) do
-        Supervisor.child_spec({Redix, name: :"redix_#{i}"}, id: {Redix, i})
+        Supervisor.child_spec({Redix, config(i)}, id: {Redix, i})
       end
 
     %{
@@ -12,6 +12,15 @@ defmodule Castle.Redis.Pool do
       type: :supervisor,
       start: {Supervisor, :start_link, [children, [strategy: :one_for_one]]}
     }
+  end
+
+  def config(num) do
+    [
+      host: Env.get(:redis_host),
+      port: Env.get(:redis_port),
+      database: Application.get_env(:castle, :redis_database),
+      name: :"redix_#{num}",
+    ] |> Enum.filter(fn({_key, val}) -> val end)
   end
 
   def command(command) do
