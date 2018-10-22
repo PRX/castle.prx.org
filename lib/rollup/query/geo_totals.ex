@@ -13,7 +13,7 @@ defmodule Castle.Rollup.Query.GeoTotals do
     |> where_filters(grouping_name, filters)
     |> order_by([t], [desc: sum(t.count)])
     |> with_limit(limit)
-    |> Castle.Repo.NewRelic.all
+    |> Castle.Repo.all
   end
 
   def episode(id, %{from: from, to: to}, %{name: name, filters: filters}) do
@@ -28,7 +28,7 @@ defmodule Castle.Rollup.Query.GeoTotals do
     |> where_filters(grouping_name, filters)
     |> order_by([t], [desc: sum(t.count)])
     |> with_limit(limit)
-    |> Castle.Repo.NewRelic.all
+    |> Castle.Repo.all
   end
 
   defp table("geocountry"), do: Castle.DailyGeoCountry

@@ -30,7 +30,7 @@ defmodule Castle.Plugs.AuthEpisode do
     case Ecto.UUID.cast(id) do
       :error -> nil
       {:ok, uuid} ->
-        Castle.Repo.NewRelic.one from e in Castle.Episode,
+        Castle.Repo.one from e in Castle.Episode,
           join: p in Castle.Podcast,
           where: e.id == ^uuid and p.id == e.podcast_id,
           select: {e, p.account_id},

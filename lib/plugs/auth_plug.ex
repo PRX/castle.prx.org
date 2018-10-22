@@ -19,7 +19,7 @@ defmodule Castle.Plugs.Auth do
     PrxAuth.Plug.call(conn, required: true, iss: &Castle.Plugs.Auth.id_host/0)
   end
   defp call_auth(conn, "*") do
-    accounts = Castle.Repo.NewRelic.all(from p in Castle.Podcast, select: p.account_id,
+    accounts = Castle.Repo.all(from p in Castle.Podcast, select: p.account_id,
       distinct: true, where: not is_nil(p.account_id))
     Map.put conn, :prx_user, make_user(@fake_user_id, accounts)
   end

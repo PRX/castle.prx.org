@@ -26,13 +26,6 @@ defmodule Castle.Application do
     end
     children = children ++ redix_workers
 
-    # Make sure newrelic is configured correctly
-    if Env.get(:new_relic_key) && Env.get(:new_relic_name) do
-      Application.put_env(:new_relixir, :license_key, Env.get(:new_relic_key))
-      Application.put_env(:new_relixir, :application_name, Env.get(:new_relic_name))
-      Application.put_env(:new_relixir, :active, true)
-    end
-
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Castle.Supervisor]
