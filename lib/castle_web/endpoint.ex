@@ -1,7 +1,9 @@
 defmodule CastleWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :castle
 
-  socket "/socket", CastleWeb.UserSocket
+  socket "/socket", CastleWeb.UserSocket,
+    websocket: true,
+    longpoll: true
 
   # Serve at "/" the static files from "priv/static" directory.
   #
