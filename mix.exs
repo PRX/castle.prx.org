@@ -30,7 +30,7 @@ defmodule Castle.Mixfile do
   defp apps, do: [
     :phoenix, :phoenix_pubsub, :phoenix_ecto, :postgrex, :phoenix_html,
     :cowboy, :logger, :gettext, :jose, :httpoison, :timex, :corsica, :prx_auth,
-    :memoize
+    :memoize, :quantum
   ]
 
   # Specifies which paths to compile per environment.
@@ -52,15 +52,15 @@ defmodule Castle.Mixfile do
      {:plug_cowboy, "~> 2.0"},
      {:plug, "~> 1.7"},
      {:jose, "~> 1.8"},
-     {:httpoison, "~> 0.13"},
+     {:httpoison, "~> 1.0", override: true},
      {:uuid, "~> 1.1"},
      {:timex, "~> 3.0"},
      {:redix, ">= 0.6.0"},
-     {:corsica, "~> 0.5"},
+     {:corsica, "~> 1.0"},
      {:prx_auth, "~> 0.0.1"},
      {:memoize, "~> 1.2"},
      {:quantum, "~> 2.2"},
-     {:dotenv, "~> 2.1", only: [:dev, :test]},
+     {:dotenv, "~> 3.0", only: [:dev, :test]},
      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
      {:mock, "~> 0.3.1", only: :test}]
   end
@@ -74,7 +74,7 @@ defmodule Castle.Mixfile do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      "test": ["ecto.create --quiet", "ecto.migrate", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end
 end
