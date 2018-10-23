@@ -20,18 +20,13 @@ defmodule Castle.Mixfile do
   def application do
     [
       mod: {Castle.Application, []},
-      applications: apps(Mix.env),
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: extras(Mix.env)
     ]
   end
-  defp apps(:dev), do: [:dotenv | apps()]
-  defp apps(:test), do: [:dotenv | apps()]
-  defp apps(_), do: apps()
-  defp apps, do: [
-    :phoenix, :phoenix_pubsub, :phoenix_ecto, :postgrex, :phoenix_html,
-    :cowboy, :logger, :gettext, :jose, :httpoison, :timex, :corsica, :prx_auth,
-    :memoize, :quantum
-  ]
+  defp extras(:dev), do: [:dotenv | extras()]
+  defp extras(:test), do: [:dotenv | extras()]
+  defp extras(_), do: extras()
+  defp extras, do: [:logger, :runtime_tools]
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
@@ -60,6 +55,7 @@ defmodule Castle.Mixfile do
      {:prx_auth, "~> 0.0.1"},
      {:memoize, "~> 1.2"},
      {:quantum, "~> 2.2"},
+     {:new_relic_phoenix, "~> 0.1.0-rc"},
      {:dotenv, "~> 3.0", only: [:dev, :test]},
      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
      {:mock, "~> 0.3.1", only: :test}]
