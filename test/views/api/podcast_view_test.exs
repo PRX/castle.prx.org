@@ -13,10 +13,10 @@ defmodule Castle.API.PodcastViewTest do
 
     assert doc.count == 2
     assert doc.total == 2
-    assert doc[:"_links"][:"first"].href == "/api/v1/podcasts?per=2"
-    assert doc[:"_links"][:"last"].href == "/api/v1/podcasts?per=2"
+    assert doc[:_links][:first].href == "/api/v1/podcasts?per=2"
+    assert doc[:_links][:last].href == "/api/v1/podcasts?per=2"
 
-    embedded = doc[:"_embedded"][:"prx:items"]
+    embedded = doc[:_embedded][:"prx:items"]
     assert length(embedded) == 2
     assert hd(embedded).id == 1
     assert hd(embedded).title == "one"

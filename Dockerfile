@@ -1,4 +1,4 @@
-FROM bitwalker/alpine-elixir:1.6.0
+FROM bitwalker/alpine-elixir:1.7.3
 
 MAINTAINER PRX <sysadmin@prx.org>
 LABEL org.prx.app="yes"

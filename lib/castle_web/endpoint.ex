@@ -1,7 +1,10 @@
 defmodule CastleWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :castle
+  use NewRelic.Phoenix.Transaction
 
-  socket "/socket", CastleWeb.UserSocket
+  socket "/socket", CastleWeb.UserSocket,
+    websocket: true,
+    longpoll: true
 
   # Serve at "/" the static files from "priv/static" directory.
   #

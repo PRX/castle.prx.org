@@ -4,34 +4,15 @@ defmodule Castle.Application do
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
-    import Supervisor.Spec
+    import Supervisor.Spec, warn: false
 
     # Define workers and child supervisors to be supervised
     children = [
       supervisor(Castle.Repo, []),
       supervisor(CastleWeb.Endpoint, []),
-      worker(Castle.Scheduler, [])
+      worker(Castle.Scheduler, []),
+      Castle.Redis.Pool,
     ]
-
-    # Create the redix children list of workers:
-    redix_config =
-      [
-        host: Env.get(:redis_host),
-        port: Env.get(:redis_port),
-        database: Application.get_env(:castle, :redis_database)
-      ] |> Enum.filter(fn({_key, val}) -> val end)
-    redix_size = 5
-    redix_workers = for i <- 0..(redix_size - 1) do
-      worker(Redix, [redix_config, [name: :"redix_#{i}"]], id: {Redix, i})
-    end
-    children = children ++ redix_workers
-
-    # Make sure newrelic is configured correctly
-    if Env.get(:new_relic_key) && Env.get(:new_relic_name) do
-      Application.put_env(:new_relixir, :license_key, Env.get(:new_relic_key))
-      Application.put_env(:new_relixir, :application_name, Env.get(:new_relic_name))
-      Application.put_env(:new_relixir, :active, true)
-    end
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options

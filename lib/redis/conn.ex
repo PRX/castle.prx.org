@@ -13,7 +13,7 @@ defmodule Castle.Redis.Conn do
     |> Enum.map(&Tuple.to_list/1)
     |> pipeline()
     |> decode()
-    |> Enum.chunk(2)
+    |> Enum.chunk_every(2)
   end
   def hget(key, field) do
     command(["HGET", key, field]) |> decode()
@@ -21,7 +21,7 @@ defmodule Castle.Redis.Conn do
 
   def hgetall(key) do
     command(["HGETALL", key])
-    |> Enum.chunk(2)
+    |> Enum.chunk_every(2)
     |> Enum.into(%{}, fn([k, v]) -> {k, decode(v)} end)
     |> Map.delete("_")
   end
@@ -108,21 +108,17 @@ defmodule Castle.Redis.Conn do
   end
 
   def command(command) do
-    case Redix.command(:"redix_#{random_index()}", command) do
+    case Castle.Redis.Pool.command(command) do
       {:ok, val} -> val
       _ -> nil
     end
   end
 
   def pipeline(commands) do
-    case Redix.pipeline(:"redix_#{random_index()}", commands) do
+    case Castle.Redis.Pool.pipeline(commands) do
       {:ok, vals} -> vals
       _ -> Enum.map(commands, fn(_) -> nil end)
     end
-  end
-
-  defp random_index() do
-    rem(System.unique_integer([:positive]), 5)
   end
 
   defp expire_cmd(_key, 0), do: nil

@@ -1,6 +1,5 @@
 defmodule CastleWeb.Router do
   use CastleWeb, :router
-  use NewRelixir.Plug.Exception
 
   pipeline :api, do: plug :accepts, ["json", "hal"]
   pipeline :logged, do: plug Plug.Logger

@@ -13,7 +13,7 @@ defmodule Castle.Plugs.AuthPodcast do
   end
 
   defp get_podcast(conn, podcast_id, user_auths) do
-    case Castle.Repo.NewRelic.get Castle.Podcast, cast_id(podcast_id) do
+    case Castle.Repo.get Castle.Podcast, cast_id(podcast_id) do
       nil ->
         conn |> send_resp(404, "Podcast #{podcast_id} not found") |> halt()
       podcast ->

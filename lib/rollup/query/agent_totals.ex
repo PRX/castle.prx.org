@@ -12,7 +12,7 @@ defmodule Castle.Rollup.Query.AgentTotals do
     |> where_timeframe(from, to)
     |> order_by([t], [desc: sum(t.count)])
     |> with_limit(grouping_limit)
-    |> Castle.Repo.NewRelic.all
+    |> Castle.Repo.all
   end
 
   def episode(id, %{from: from, to: to}, %{name: grouping_name}) do
@@ -26,7 +26,7 @@ defmodule Castle.Rollup.Query.AgentTotals do
     |> where_timeframe(from, to)
     |> order_by([t], [desc: sum(t.count)])
     |> with_limit(grouping_limit)
-    |> Castle.Repo.NewRelic.all
+    |> Castle.Repo.all
   end
 
   defp select_grouping(query, "agentname") do

@@ -14,7 +14,7 @@ defmodule Castle.Rollup.Query.GeoRanks do
       |> where_timeframe(from, to)
       |> where_filters(grouping_name, filters)
       |> order_by([t], [asc: fragment("time"), asc: fragment("grouping")])
-      |> Castle.Repo.NewRelic.all
+      |> Castle.Repo.all
     {top_n ++ [nil], data}
   end
 
@@ -30,7 +30,7 @@ defmodule Castle.Rollup.Query.GeoRanks do
       |> where_timeframe(from, to)
       |> where_filters(grouping_name, filters)
       |> order_by([t], [asc: fragment("time"), asc: fragment("grouping")])
-      |> Castle.Repo.NewRelic.all
+      |> Castle.Repo.all
     {top_n ++ [nil], data}
   end
 

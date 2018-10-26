@@ -25,11 +25,11 @@ defmodule Castle.Episode do
 
   def recent(pid, limit, page) when is_integer(pid) do
     offset = (page - 1) * limit
-    Castle.Repo.NewRelic.all(from e in Castle.Episode, where: e.podcast_id == ^pid, limit: ^limit, offset: ^offset, order_by: [desc: :published_at])
+    Castle.Repo.all(from e in Castle.Episode, where: e.podcast_id == ^pid, limit: ^limit, offset: ^offset, order_by: [desc: :published_at])
   end
   def recent(accounts, limit, page) when is_list(accounts) do
     offset = (page - 1) * limit
-    Castle.Repo.NewRelic.all from e in Castle.Episode,
+    Castle.Repo.all from e in Castle.Episode,
       join: p in Castle.Podcast,
       where: e.podcast_id == p.id and p.account_id in ^accounts,
       order_by: [desc: :published_at],
@@ -38,10 +38,10 @@ defmodule Castle.Episode do
   end
 
   def total(pid) when is_integer(pid) do
-    Castle.Repo.NewRelic.one(from e in Castle.Episode, where: e.podcast_id == ^pid, select: count("*"))
+    Castle.Repo.one(from e in Castle.Episode, where: e.podcast_id == ^pid, select: count("*"))
   end
   def total(accounts) when is_list(accounts) do
-    Castle.Repo.NewRelic.one from e in Castle.Episode,
+    Castle.Repo.one from e in Castle.Episode,
       join: p in Castle.Podcast,
       where: e.podcast_id == p.id and p.account_id in ^accounts,
       select: count("*")
