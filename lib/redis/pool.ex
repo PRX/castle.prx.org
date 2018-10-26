@@ -1,9 +1,9 @@
 defmodule Castle.Redis.Pool do
-  @pool_size 5
+  @default_pool_size 5
 
   def child_spec(_args) do
     children =
-      for i <- 0..(@pool_size - 1) do
+      for i <- 0..(pool_size() - 1) do
         Supervisor.child_spec({Redix, config(i)}, id: {Redix, i})
       end
 
@@ -32,6 +32,10 @@ defmodule Castle.Redis.Pool do
   end
 
   defp random_index() do
-    rem(System.unique_integer([:positive]), @pool_size)
+    rem(System.unique_integer([:positive]), pool_size())
+  end
+
+  defp pool_size do
+    Env.get(:redis_pool_size) || @default_pool_size
   end
 end
