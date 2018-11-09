@@ -20,6 +20,7 @@ defmodule Mix.Tasks.Castle.Rollup.Geocountries do
     Logger.info "Rollup.DailyGeoCountry.#{rollup_log.date} querying"
     {results, meta} = rollup_log.date |> Timex.to_datetime() |> BigQuery.Rollup.daily_geo_countries()
     Logger.info "Rollup.DailyGeoCountry.#{rollup_log.date} upserting #{length(results)}"
+    Castle.Repo.create_partition!(Castle.DailyGeoCountry, rollup_log.date)
     Castle.DailyGeoCountry.upsert_all(results)
     case meta do
       %{complete: true} ->

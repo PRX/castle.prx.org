@@ -20,7 +20,7 @@ defmodule Mix.Tasks.Castle.Rollup.Hourly do
     Logger.info "Rollup.HourlyDownloads.#{rollup_log.date} querying"
     {results, meta} = rollup_log.date |> Timex.to_datetime() |> BigQuery.Rollup.hourly_downloads()
     Logger.info "Rollup.HourlyDownloads.#{rollup_log.date} upserting #{length(results)}"
-    Castle.HourlyDownload.partition!(rollup_log.date)
+    Castle.Repo.create_partition!(Castle.HourlyDownload, rollup_log.date)
     Castle.HourlyDownload.upsert_all(results)
     case meta do
       %{complete: true} ->

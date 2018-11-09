@@ -23,13 +23,14 @@ defmodule Castle.DailyGeoSubdiv do
   def upsert(row), do: upsert_all([row])
 
   def upsert_all([]), do: 0
-  def upsert_all(rows) when length(rows) > 5000 do
-    Enum.chunk_every(rows, 5000)
+  def upsert_all(rows) when length(rows) > 10000 do
+    Enum.chunk_every(rows, 10000)
     |> Enum.map(&upsert_all/1)
     |> Enum.sum()
   end
   def upsert_all(rows) do
-    Castle.Repo.insert_all Castle.DailyGeoSubdiv, rows
+    Castle.Repo.insert_all Castle.DailyGeoSubdiv, rows, on_conflict: :replace_all,
+      conflict_target: [:episode_id, :country_iso_code, :subdivision_1_iso_code, :day]
     length(rows)
   end
 end

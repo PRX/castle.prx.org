@@ -24,13 +24,14 @@ defmodule Castle.DailyAgent do
   def upsert(row), do: upsert_all([row])
 
   def upsert_all([]), do: 0
-  def upsert_all(rows) when length(rows) > 5000 do
-    Enum.chunk_every(rows, 5000)
+  def upsert_all(rows) when length(rows) > 10000 do
+    Enum.chunk_every(rows, 10000)
     |> Enum.map(&upsert_all/1)
     |> Enum.sum()
   end
   def upsert_all(rows) do
-    Castle.Repo.insert_all Castle.DailyAgent, rows
+    Castle.Repo.insert_all Castle.DailyAgent, rows, on_conflict: :replace_all,
+      conflict_target: [:episode_id, :agent_name_id, :agent_type_id, :agent_os_id, :day]
     length(rows)
   end
 end
