@@ -27,7 +27,21 @@ defmodule Castle.HourlyDownload do
     |> Enum.sum()
   end
   def upsert_all(rows) do
-    Castle.Repo.insert_all Castle.HourlyDownload, rows
+    Castle.Repo.insert_all Castle.HourlyDownload, rows,
+      on_conflict: :replace_all, conflict_target: [:episode_id, :dtim]
     length(rows)
+  end
+
+  def partition!(date) do
+    start = Timex.beginning_of_month(date)
+    stop = Timex.shift(start, months: 1)
+    {:ok, part_str} = Timex.format(date, "{YYYY}{0M}")
+    {:ok, start_str} = Timex.format(start, "{YYYY}-{0M}-{0D}")
+    {:ok, stop_str} = Timex.format(stop, "{YYYY}-{0M}-{0D}")
+    Ecto.Adapters.SQL.query! Castle.Repo, """
+      CREATE TABLE IF NOT EXISTS hourly_downloads_#{part_str}
+      PARTITION OF hourly_downloads
+      FOR VALUES FROM ('#{start_str}') TO ('#{stop_str}');
+    """
   end
 end
