@@ -1,7 +1,7 @@
 defmodule Castle.Repo.Migrations.CreateDailyAgents do
   use Ecto.Migration
 
-  def change do
+  def up do
     create table(:daily_agents, primary_key: false) do
       add :podcast_id, :integer, null: false
       add :episode_id, :uuid, null: false
