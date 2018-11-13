@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Castle.Episode do
   use Ecto.Schema
   import Ecto.Changeset
@@ -23,28 +25,43 @@ defmodule Castle.Episode do
     |> validate_required([:podcast_id])
   end
 
-  def recent(pid, limit, page) when is_integer(pid) do
-    offset = (page - 1) * limit
-    Castle.Repo.all(from e in Castle.Episode, where: e.podcast_id == ^pid, limit: ^limit, offset: ^offset, order_by: [desc: :published_at])
-  end
-  def recent(accounts, limit, page) when is_list(accounts) do
-    offset = (page - 1) * limit
-    Castle.Repo.all from e in Castle.Episode,
-      join: p in Castle.Podcast,
-      where: e.podcast_id == p.id and p.account_id in ^accounts,
-      order_by: [desc: :published_at],
-      limit: ^limit,
-      offset: ^offset
+  def paginated_episodes(query, per, page) do
+    offset = (page - 1) * per
+    query
+    |> offset(^offset)
+    |> limit(^per)
+    |> Castle.Repo.all
   end
 
-  def total(pid) when is_integer(pid) do
-    Castle.Repo.one(from e in Castle.Episode, where: e.podcast_id == ^pid, select: count("*"))
+  def recent_query(pid) when is_integer(pid) do
+    Logger.debug "RECENT query #{inspect(pid)}"
+    from e in Castle.Episode,
+      where: e.podcast_id == ^pid,
+      order_by: [desc: :published_at]
   end
-  def total(accounts) when is_list(accounts) do
-    Castle.Repo.one from e in Castle.Episode,
+
+  def recent_query(accounts) when is_list (accounts) do
+    Logger.debug "RECENT query #{inspect(accounts)}"
+    from e in Castle.Episode,
       join: p in Castle.Podcast,
       where: e.podcast_id == p.id and p.account_id in ^accounts,
-      select: count("*")
+      order_by: [desc: :published_at]
+  end
+
+  defp prefix_search(term), do: String.replace(term, ~r/\W/u, "|") <> ":*"
+
+  def filter_title_search(queryable, query) when is_nil(query) do
+    queryable
+  end
+  def filter_title_search(queryable, query) do
+    queryable
+    |> where(fragment(
+      "to_tsvector('english', coalesce(title, '') || ' ' || coalesce(subtitle, '')) @@ to_tsquery(?)",
+      ^prefix_search(query)))
+  end
+
+  def total(queryable) do
+    Castle.Repo.one(from r in subquery(queryable), select: count(r.id))
   end
 
   def max_updated_at() do

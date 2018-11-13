@@ -1,21 +1,28 @@
 defmodule CastleWeb.API.EpisodeController do
   use CastleWeb, :controller
   alias Castle.Rollup.Query.Totals, as: Totals
+  import CastleWeb.Search
 
   @redis Application.get_env(:castle, :redis)
 
   def index(%{assigns: %{podcast: podcast}} = conn, params) do
     {page, per} = parse_paging(params)
-    episodes = Castle.Episode.recent(podcast.id, per, page)
-    total = Castle.Episode.total(podcast.id)
+    {search} = parse_search(params)
+    queryable = Castle.Episode.recent_query(podcast.id)
+                |> Castle.Episode.filter_title_search(search)
+    total = Castle.Episode.total(queryable)
+    episodes = Castle.Episode.paginated_episodes(queryable, per, page)
     paging = %{page: page, per: per, total: total, podcast_id: podcast.id}
     render conn, "index.json", conn: conn, episodes: episodes, paging: paging
   end
   def index(%{prx_user: user} = conn, params) do
     {page, per} = parse_paging(params)
+    {search} = parse_search(params)
     accounts = Map.keys(user.auths)
-    episodes = Castle.Episode.recent(accounts, per, page)
-    total = Castle.Episode.total(accounts)
+    queryable = Castle.Episode.recent_query(accounts)
+                |> Castle.Episode.filter_title_search(search)
+    total = Castle.Episode.total(queryable)
+    episodes = Castle.Episode.paginated_episodes(queryable, per, page)
     paging = %{page: page, per: per, total: total}
     render conn, "index.json", conn: conn, episodes: episodes, paging: paging
   end
