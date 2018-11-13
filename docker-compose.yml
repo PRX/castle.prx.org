@@ -1,4 +1,6 @@
 castle:
+  tty: true
+  stdin_open: true
   build: .
   volumes:
     - ./_build_docker_compose:/opt/app/_build
