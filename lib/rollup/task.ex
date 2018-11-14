@@ -20,6 +20,9 @@ defmodule Castle.Rollup.Task do
       @lock_success_ttl 200
       @default_count 5
 
+      # number of seconds after the hour to consider data "complete"
+      @buffer_seconds 900
+
       def rollup(), do: rollup(%{})
       def rollup(args) when is_list(args) do
         Enum.into(args, %{}) |> rollup()
@@ -56,8 +59,18 @@ defmodule Castle.Rollup.Task do
       defp find_rollup_logs(_opts), do: find_rollup_logs(%{count: get_attribute(:default_count)})
 
       defp do_rollup(rollup_log) do
-        log(rollup_log.date, "querying")
-        {results, meta} = rollup_log.date |> Timex.to_datetime() |> query()
+        from = Castle.RollupLog.query_from_time(rollup_log)
+        if from.hour == 0 do
+          log(rollup_log.date, "querying")
+        else
+          {:ok, hours} = Timex.format(from, "{h24}:{m}:{s}")
+          log(rollup_log.date, "querying > #{hours}")
+        end
+        query(from) |> do_upsert(rollup_log)
+        rollup_log.date
+      end
+
+      defp do_upsert({results, meta}, rollup_log) do
         log(rollup_log.date, "upserting #{length(results)}")
         upsert(results)
         case meta do
@@ -71,7 +84,6 @@ defmodule Castle.Rollup.Task do
             set_incomplete(rollup_log)
             log(rollup_log.date, "incomplete")
         end
-        rollup_log.date
       end
 
       defp set_complete(rollup_log) do

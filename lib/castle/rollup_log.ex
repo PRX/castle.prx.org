@@ -26,6 +26,19 @@ defmodule Castle.RollupLog do
     Castle.Repo.insert!(log, on_conflict: conflict, conflict_target: target)
   end
 
+  def query_from_time(rollup_log) do
+    if rollup_log.updated_at && rollup_log.date == Timex.today do
+      from = Timex.shift(rollup_log.updated_at, seconds: -@buffer_seconds)
+      if from.day == rollup_log.date.day do
+        Castle.Bucket.Hourly.floor(from)
+      else
+        Timex.to_datetime(rollup_log.date)
+      end
+    else
+      Timex.to_datetime(rollup_log.date)
+    end
+  end
+
   def find_missing_days(tbl, lim), do: find_missing_days(tbl, lim, default_to_date())
   def find_missing_days(table_name, limit, to_date) do
     find_missing table_name, limit, """
