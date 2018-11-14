@@ -22,8 +22,8 @@ defmodule Castle.DailyGeoCountry do
   def upsert(row), do: upsert_all([row])
 
   def upsert_all([]), do: 0
-  def upsert_all(rows) when length(rows) > 10000 do
-    Enum.chunk_every(rows, 10000)
+  def upsert_all(rows) when length(rows) > 5000 do
+    Enum.chunk_every(rows, 5000)
     |> Enum.map(&upsert_all/1)
     |> Enum.sum()
   end
