@@ -16,7 +16,8 @@ config :castle, CastleWeb.Endpoint,
   secret_key_base: "+DVZXtoG6yRaQrhCNCPNjdyhioRgRlrKMUDDlZkPLXCghP4NCJ+JafxydZD/QnOq",
   render_errors: [view: CastleWeb.ErrorView, accepts: ~w(html json hal)],
   pubsub: [name: Castle.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+           adapter: Phoenix.PubSub.PG2],
+  http: [compress: true]
 
 # Environment config (precompiled OR from env variables)
 # MUST release with RELX_REPLACE_OS_VARS=true
