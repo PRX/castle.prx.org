@@ -66,12 +66,12 @@ defmodule CastleWeb.Paging do
     Map.put links, :last, %{href: make_link(base, last_page, per, search)}
   end
 
-  defp add_search_param(link, search, has_params) when search == nil, do: link
+  defp add_search_param(link, search, _) when search == nil, do: link
   defp add_search_param(link, search, has_params) when has_params == true, do: "#{link}&search=#{URI.encode(search)}"
   defp add_search_param(link, search, has_params) when has_params == false, do: "#{link}?search=#{URI.encode(search)}"
 
   defp make_link(base, page, per, search) do
-    link = case {page, per} do
+    case {page, per} do
       {1, @default_per} ->    add_search_param(base, search, false)
       {1, per} ->             add_search_param("#{base}?per=#{per}", search,  true)
       {prev, @default_per} -> add_search_param("#{base}?page=#{prev}", search,  true)

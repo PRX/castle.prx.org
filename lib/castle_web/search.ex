@@ -2,8 +2,21 @@ defmodule CastleWeb.Search do
 
   import Ecto.Query
 
-  # Join search terms with an "|" OR, append a prefix for typeahead searching
-  defp prefix_search(term), do: String.replace(term, ~r/\W/u, "|") <> ":*"
+  def prefix_search(query) do
+    ends_with_whitespace = Regex.match?(~r/\s$/, query)
+
+    # append a suffix wildcard for prefix searching
+    query = if !ends_with_whitespace do
+      query <> ":*"
+    else
+      query
+    end
+
+    query = String.trim(query)
+
+    # Join search terms with an "|" OR
+    String.replace(query, ~r/[\s]+/u, "|")
+  end
 
   def filter_title_search(queryable, query) when is_nil(query) do
     queryable
