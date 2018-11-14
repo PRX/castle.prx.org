@@ -15,21 +15,20 @@ defmodule Mix.Tasks.Castle.Rollup.Monthly do
       switches: [lock: :boolean, date: :string, count: :integer],
       aliases: [l: :lock, d: :date, c: :count]
 
-    do_rollup(opts, &rollup/1)
+    rollup(opts)
   end
 
-  def rollup(rollup_log) do
-    Logger.info "Rollup.MonthlyDownloads.#{rollup_log.date} querying"
-    results = rollup_log.date |> Castle.Rollup.Query.MonthlyDownloads.from_hourly()
-    Logger.info "Rollup.MonthlyDownloads.#{rollup_log.date} upserting #{length(results)}"
+  def log(date, msg) do
+    Logger.info "Rollup.MonthlyDownloads.#{date} #{msg}"
+  end
+
+  def query(time) do
+    results = Castle.Rollup.Query.MonthlyDownloads.from_hourly(time)
+    {results, %{complete: is_past_month?(time)}}
+  end
+
+  def upsert(results) do
     Castle.MonthlyDownload.upsert_all(results)
-    if is_past_month?(rollup_log.date) do
-      set_complete(rollup_log)
-      Logger.info "Rollup.MonthlyDownloads.#{rollup_log.date} complete"
-    else
-      set_incomplete(rollup_log)
-      Logger.info "Rollup.MonthlyDownloads.#{rollup_log.date} incomplete"
-    end
   end
 
   def is_past_month?(date, now \\ Timex.now) do

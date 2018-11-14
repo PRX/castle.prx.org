@@ -21,7 +21,7 @@ defmodule Castle.DataCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Castle.Repo
+      import Castle.Repo, except: [query: 1]
       import Castle.DataCase
     end
   end
