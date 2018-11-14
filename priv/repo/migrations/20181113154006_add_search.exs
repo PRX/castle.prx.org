@@ -10,7 +10,7 @@ defmodule Castle.Repo.Migrations.AddSearch do
 
     execute("""
       CREATE INDEX index_podcasts_for_search_idx
-      ON episodes
+      ON podcasts
       USING gin(to_tsvector('english', COALESCE(title, '') || ' ' || COALESCE(subtitle, '')  ));
       """)
   end
