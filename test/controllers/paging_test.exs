@@ -43,4 +43,14 @@ defmodule Castle.WebPagingTest do
     assert links.first.href == "/api/v1/foobar"
     assert links.last.href == "/api/v1/foobar?page=3"
   end
+
+  test "includes search params in links" do
+    links = paging_links("/api/v1/foobar", %{page: 3, per: 10, total: 22, search: "foo"})
+    assert links.prev.href == "/api/v1/foobar?page=2&search=foo"
+    assert links.first.href == "/api/v1/foobar?search=foo"
+    assert links.last.href == "/api/v1/foobar?page=3&search=foo"
+    # first page
+    links = paging_links("/api/v1/foobar", %{page: 2, per: 10, total: 22, search: "foo"})
+    assert links.prev.href == "/api/v1/foobar?search=foo"
+  end
 end
