@@ -25,14 +25,6 @@ defmodule Castle.Episode do
     |> validate_required([:podcast_id])
   end
 
-  def paginated_episodes(query, per, page) do
-    offset = (page - 1) * per
-    query
-    |> offset(^offset)
-    |> limit(^per)
-    |> Castle.Repo.all
-  end
-
   def recent_query(pid) when is_integer(pid) do
     Logger.debug "RECENT query #{inspect(pid)}"
     from e in Castle.Episode,
@@ -46,18 +38,6 @@ defmodule Castle.Episode do
       join: p in Castle.Podcast,
       where: e.podcast_id == p.id and p.account_id in ^accounts,
       order_by: [desc: :published_at]
-  end
-
-  defp prefix_search(term), do: String.replace(term, ~r/\W/u, "|") <> ":*"
-
-  def filter_title_search(queryable, query) when is_nil(query) do
-    queryable
-  end
-  def filter_title_search(queryable, query) do
-    queryable
-    |> where(fragment(
-      "to_tsvector('english', coalesce(title, '') || ' ' || coalesce(subtitle, '')) @@ to_tsquery(?)",
-      ^prefix_search(query)))
   end
 
   def total(queryable) do

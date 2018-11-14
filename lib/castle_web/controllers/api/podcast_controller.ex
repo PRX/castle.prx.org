@@ -6,9 +6,13 @@ defmodule CastleWeb.API.PodcastController do
 
   def index(%{prx_user: user} = conn, params) do
     {page, per} = parse_paging(params)
+    {search} = CastleWeb.Search.parse_search(params)
     accounts = Map.keys(user.auths)
-    podcasts = Castle.Podcast.recent(accounts, per, page)
-    total = Castle.Podcast.total(accounts)
+    queryable = Castle.Podcast.recent_query(accounts)
+                |> CastleWeb.Search.filter_title_search(search)
+    total = Castle.Podcast.total(queryable)
+    podcasts = paginated_results(queryable, per, page)
+    total = Castle.Podcast.total(queryable)
     paging = %{page: page, per: per, total: total}
     render conn, "index.json", conn: conn, podcasts: podcasts, paging: paging
   end

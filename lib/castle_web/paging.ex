@@ -1,4 +1,5 @@
 defmodule CastleWeb.Paging do
+  import Ecto.Query
 
   @default_per 10
 
@@ -16,6 +17,14 @@ defmodule CastleWeb.Paging do
       |> next_link(base, page, last_page, per)
       |> first_link(base, per)
       |> last_link(base, last_page, per)
+  end
+
+  def paginated_results(queryable, per, page) do
+    offset = (page - 1) * per
+    queryable
+    |> offset(^offset)
+    |> limit(^per)
+    |> Castle.Repo.all
   end
 
   defp parse_int(num, _) when is_integer(num) and num > 0, do: num
