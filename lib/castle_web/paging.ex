@@ -50,12 +50,12 @@ defmodule CastleWeb.Paging do
     Map.put links, :prev, %{href: make_link(base, page - 1, per)}
   end
 
-  defp next_link(links, %{page: page, last_page: last_page}) when page == last_page  do
-    links
-  end
   defp next_link(links, base, %{page: page, per: per, last_page: last_page}) do
-
-    Map.put links, :next, %{href: make_link(base, page + 1, per)}
+    if last_page == page do
+      links
+    else
+      Map.put links, :next, %{href: make_link(base, page + 1, per)}
+    end
   end
 
   defp first_link(links, base, %{per: per}) do
