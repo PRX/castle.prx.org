@@ -20,7 +20,7 @@ redis:
   ports:
     - "6379:6379"
 db:
-  image: postgres
+  image: postgres:11-alpine
   environment:
     POSTGRES_DB: castle_test
     POSTGRES_USER: castle_user
