@@ -2,6 +2,7 @@ defmodule CastleWeb.Search do
 
   import Ecto.Query
 
+  # Join search terms with an "|" OR, append a prefix for typeahead searching
   defp prefix_search(term), do: String.replace(term, ~r/\W/u, "|") <> ":*"
 
   def filter_title_search(queryable, query) when is_nil(query) do
