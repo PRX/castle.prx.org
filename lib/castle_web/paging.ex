@@ -10,13 +10,27 @@ defmodule CastleWeb.Paging do
     }
   end
 
-  def paging_links(base, %{page: page, per: per, total: total}) do
-    last_page = (total / per) |> Float.ceil() |> trunc()
+  defp default_paging_params do
+    %{
+      page: nil,
+      per: nil,
+      total: nil,
+      search: nil,
+      last_page: nil
+    }
+  end
+
+  def paging_links(base, paging) do
+    %{total: total, per: per} = paging
+    paging = default_paging_params()
+             |> Map.merge(paging)
+             |> Map.put(:last_page, (total / per) |> Float.ceil() |> trunc())
+
     %{}
-      |> prev_link(base, page, per)
-      |> next_link(base, page, last_page, per)
-      |> first_link(base, per)
-      |> last_link(base, last_page, per)
+      |> prev_link(base, paging)
+      |> next_link(base, paging)
+      |> first_link(base, paging)
+      |> last_link(base, paging)
   end
 
   def paginated_results(queryable, per, page) do
@@ -31,21 +45,24 @@ defmodule CastleWeb.Paging do
   defp parse_int("" <> str, default_val), do: String.to_integer(str) |> parse_int(default_val)
   defp parse_int(_, default_val), do: default_val
 
-  defp prev_link(links, _, 1, _), do: links
-  defp prev_link(links, base, page, per) do
+  defp prev_link(links, base, %{page: page}) when page == 1, do: links
+  defp prev_link(links, base, %{page: page, per: per}) do
     Map.put links, :prev, %{href: make_link(base, page - 1, per)}
   end
 
-  defp next_link(links, _, page, last_page, _) when page == last_page, do: links
-  defp next_link(links, base, page, _, per) do
+  defp next_link(links, %{page: page, last_page: last_page}) when page == last_page  do
+    links
+  end
+  defp next_link(links, base, %{page: page, per: per, last_page: last_page}) do
+
     Map.put links, :next, %{href: make_link(base, page + 1, per)}
   end
 
-  defp first_link(links, base, per) do
+  defp first_link(links, base, %{per: per}) do
     Map.put links, :first, %{href: make_link(base, 1, per)}
   end
 
-  defp last_link(links, base, last_page, per) do
+  defp last_link(links, base, %{last_page: last_page, per: per}) do
     Map.put links, :last, %{href: make_link(base, last_page, per)}
   end
 

@@ -93,7 +93,7 @@ defmodule Castle.EpisodeTest do
     assert episode.image_url == nil
   end
 
-  test "gets paged recent episodes for podcast" do
+  test "gets recent episodes for podcast" do
     insert!(%Castle.Episode{id: @id1, podcast_id: 1})
     insert!(%Castle.Episode{id: @id2, podcast_id: 2})
     insert!(%Castle.Episode{id: @id3, podcast_id: 1})
@@ -104,7 +104,7 @@ defmodule Castle.EpisodeTest do
     assert Enum.at(episodes, 1).id == @id3
   end
 
-  test "gets paged recent episodes for accounts" do
+  test "gets recent episodes for accounts" do
     insert!(%Castle.Podcast{id: 1, account_id: 123})
     insert!(%Castle.Podcast{id: 2, account_id: 456})
     insert!(%Castle.Episode{id: @id1, podcast_id: 1})
@@ -137,27 +137,28 @@ defmodule Castle.EpisodeTest do
     assert total(recent_query([123, 456])) == 3
   end
 
-  test "paginates a query" do
+  test "episodes are paginateable with CastleWeb interface" do
     insert!(%Castle.Episode{id: @id1, podcast_id: 1})
     insert!(%Castle.Episode{id: @id2, podcast_id: 1})
     insert!(%Castle.Episode{id: @id3, podcast_id: 1})
     eps_ct = recent_query(1)
-    |> paginated_episodes(2, 1)
+    |> CastleWeb.Paging.paginated_results(2, 1)
     |> Enum.count
     assert eps_ct == 2
   end
 
-  test "searchs title and subtitle by keyword" do
-    insert!(%Castle.Episode{id: @id1, podcast_id: 1, title: "A quick fox", subtitle: ""})
+  test "episodes title and subtitle are searchable with keyword query" do
+    insert!(%Castle.Episode{id: @id1, podcast_id: 1, title: "A quick fox"})
     insert!(%Castle.Episode{id: @id2, podcast_id: 1, subtitle: "jumps over"})
-    insert!(%Castle.Episode{id: @id3, podcast_id: 1, title: "the sleeping dog", subtitle: ""})
+    insert!(%Castle.Episode{id: @id3, podcast_id: 1, title: "the sleeping dog"})
 
     assert Castle.Repo.all(from e in Castle.Episode) |> Enum.count == 3
 
-
     q = recent_query(1)
-    assert (q |> filter_title_search("dog") |> Castle.Repo.all |> Enum.map(fn e -> e.id end)) == [@id3]
-    assert (q |> filter_title_search("quick jumps dog") |> Castle.Repo.all |> Enum.map(fn e -> e.id end)) == [@id1, @id2, @id3]
+    assert (q |> CastleWeb.Search.filter_title_search("dog") |> Castle.Repo.all |> Enum.map(fn e -> e.id end))
+      == [@id3]
+    assert (q |> CastleWeb.Search.filter_title_search("quick jumps dog") |> Castle.Repo.all |> Enum.map(fn e -> e.id end))
+      == [@id1, @id2, @id3]
 
   end
 end

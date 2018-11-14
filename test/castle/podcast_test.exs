@@ -65,11 +65,12 @@ defmodule Castle.PodcastTest do
     assert podcast.image_url == "http://foo.bar/itunes.jpg"
   end
 
-  test "gets paged recent podcasts for accounts" do
+  test "gets recent podcasts for accounts" do
     insert!(%Castle.Podcast{id: 1, account_id: 123})
     insert!(%Castle.Podcast{id: 2, account_id: 456})
     insert!(%Castle.Podcast{id: 3, account_id: 123})
-    podcasts = recent([123], 10, 1)
+    podcasts = recent_query([123])
+               |> Castle.Repo.all
     assert length(podcasts) == 2
     assert Enum.at(podcasts, 0).id == 1
     assert Enum.at(podcasts, 1).id == 3
@@ -79,8 +80,21 @@ defmodule Castle.PodcastTest do
     insert!(%Castle.Podcast{id: 1, account_id: 123})
     insert!(%Castle.Podcast{id: 2, account_id: 456})
     insert!(%Castle.Podcast{id: 3, account_id: 123})
-    assert total([]) == 0
-    assert total([123]) == 2
-    assert total([123, 456]) == 3
+    assert recent_query([]) |> total == 0
+    assert recent_query([123]) |> total == 2
+    assert recent_query([123, 456]) |> total == 3
+  end
+
+  test "podcast title and subtitle are searchable with keyword query" do
+    insert!(%Castle.Podcast{id: 1, account_id: 1, title: "A quick fox"})
+    insert!(%Castle.Podcast{id: 2, account_id: 1, subtitle: "jumps over"})
+    insert!(%Castle.Podcast{id: 3, account_id: 1, title: "the sleeping dog"})
+
+    q = recent_query([1])
+    assert (q |> CastleWeb.Search.filter_title_search("dog") |> Castle.Repo.all |> Enum.map(fn e -> e.id end))
+      == [3]
+    assert (q |> CastleWeb.Search.filter_title_search("quick jumps dog") |> Castle.Repo.all |> Enum.map(fn e -> e.id end))
+      == [1, 2, 3]
+
   end
 end

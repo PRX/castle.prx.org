@@ -13,7 +13,7 @@ defmodule CastleWeb.API.PodcastController do
     total = Castle.Podcast.total(queryable)
     podcasts = paginated_results(queryable, per, page)
     total = Castle.Podcast.total(queryable)
-    paging = %{page: page, per: per, total: total}
+    paging = %{page: page, per: per, total: total, search: search}
     render conn, "index.json", conn: conn, podcasts: podcasts, paging: paging
   end
 

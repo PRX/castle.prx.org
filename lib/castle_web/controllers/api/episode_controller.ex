@@ -10,8 +10,8 @@ defmodule CastleWeb.API.EpisodeController do
     queryable = Castle.Episode.recent_query(podcast.id)
                 |> CastleWeb.Search.filter_title_search(search)
     total = Castle.Episode.total(queryable)
-    episodes = Castle.Episode.paginated_results(queryable, per, page)
-    paging = %{page: page, per: per, total: total, podcast_id: podcast.id}
+    episodes = CastleWeb.Paging.paginated_results(queryable, per, page)
+    paging = %{page: page, per: per, total: total, podcast_id: podcast.id, search: search}
     render conn, "index.json", conn: conn, episodes: episodes, paging: paging
   end
   def index(%{prx_user: user} = conn, params) do
@@ -21,8 +21,8 @@ defmodule CastleWeb.API.EpisodeController do
     queryable = Castle.Episode.recent_query(accounts)
                 |> CastleWeb.Search.filter_title_search(search)
     total = Castle.Episode.total(queryable)
-    episodes = Castle.Episode.paginated_episodes(queryable, per, page)
-    paging = %{page: page, per: per, total: total}
+    episodes = CastleWeb.Paging.paginated_results(queryable, per, page)
+    paging = %{page: page, per: per, total: total, search: search}
     render conn, "index.json", conn: conn, episodes: episodes, paging: paging
   end
 
