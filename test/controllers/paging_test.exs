@@ -50,7 +50,7 @@ defmodule Castle.WebPagingTest do
     assert links.first.href == "/api/v1/foobar?search=foo"
     assert links.last.href == "/api/v1/foobar?page=3&search=foo"
     # first page
-    links = paging_links("/api/v1/foobar", %{page: 2, per: 10, total: 22, search: "foo"})
-    assert links.prev.href == "/api/v1/foobar?search=foo"
+    links = paging_links("/api/v1/foobar", %{page: 2, per: 10, total: 22, search: "foo bar"})
+    assert links.prev.href == "/api/v1/foobar?search=foo%20bar"
   end
 end

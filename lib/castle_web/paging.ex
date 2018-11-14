@@ -67,8 +67,8 @@ defmodule CastleWeb.Paging do
   end
 
   defp add_search_param(link, search, has_params) when search == nil, do: link
-  defp add_search_param(link, search, has_params) when has_params == true, do: "#{link}&search=#{search}"
-  defp add_search_param(link, search, has_params) when has_params == false, do: "#{link}?search=#{search}"
+  defp add_search_param(link, search, has_params) when has_params == true, do: "#{link}&search=#{URI.encode(search)}"
+  defp add_search_param(link, search, has_params) when has_params == false, do: "#{link}?search=#{URI.encode(search)}"
 
   defp make_link(base, page, per, search) do
     link = case {page, per} do
