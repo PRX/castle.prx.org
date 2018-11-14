@@ -1,5 +1,3 @@
-require Logger
-
 defmodule Castle.Episode do
   use Ecto.Schema
   import Ecto.Changeset
@@ -26,14 +24,12 @@ defmodule Castle.Episode do
   end
 
   def recent_query(pid) when is_integer(pid) do
-    Logger.debug "RECENT query #{inspect(pid)}"
     from e in Castle.Episode,
       where: e.podcast_id == ^pid,
       order_by: [desc: :published_at]
   end
 
   def recent_query(accounts) when is_list (accounts) do
-    Logger.debug "RECENT query #{inspect(accounts)}"
     from e in Castle.Episode,
       join: p in Castle.Podcast,
       where: e.podcast_id == p.id and p.account_id in ^accounts,
