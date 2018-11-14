@@ -34,6 +34,32 @@ defmodule Castle.RollupLogTest do
     assert "#{Enum.at(result, 1).date}" == "2018-04-23"
   end
 
+  test "loads existing logs" do
+    {1, [%{id: id}]} = Castle.Repo.insert_all Castle.RollupLog, [%{
+      table_name: "foobar",
+      date: Ecto.Date.from_erl({2018, 4, 22}),
+      inserted_at: get_dtim("2018-04-22T22:00:00Z"),
+      updated_at: get_dtim("2018-04-22T23:00:00Z"),
+    }], returning: [:id]
+
+    result = find_missing_days("foobar", 2, "2018-04-22")
+    assert length(result) == 2
+    log1 = Enum.at(result, 0)
+    log2 = Enum.at(result, 1)
+
+    assert "#{log1.date}" == "2018-04-22"
+    assert log1.id == id
+    assert log1.complete == false
+    assert_time log1.inserted_at, "2018-04-22T22:00:00Z"
+    assert_time log1.updated_at, "2018-04-22T23:00:00Z"
+
+    assert "#{log2.date}" == "2018-04-21"
+    assert log2.id == nil
+    assert log2.complete == false
+    assert log2.inserted_at == nil
+    assert log2.updated_at == nil
+  end
+
   test "finds empty range" do
     result = find_missing_days("foobar", 100, "1995-01-01")
     assert length(result) == 0
