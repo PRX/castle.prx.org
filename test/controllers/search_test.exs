@@ -11,5 +11,6 @@ defmodule Castle.SearchTest do
     assert prefix_search("  test") == "test:*"
     assert prefix_search("test foo") == "test|foo:*"
     assert prefix_search("test        foo") == "test|foo:*"
+    assert prefix_search("test :::") == "test:*"
   end
 end

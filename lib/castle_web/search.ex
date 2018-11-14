@@ -3,7 +3,18 @@ defmodule CastleWeb.Search do
   import Ecto.Query
 
   def prefix_search(query) do
+
     ends_with_whitespace = Regex.match?(~r/\s$/, query)
+    query = String.trim(query)
+
+    query = query
+            |> String.split
+            |> Enum.map(fn term ->
+              # strip all special characters from term
+              term
+              |> String.replace( ~r/[\W]+/u, "")
+            end)
+            |> Enum.join(" ")
 
     # append a suffix wildcard for prefix searching
     query = if !ends_with_whitespace do
@@ -11,8 +22,6 @@ defmodule CastleWeb.Search do
     else
       query
     end
-
-    query = String.trim(query)
 
     # Join search terms with an "|" OR
     String.replace(query, ~r/[\s]+/u, "|")
