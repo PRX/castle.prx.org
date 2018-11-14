@@ -20,7 +20,6 @@ defmodule Mix.Tasks.Castle.Rollup.Geosubdivs do
     Logger.info "Rollup.DailyGeoSubdiv.#{rollup_log.date} querying"
     {results, meta} = rollup_log.date |> Timex.to_datetime() |> BigQuery.Rollup.daily_geo_subdivs()
     Logger.info "Rollup.DailyGeoSubdiv.#{rollup_log.date} upserting #{length(results)}"
-    Castle.Repo.create_partition!(Castle.DailyGeoSubdiv, rollup_log.date)
     Castle.DailyGeoSubdiv.upsert_all(results)
     case meta do
       %{complete: true} ->

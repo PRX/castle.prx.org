@@ -20,7 +20,6 @@ defmodule Mix.Tasks.Castle.Rollup.Geometros do
     Logger.info "Rollup.DailyGeoMetro.#{rollup_log.date} querying"
     {results, meta} = rollup_log.date |> Timex.to_datetime() |> BigQuery.Rollup.daily_geo_metros()
     Logger.info "Rollup.DailyGeoMetro.#{rollup_log.date} upserting #{length(results)}"
-    Castle.Repo.create_partition!(Castle.DailyGeoMetro, rollup_log.date)
     Castle.DailyGeoMetro.upsert_all(results)
     case meta do
       %{complete: true} ->

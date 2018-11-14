@@ -1,13 +1,16 @@
 defmodule Castle.DailyGeoCountry do
   use Ecto.Schema
+  use Castle.Model.Partitioned
   import Ecto.Changeset
 
   @primary_key false
+  @partition_on :day
+  @partition_unique [:episode_id, :country_iso_code, :day]
 
   schema "daily_geo_countries" do
     field :podcast_id, :integer
     field :episode_id, :binary_id
-    field :country_iso_code, :string
+    field :country_iso_code, Castle.Model.TrimmedString
     field :day, :date
     field :count, :integer
   end
@@ -17,19 +20,5 @@ defmodule Castle.DailyGeoCountry do
     download
     |> cast(attrs, [:podcast_id, :episode_id, :country_iso_code, :day, :count])
     |> validate_required([:podcast_id, :episode_id, :country_iso_code, :day, :count])
-  end
-
-  def upsert(row), do: upsert_all([row])
-
-  def upsert_all([]), do: 0
-  def upsert_all(rows) when length(rows) > 5000 do
-    Enum.chunk_every(rows, 5000)
-    |> Enum.map(&upsert_all/1)
-    |> Enum.sum()
-  end
-  def upsert_all(rows) do
-    Castle.Repo.insert_all Castle.DailyGeoCountry, rows, on_conflict: :replace_all,
-      conflict_target: [:episode_id, :country_iso_code, :day]
-    length(rows)
   end
 end

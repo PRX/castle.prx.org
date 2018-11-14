@@ -20,7 +20,6 @@ defmodule Mix.Tasks.Castle.Rollup.Agents do
     Logger.info "Rollup.DailyAgent.#{rollup_log.date} querying"
     {results, meta} = rollup_log.date |> Timex.to_datetime() |> BigQuery.Rollup.daily_agents()
     Logger.info "Rollup.DailyAgent.#{rollup_log.date} upserting #{length(results)}"
-    Castle.Repo.create_partition!(Castle.DailyAgent, rollup_log.date)
     Castle.DailyAgent.upsert_all(results)
     case meta do
       %{complete: true} ->

@@ -1,8 +1,11 @@
 defmodule Castle.DailyAgent do
   use Ecto.Schema
+  use Castle.Model.Partitioned
   import Ecto.Changeset
 
   @primary_key false
+  @partition_on :day
+  @partition_unique [:episode_id, :agent_name_id, :agent_type_id, :agent_os_id, :day]
 
   schema "daily_agents" do
     field :podcast_id, :integer
@@ -19,19 +22,5 @@ defmodule Castle.DailyAgent do
     download
     |> cast(attrs, [:podcast_id, :episode_id, :agent_name_id, :agent_type_id, :agent_os_id, :day, :count])
     |> validate_required([:podcast_id, :episode_id, :agent_name_id, :agent_type_id, :agent_os_id, :day, :count])
-  end
-
-  def upsert(row), do: upsert_all([row])
-
-  def upsert_all([]), do: 0
-  def upsert_all(rows) when length(rows) > 5000 do
-    Enum.chunk_every(rows, 5000)
-    |> Enum.map(&upsert_all/1)
-    |> Enum.sum()
-  end
-  def upsert_all(rows) do
-    Castle.Repo.insert_all Castle.DailyAgent, rows, on_conflict: :replace_all,
-      conflict_target: [:episode_id, :agent_name_id, :agent_type_id, :agent_os_id, :day]
-    length(rows)
   end
 end

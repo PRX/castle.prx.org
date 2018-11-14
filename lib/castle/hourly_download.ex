@@ -1,8 +1,11 @@
 defmodule Castle.HourlyDownload do
   use Ecto.Schema
+  use Castle.Model.Partitioned
   import Ecto.Changeset
 
   @primary_key false
+  @partition_on :dtim
+  @partition_unique [:episode_id, :dtim]
 
   schema "hourly_downloads" do
     field :podcast_id, :integer
@@ -16,19 +19,5 @@ defmodule Castle.HourlyDownload do
     download
     |> cast(attrs, [:podcast_id, :episode_id, :dtim, :count])
     |> validate_required([:podcast_id, :episode_id, :dtim, :count])
-  end
-
-  def upsert(row), do: upsert_all([row])
-
-  def upsert_all([]), do: 0
-  def upsert_all(rows) when length(rows) > 5000 do
-    Enum.chunk_every(rows, 5000)
-    |> Enum.map(&upsert_all/1)
-    |> Enum.sum()
-  end
-  def upsert_all(rows) do
-    Castle.Repo.insert_all Castle.HourlyDownload, rows,
-      on_conflict: :replace_all, conflict_target: [:episode_id, :dtim]
-    length(rows)
   end
 end
