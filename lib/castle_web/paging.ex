@@ -27,10 +27,10 @@ defmodule CastleWeb.Paging do
              |> Map.put(:last_page, (total / per) |> Float.ceil() |> trunc())
 
     %{}
-      |> prev_link(base, paging)
-      |> next_link(base, paging)
-      |> first_link(base, paging)
-      |> last_link(base, paging)
+    |> prev_link(base, paging)
+    |> next_link(base, paging)
+    |> first_link(base, paging)
+    |> last_link(base, paging)
   end
 
   def paginated_results(queryable, per, page) do
