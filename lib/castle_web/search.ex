@@ -15,6 +15,7 @@ defmodule CastleWeb.Search do
               |> String.replace( ~r/[\W]+/u, "")
             end)
             |> Enum.join(" ")
+            |> String.trim
 
     # append a suffix wildcard for prefix searching
     query = if !ends_with_whitespace do
