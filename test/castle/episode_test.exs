@@ -148,17 +148,25 @@ defmodule Castle.EpisodeTest do
   end
 
   test "episodes title and subtitle are searchable with keyword query" do
-    insert!(%Castle.Episode{id: @id1, podcast_id: 1, title: "A quick fox"})
-    insert!(%Castle.Episode{id: @id2, podcast_id: 1, subtitle: "jumps over"})
-    insert!(%Castle.Episode{id: @id3, podcast_id: 1, title: "the sleeping dog"})
+    insert!(%Castle.Episode{id: @id1, podcast_id: 1, title:    "test bar A quick fox"})
+    insert!(%Castle.Episode{id: @id2, podcast_id: 1, subtitle: "test foo jumps over"})
+    insert!(%Castle.Episode{id: @id3, podcast_id: 1, title:    "test foo the sleeping dog"})
 
     assert Castle.Repo.all(from e in Castle.Episode) |> Enum.count == 3
 
-    q = recent_query(1)
-    assert (q |> CastleWeb.Search.filter_title_search("dog") |> Castle.Repo.all |> Enum.map(fn e -> e.id end))
-      == [@id3]
-    assert (q |> CastleWeb.Search.filter_title_search("quick jumps dog") |> Castle.Repo.all |> Enum.map(fn e -> e.id end))
-      == [@id1, @id2, @id3]
+    assert (recent_query(1)
+    |> CastleWeb.Search.filter_title_search("dog")
+    |> Castle.Repo.all
+    |> Enum.map(fn e -> e.id end)
+    |> Enum.sort
+    ) == [@id3]
+
+    assert (recent_query(1)
+    |> CastleWeb.Search.filter_title_search("test foo")
+    |> Castle.Repo.all
+    |> Enum.map(fn e -> e.id end)
+    |> Enum.sort
+    ) == [@id2, @id3] |> Enum.sort
 
   end
 end

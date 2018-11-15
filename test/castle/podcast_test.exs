@@ -86,15 +86,30 @@ defmodule Castle.PodcastTest do
   end
 
   test "podcast title and subtitle are searchable with keyword query" do
-    insert!(%Castle.Podcast{id: 1, account_id: 1, title: "A quick fox"})
-    insert!(%Castle.Podcast{id: 2, account_id: 1, subtitle: "jumps over"})
-    insert!(%Castle.Podcast{id: 3, account_id: 1, title: "the sleeping dog"})
+    insert!(%Castle.Podcast{id: 1, account_id: 1, title: "test foo A quick fox"})
+    insert!(%Castle.Podcast{id: 2, account_id: 1, subtitle: "test foo jumps over"})
+    insert!(%Castle.Podcast{id: 3, account_id: 1, title: "test bar the sleeping dog"})
 
-    q = recent_query([1])
-    assert (q |> CastleWeb.Search.filter_title_search("dog") |> Castle.Repo.all |> Enum.map(fn e -> e.id end))
-      == [3]
-    assert (q |> CastleWeb.Search.filter_title_search("quick jumps dog") |> Castle.Repo.all |> Enum.map(fn e -> e.id end))
-      == [1, 2, 3]
+    assert (recent_query([1])
+    |> CastleWeb.Search.filter_title_search("dog")
+    |> Castle.Repo.all
+    |> Enum.map(fn e -> e.id end)
+    |> Enum.sort
+    ) == [3]
 
+    assert (recent_query([1])
+    |> CastleWeb.Search.filter_title_search("test foo")
+    |> Castle.Repo.all
+    |> Enum.map(fn e -> e.id end)
+    |> Enum.sort
+    ) == [1, 2] |> Enum.sort
+
+    # prefix search
+    assert (recent_query([1])
+    |> CastleWeb.Search.filter_title_search("j")
+    |> Castle.Repo.all
+    |> Enum.map(fn e -> e.id end)
+    |> Enum.sort
+    ) == [2] |> Enum.sort
   end
 end

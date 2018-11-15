@@ -24,8 +24,8 @@ defmodule CastleWeb.Search do
       query
     end
 
-    # Join search terms with an "|" OR
-    String.replace(query, ~r/[\s]+/u, "|")
+    # Join search terms with an "&" AND
+    String.replace(query, ~r/[\s]+/u, "&")
   end
 
   def filter_title_search(queryable, query) when is_nil(query) do
