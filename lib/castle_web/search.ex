@@ -1,7 +1,9 @@
 defmodule CastleWeb.Search do
   import Ecto.Query
 
-  def prefix_search(query) do
+  def prefix_search(""), do: ""
+
+  def prefix_search(query) when is_binary(query) do
     ends_with_whitespace = Regex.match?(~r/\s$/, query)
     query = String.trim(query)
 
@@ -28,9 +30,7 @@ defmodule CastleWeb.Search do
     String.replace(query, ~r/[\s]+/u, "&")
   end
 
-  def filter_title_search(queryable, query) when is_nil(query) do
-    queryable
-  end
+  def filter_title_search(queryable, nil), do: queryable
 
   def filter_title_search(queryable, search_query) do
     queryable
