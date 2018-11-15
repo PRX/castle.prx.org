@@ -45,7 +45,7 @@ defmodule CastleWeb.Paging do
   defp parse_int("" <> str, default_val), do: String.to_integer(str) |> parse_int(default_val)
   defp parse_int(_, default_val), do: default_val
 
-  defp prev_link(links, _, %{page: page}) when page == 1, do: links
+  defp prev_link(links, _, %{page: 1}), do: links
   defp prev_link(links, base, %{page: page, per: per, search: search}) do
     Map.put links, :prev, %{href: make_link(base, page - 1, per, search)}
   end
