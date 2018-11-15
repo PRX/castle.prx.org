@@ -21,7 +21,7 @@ defmodule Castle.Podcast do
   end
 
   def recent_query(accounts) do
-    from p in Castle.Podcast, where: p.account_id in ^accounts
+    from p in Castle.Podcast, where: p.account_id in ^accounts, order_by: [asc: :title]
   end
 
   def total(queryable) do
