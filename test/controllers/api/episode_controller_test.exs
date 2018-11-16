@@ -17,6 +17,25 @@ defmodule Castle.API.EpisodeControllerTest do
   end
 
   describe "index/2" do
+    test "per single podcast id, responds with a list of episodes", %{conn: conn} do
+      resp = conn |> get(api_podcast_episode_path(conn, :index, 123)) |> json_response(200)
+      assert resp["count"] == 2
+      assert resp["total"] == 2
+      assert length(resp["_embedded"]["prx:items"]) == 2
+      assert Enum.at(resp["_embedded"]["prx:items"], 0)["id"] == @guid1
+      assert resp["_links"]["first"]["href"] == "/api/v1/podcasts/123/episodes"
+    end
+
+    test "per single podcast id, can search episodes", %{conn: conn} do
+      resp = conn |> get(api_podcast_episode_path(conn, :index, 123, search: "two")) |> json_response(200)
+      assert resp["count"] == 1
+      assert resp["total"] == 1
+      assert length(resp["_embedded"]["prx:items"]) == 1
+      assert Enum.at(resp["_embedded"]["prx:items"], 0)["id"] == @guid2
+      assert Enum.at(resp["_embedded"]["prx:items"], 0)["title"] == "two"
+      assert resp["_links"]["first"]["href"] == "/api/v1/podcasts/123/episodes?search=two"
+    end
+
     test "responds with a list of episodes", %{conn: conn} do
       resp = conn |> get(api_episode_path(conn, :index)) |> json_response(200)
       assert resp["count"] == 2
@@ -36,8 +55,6 @@ defmodule Castle.API.EpisodeControllerTest do
       assert resp["count"] == 2
       assert resp["total"] == 2
       assert length(resp["_embedded"]["prx:items"]) == 2
-
-      items = Enum.sort_by(resp["_embedded"]["prx:items"], fn(i)-> i["id"]  end)
 
       assert Enum.at(resp["_embedded"]["prx:items"], 0)["id"] == @guid1
       assert Enum.at(resp["_embedded"]["prx:items"], 0)["title"] == "one"
