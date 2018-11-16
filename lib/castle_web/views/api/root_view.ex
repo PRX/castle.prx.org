@@ -15,7 +15,7 @@ defmodule CastleWeb.API.RootView do
         "prx:podcasts": [%{
           title: "Get a paged collection of podcasts",
           profile: "http://meta.prx.org/model/metrics/podcast",
-          href: api_podcast_path(conn, :index) <> "{?page,per}",
+          href: api_podcast_path(conn, :index) <> "{?page,per,search}",
           templated: true,
         }],
         "prx:podcast": [%{
@@ -27,7 +27,7 @@ defmodule CastleWeb.API.RootView do
         "prx:episodes": [%{
           title: "Get a paged collection of podcast episodes",
           profile: "http://meta.prx.org/model/metrics/episode",
-          href: api_episode_path(conn, :index) <> "{?page,per}",
+          href: api_episode_path(conn, :index) <> "{?page,per,search}",
           templated: true,
         }],
         "prx:episode": [%{
