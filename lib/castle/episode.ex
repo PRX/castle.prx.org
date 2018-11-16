@@ -23,28 +23,26 @@ defmodule Castle.Episode do
     |> validate_required([:podcast_id])
   end
 
-  def recent(pid, limit, page) when is_integer(pid) do
-    offset = (page - 1) * limit
-    Castle.Repo.all(from e in Castle.Episode, where: e.podcast_id == ^pid, limit: ^limit, offset: ^offset, order_by: [desc: :published_at])
-  end
-  def recent(accounts, limit, page) when is_list(accounts) do
-    offset = (page - 1) * limit
-    Castle.Repo.all from e in Castle.Episode,
-      join: p in Castle.Podcast,
-      where: e.podcast_id == p.id and p.account_id in ^accounts,
-      order_by: [desc: :published_at],
-      limit: ^limit,
-      offset: ^offset
+  def recent_query(pid) when is_integer(pid) do
+    from e in Castle.Episode,
+      where: e.podcast_id == ^pid,
+      order_by: [desc: :published_at]
   end
 
-  def total(pid) when is_integer(pid) do
-    Castle.Repo.one(from e in Castle.Episode, where: e.podcast_id == ^pid, select: count("*"))
-  end
-  def total(accounts) when is_list(accounts) do
-    Castle.Repo.one from e in Castle.Episode,
-      join: p in Castle.Podcast,
+  def recent_query(accounts) when is_list (accounts) do
+    podcast_query = subquery(
+      from p in Castle.Podcast,
+      select: %{id: p.id, account_id: p.account_id}
+    )
+
+    from e in Castle.Episode,
+      join: p in ^podcast_query,
       where: e.podcast_id == p.id and p.account_id in ^accounts,
-      select: count("*")
+      order_by: [desc: :published_at]
+  end
+
+  def total(queryable) do
+    Castle.Repo.one(from r in subquery(queryable), select: count(r.id))
   end
 
   def max_updated_at() do

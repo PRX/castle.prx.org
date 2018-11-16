@@ -21,6 +21,16 @@ defmodule Castle.API.PodcastControllerTest do
       assert Enum.at(resp["_embedded"]["prx:items"], 1)["title"] == "two"
       assert resp["_links"]["first"]["href"] == "/api/v1/podcasts"
     end
+
+    test "accepts search param", %{conn: conn} do
+      resp = conn |> get(api_podcast_path(conn, :index, search: "two")) |> json_response(200)
+      assert resp["count"] == 1
+      assert resp["total"] == 1
+      assert length(resp["_embedded"]["prx:items"]) == 1
+      assert Enum.at(resp["_embedded"]["prx:items"], 0)["id"] == 456
+      assert Enum.at(resp["_embedded"]["prx:items"], 0)["title"] == "two"
+      assert resp["_links"]["first"]["href"] == "/api/v1/podcasts?search=two"
+    end
   end
 
   describe "show/2" do

@@ -37,7 +37,7 @@ defmodule CastleWeb.API.PodcastView do
         href: "https://feeder.prx.org/api/v1/podcasts/#{podcast.id}",
       },
       "prx:episodes": %{
-        href: api_podcast_episode_path(conn, :index, podcast.id) <> "{?page,per}",
+        href: api_podcast_episode_path(conn, :index, podcast.id) <> "{?page,per,search}",
         templated: true,
       },
       "prx:downloads": %{

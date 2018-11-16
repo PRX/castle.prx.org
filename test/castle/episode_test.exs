@@ -93,23 +93,25 @@ defmodule Castle.EpisodeTest do
     assert episode.image_url == nil
   end
 
-  test "gets paged recent episodes for podcast" do
+  test "gets recent episodes for podcast" do
     insert!(%Castle.Episode{id: @id1, podcast_id: 1})
     insert!(%Castle.Episode{id: @id2, podcast_id: 2})
     insert!(%Castle.Episode{id: @id3, podcast_id: 1})
-    episodes = recent(1, 10, 1)
+    episodes = recent_query(1)
+               |> Castle.Repo.all
     assert length(episodes) == 2
     assert Enum.at(episodes, 0).id == @id1
     assert Enum.at(episodes, 1).id == @id3
   end
 
-  test "gets paged recent episodes for accounts" do
+  test "gets recent episodes for accounts" do
     insert!(%Castle.Podcast{id: 1, account_id: 123})
     insert!(%Castle.Podcast{id: 2, account_id: 456})
     insert!(%Castle.Episode{id: @id1, podcast_id: 1})
     insert!(%Castle.Episode{id: @id2, podcast_id: 2})
     insert!(%Castle.Episode{id: @id3, podcast_id: 1})
-    episodes = recent([123], 10, 1)
+    episodes = recent_query([123])
+               |> Castle.Repo.all
     assert length(episodes) == 2
     assert Enum.at(episodes, 0).id == @id1
     assert Enum.at(episodes, 1).id == @id3
@@ -119,9 +121,9 @@ defmodule Castle.EpisodeTest do
     insert!(%Castle.Episode{id: @id1, podcast_id: 1})
     insert!(%Castle.Episode{id: @id2, podcast_id: 2})
     insert!(%Castle.Episode{id: @id3, podcast_id: 1})
-    assert total(1) == 2
-    assert total(2) == 1
-    assert total(3) == 0
+    assert total(recent_query(1)) == 2
+    assert total(recent_query(2)) == 1
+    assert total(recent_query(3)) == 0
   end
 
   test "gets total episodes for accounts" do
@@ -130,8 +132,41 @@ defmodule Castle.EpisodeTest do
     insert!(%Castle.Episode{id: @id1, podcast_id: 1})
     insert!(%Castle.Episode{id: @id2, podcast_id: 2})
     insert!(%Castle.Episode{id: @id3, podcast_id: 1})
-    assert total([]) == 0
-    assert total([123]) == 2
-    assert total([123, 456]) == 3
+    assert total(recent_query([])) == 0
+    assert total(recent_query([123])) == 2
+    assert total(recent_query([123, 456])) == 3
+  end
+
+  test "episodes are paginateable with CastleWeb interface" do
+    insert!(%Castle.Episode{id: @id1, podcast_id: 1})
+    insert!(%Castle.Episode{id: @id2, podcast_id: 1})
+    insert!(%Castle.Episode{id: @id3, podcast_id: 1})
+    eps_ct = recent_query(1)
+    |> CastleWeb.Paging.paginated_results(2, 1)
+    |> Enum.count
+    assert eps_ct == 2
+  end
+
+  test "episodes title and subtitle are searchable with keyword query" do
+    insert!(%Castle.Episode{id: @id1, podcast_id: 1, title:    "test bar A quick fox"})
+    insert!(%Castle.Episode{id: @id2, podcast_id: 1, subtitle: "test foo jumps over"})
+    insert!(%Castle.Episode{id: @id3, podcast_id: 1, title:    "test foo the sleeping dog"})
+
+    assert Castle.Repo.all(from e in Castle.Episode) |> Enum.count == 3
+
+    assert (recent_query(1)
+    |> CastleWeb.Search.filter_title_search("dog")
+    |> Castle.Repo.all
+    |> Enum.map(fn e -> e.id end)
+    |> Enum.sort
+    ) == [@id3]
+
+    assert (recent_query(1)
+    |> CastleWeb.Search.filter_title_search("test foo")
+    |> Castle.Repo.all
+    |> Enum.map(fn e -> e.id end)
+    |> Enum.sort
+    ) == [@id2, @id3] |> Enum.sort
+
   end
 end

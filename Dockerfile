@@ -4,7 +4,7 @@ MAINTAINER PRX <sysadmin@prx.org>
 LABEL org.prx.app="yes"
 
 # install git, aws-cli
-RUN apk --no-cache add git ca-certificates \
+RUN apk --no-cache add inotify-tools git ca-certificates \
     python py-pip py-setuptools groff less && \
     pip --no-cache-dir install awscli
 
