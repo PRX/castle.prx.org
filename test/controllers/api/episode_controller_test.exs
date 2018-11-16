@@ -4,6 +4,7 @@ defmodule Castle.API.EpisodeControllerTest do
   @guid1 "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
   @guid2 "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
   @guid3 "cccccccc-cccc-cccc-cccc-cccccccccccc"
+  @guid4 "dddddddd-dddd-dddd-dddd-dddddddddddd"
 
   setup do
     System.put_env("DEV_AUTH", "999")
@@ -26,6 +27,25 @@ defmodule Castle.API.EpisodeControllerTest do
       assert Enum.at(resp["_embedded"]["prx:items"], 1)["id"] == @guid2
       assert Enum.at(resp["_embedded"]["prx:items"], 1)["title"] == "two"
       assert resp["_links"]["first"]["href"] == "/api/v1/episodes"
+    end
+
+    test "allows searching with search, page and per params", %{conn: conn} do
+      Castle.Repo.insert!(%Castle.Episode{id: @guid4, podcast_id: 123, title: "one another test"})
+      # search for all podcasts with "one" as title
+      resp = conn |> get(api_episode_path(conn, :index), %{search: "one", page: 1, per: 2}) |> json_response(200)
+      assert resp["count"] == 2
+      assert resp["total"] == 2
+      assert length(resp["_embedded"]["prx:items"]) == 2
+
+      items = Enum.sort_by(resp["_embedded"]["prx:items"], fn(i)-> i["id"]  end)
+
+      assert Enum.at(resp["_embedded"]["prx:items"], 0)["id"] == @guid1
+      assert Enum.at(resp["_embedded"]["prx:items"], 0)["title"] == "one"
+
+      assert Enum.at(resp["_embedded"]["prx:items"], 1)["id"] == @guid4
+      assert Enum.at(resp["_embedded"]["prx:items"], 1)["title"] == "one another test"
+
+      assert resp["_links"]["first"]["href"] == "/api/v1/episodes?per=2&search=one"
     end
 
     test "responds with a list of episodes for a podcast", %{conn: conn} do

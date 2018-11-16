@@ -30,8 +30,13 @@ defmodule Castle.Episode do
   end
 
   def recent_query(accounts) when is_list (accounts) do
+    podcast_query = subquery(
+      from p in Castle.Podcast,
+      select: %{id: p.id, account_id: p.account_id}
+    )
+
     from e in Castle.Episode,
-      join: p in Castle.Podcast,
+      join: p in ^podcast_query,
       where: e.podcast_id == p.id and p.account_id in ^accounts,
       order_by: [desc: :published_at]
   end
