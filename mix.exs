@@ -20,6 +20,7 @@ defmodule Castle.Mixfile do
   def application do
     [
       mod: {Castle.Application, []},
+      #applications: [:bamboo],
       extra_applications: extras(Mix.env)
     ]
   end
@@ -58,7 +59,10 @@ defmodule Castle.Mixfile do
      {:new_relic_phoenix, "~> 0.1.0-rc"},
      {:dotenv, "~> 3.0", only: [:dev, :test]},
      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
-     {:mock, "~> 0.3.1", only: :test}]
+     {:mock, "~> 0.3.1", only: :test},
+     {:bamboo, "~> 1.1"},
+     {:bamboo_ses, "~> 0.1"}
+    ]
   end
 
   defp docs do

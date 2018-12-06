@@ -50,3 +50,6 @@ config :castle, Castle.Scheduler,
     # {"* * * * *", {Rollup.Geosubdivs,   :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.Agents,       :run, [["--lock"]]}},
   ]
+
+config :castle, Mailer,
+  adapter: Bamboo.LocalAdapter
