@@ -7,13 +7,12 @@ defmodule Mix.Tasks.Mailer.SendWeekly do
 
     {opts, _, _} = OptionParser.parse args,
       switches: [podcast_id: :integer]
-    IO.inspect opts
     send_email(opts)
 
   end
 
   def send_email([podcast_id: podcast_id]) do
-    IO.puts Mailer.Emails.weekly_podcast_snapshot(podcast_id).html_body
+    IO.inspect Mailer.Emails.weekly_podcast_snapshot(podcast_id)
   end
 
   def send_email(_args) do

@@ -1,0 +1,2 @@
+Weekly Snapshot
+Podcast id <%= @podcast_id %>
