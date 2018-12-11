@@ -1,2 +1,5 @@
-Weekly Snapshot
-Podcast id <%= @podcast_id %>
+Weekly Snapshot for <%= @email_address %>
+
+<%= for podcast <- @podcasts do %>
+Podcast id <%= podcast.id %>
+<% end %>

@@ -1,4 +1,10 @@
-<h1>Weekly Snapshot</h1>
+<h1>
+Weekly Snapshot for <%= @email_address %>
+</h1>
+
+<%= for podcast <- @podcasts do %>
 <p>
-  Podcast id <%= @podcast_id %>
+Podcast id <%= podcast.id %>
 </p>
+<% end %>
+
