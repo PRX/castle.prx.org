@@ -1,0 +1,4 @@
+<h1>Weekly Snapshot</h1>
+<p>
+  Podcast id <%= @podcast_id %>
+</p>

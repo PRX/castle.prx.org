@@ -1,0 +1,3 @@
+defmodule Insights do
+end
+

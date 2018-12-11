@@ -62,6 +62,11 @@ defmodule Castle.Episode do
     end
   end
 
+  def created_after(date) do
+    from e in Castle.Episode,
+      where: e.created_at >= ^date
+  end
+
   defp parse_feeder(doc) do
     %{
       id: doc["id"],
