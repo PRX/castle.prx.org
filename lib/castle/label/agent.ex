@@ -80,6 +80,14 @@ defmodule Castle.Label.Agent do
     75 => "Podbbang",
     76 => "HardCast",
     77 => "Spotify",
+    78 => "AhaRadio",
+    79 => "Bullhorn",
+    80 => "CloudPlayer",
+    81 => "English Radio IELTS TOEFL",
+    82 => "Pandora",
+    83 => "Procast",
+    84 => "Treble.fm",
+    85 => "WNYC App",
   }
 
   def find(nil), do: "Other"
