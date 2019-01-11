@@ -1,6 +1,7 @@
 use Mix.Config
 
 alias Mix.Tasks.Feeder, as: Feeder
+alias Mix.Tasks.Postgres, as: Postgres
 alias Mix.Tasks.Castle.Rollup, as: Rollup
 
 # For development, we disable any cache and enable
