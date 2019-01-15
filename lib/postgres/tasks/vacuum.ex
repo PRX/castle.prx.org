@@ -48,7 +48,7 @@ defmodule Mix.Tasks.Postgres.Vacuum do
     start = bloat_ratio(tbl)
     Logger.info "Postgres.Vacuum.#{tbl} starting (#{start} bloat ratio)"
 
-    Castle.Repo.query! "VACUUM FULL #{tbl}"
+    Castle.Repo.query! "VACUUM FULL #{tbl}", [], timeout: 300_000
 
     complete = bloat_ratio(tbl)
     Logger.info "Postgres.Vacuum.#{tbl} complete (#{complete} bloat ratio)"
