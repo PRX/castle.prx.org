@@ -34,7 +34,7 @@ defmodule Mix.Tasks.Castle.DumpHourly do
   def dump_hourly_downloads(path) do
     Castle.Repo.transaction(fn ->
 
-      hourly_downloads_query
+      hourly_downloads_query()
       |> Castle.Repo.stream(timeout: :infinity)
       |> Stream.map(fn row ->
 
