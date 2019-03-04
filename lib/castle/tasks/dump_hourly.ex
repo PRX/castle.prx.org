@@ -1,8 +1,8 @@
-defmodule Mix.Tasks.Castle.DumpHourly do
+defmodule Mix.Tasks.Castle.DumpData do
   import Ecto.Query
   use Mix.Task
 
-  @shortdoc "Dump the hourly download data into a text file"
+  @shortdoc "Dump the hourly download and other data into text files"
 
   def run(args) do
     {:ok, _started} = Application.ensure_all_started(:castle)
@@ -10,19 +10,30 @@ defmodule Mix.Tasks.Castle.DumpHourly do
     {opts, _, _} =
       OptionParser.parse(args,
         switches: [output_dir: :string],
-        aliases: [p: :output_dir]
+        aliases: [d: :output_dir]
       )
 
     dump(opts)
   end
 
-  def dump([]) do
+  def print_help() do
     IO.puts("\nUsage:")
-    IO.puts("need a `--output_dir` arg\n\n")
+    IO.puts("need a `--output-dir` arg\n\n")
   end
 
-  def dump(path: output_dir) do
-    dump_hourly_downloads(output_dir)
+  def dump(output_dir: dir) do
+    IO.puts('dumping episode data')
+    dump_episodes(dir)
+    IO.puts('dumping hourly_download data')
+    dump_hourly_downloads(dir)
+  end
+
+  def dump(_) do
+    print_help()
+  end
+
+  def episodes_query do
+    from(e in Castle.Episode)
   end
 
   def hourly_downloads_query do
@@ -36,20 +47,33 @@ defmodule Mix.Tasks.Castle.DumpHourly do
     )
   end
 
-  def dump_hourly_downloads(path) do
+  def dump_stream(query, path, row_fun) do
     Castle.Repo.transaction(
       fn ->
-        hourly_downloads_query()
+        query
         |> Castle.Repo.stream(timeout: :infinity)
-        |> Stream.map(fn row ->
-          # m = Map.from_struct(row)
-          {dtim, count, episode_id, podcast_id, drop_day_offset} = row
-          "#{episode_id} #{podcast_id} #{DateTime.to_iso8601(dtim)} #{count} #{drop_day_offset}\n"
-        end)
+        |> Stream.map(row_fun)
         |> Stream.into(File.stream!(path))
         |> Stream.run()
       end,
       timeout: :infinity
     )
+  end
+
+  def dump_episodes(dir) do
+    episodes_query()
+    |> dump_stream(Path.join(dir, 'episodes'), fn e ->
+      "#{e.id} #{e.podcast_id} #{DateTime.to_iso8601(e.created_at)} #{
+        DateTime.to_iso8601(e.published_at)
+      }\n"
+    end)
+  end
+
+  def dump_hourly_downloads(dir) do
+    hourly_downloads_query()
+    |> dump_stream(Path.join(dir, 'hourly_downloads'), fn row ->
+      {dtim, count, episode_id, podcast_id, drop_day_offset} = row
+      "#{episode_id} #{podcast_id} #{DateTime.to_iso8601(dtim)} #{count} #{drop_day_offset}\n"
+    end)
   end
 end
