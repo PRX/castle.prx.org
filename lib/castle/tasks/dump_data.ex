@@ -43,7 +43,7 @@ defmodule Mix.Tasks.Castle.DumpData do
       order_by: [asc: e.podcast_id],
       select:
         {h.dtim, h.count, h.episode_id, h.podcast_id,
-         fragment("?::date - ?::date as drop_day_offset", h.dtim, e.published_at)}
+         fragment("extract(day from ? - ?) as drop_day", h.dtim, e.published_at)}
     )
   end
 
@@ -72,8 +72,8 @@ defmodule Mix.Tasks.Castle.DumpData do
   def dump_hourly_downloads(dir) do
     hourly_downloads_query()
     |> dump_stream(Path.join(dir, 'hourly_downloads'), fn row ->
-      {dtim, count, episode_id, podcast_id, drop_day_offset} = row
-      "#{episode_id} #{podcast_id} #{DateTime.to_iso8601(dtim)} #{count} #{drop_day_offset}\n"
+      {dtim, count, episode_id, podcast_id, drop_day} = row
+      "#{episode_id} #{podcast_id} #{DateTime.to_iso8601(dtim)} #{count} #{drop_day}\n"
     end)
   end
 end
