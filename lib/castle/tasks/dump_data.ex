@@ -43,7 +43,7 @@ defmodule Mix.Tasks.Castle.DumpData do
       order_by: [asc: e.podcast_id],
       select:
         {h.dtim, h.count, h.episode_id, h.podcast_id,
-         fragment("extract(day from ? - ?) as drop_day", h.dtim, e.published_at)}
+         fragment("extract(day from ? - ?)::integer as drop_day", h.dtim, e.published_at)}
     )
   end
 
@@ -63,9 +63,7 @@ defmodule Mix.Tasks.Castle.DumpData do
   def dump_episodes(dir) do
     episodes_query()
     |> dump_stream(Path.join(dir, 'episodes'), fn e ->
-      "#{e.id} #{e.podcast_id} #{DateTime.to_iso8601(e.created_at)} #{
-        DateTime.to_iso8601(e.published_at)
-      }\n"
+      "#{e.id} #{e.podcast_id} #{DateTime.to_iso8601(e.created_at)} #{DateTime.to_iso8601(e.published_at)}\n"
     end)
   end
 
