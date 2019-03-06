@@ -40,7 +40,7 @@ defmodule Mix.Tasks.Castle.DumpData do
     from(h in Castle.HourlyDownload,
       join: e in Castle.Episode,
       on: e.id == h.episode_id,
-      order_by: [asc: e.podcast_id],
+      order_by: [h.dtim, e.podcast_id, h.episode_id, e.published_at],
       select:
         {h.dtim, h.count, h.episode_id, h.podcast_id,
          fragment("extract(day from ? - ?)::integer as drop_day", h.dtim, e.published_at)}
