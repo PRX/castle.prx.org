@@ -15,6 +15,7 @@ defmodule Castle.Rollup.Query.GeoRanks do
       |> where_filters(grouping_name, filters)
       |> order_by([t], [asc: fragment("time"), asc: fragment("grouping")])
       |> Castle.Repo.all
+      |> trim_codes()
     {top_n ++ [nil], data}
   end
 
@@ -31,6 +32,7 @@ defmodule Castle.Rollup.Query.GeoRanks do
       |> where_filters(grouping_name, filters)
       |> order_by([t], [asc: fragment("time"), asc: fragment("grouping")])
       |> Castle.Repo.all
+      |> trim_codes()
     {top_n ++ [nil], data}
   end
 
@@ -94,4 +96,13 @@ defmodule Castle.Rollup.Query.GeoRanks do
     where(query, [t], t.country_iso_code in ^codes_list)
   end
   defp where_filters(query, _, _), do: query
+
+  # the CASE statement prevents the TrimmedString field type from parsing this
+  defp trim_codes([%{group: "" <> group} = row | rest]) do
+    [Map.put(row, :group, String.trim(group))] ++ trim_codes(rest)
+  end
+  defp trim_codes([row | rest]) do
+    [row] ++ trim_codes(rest)
+  end
+  defp trim_codes([]), do: []
 end

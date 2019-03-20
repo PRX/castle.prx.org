@@ -1,8 +1,11 @@
 defmodule Castle.DailyGeoMetro do
   use Ecto.Schema
+  use Castle.Model.Partitioned
   import Ecto.Changeset
 
   @primary_key false
+  @partition_on :day
+  @partition_unique [:episode_id, :metro_code, :day]
 
   schema "daily_geo_metros" do
     field :podcast_id, :integer
@@ -17,18 +20,5 @@ defmodule Castle.DailyGeoMetro do
     download
     |> cast(attrs, [:podcast_id, :episode_id, :metro_code, :day, :count])
     |> validate_required([:podcast_id, :episode_id, :metro_code, :day, :count])
-  end
-
-  def upsert(row), do: upsert_all([row])
-
-  def upsert_all([]), do: 0
-  def upsert_all(rows) when length(rows) > 5000 do
-    Enum.chunk_every(rows, 5000)
-    |> Enum.map(&upsert_all/1)
-    |> Enum.sum()
-  end
-  def upsert_all(rows) do
-    Castle.Repo.insert_all Castle.DailyGeoMetro, rows
-    length(rows)
   end
 end
