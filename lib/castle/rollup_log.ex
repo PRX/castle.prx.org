@@ -52,8 +52,7 @@ defmodule Castle.RollupLog do
     Enum.map result.rows, &(range_to_struct(table_name, hd(&1)))
   end
 
-  defp range_to_struct(name, erl) do
-    {:ok, date} = Date.from_erl(erl)
+  defp range_to_struct(name, date) do
     %Castle.RollupLog{table_name: name, date: date}
   end
 

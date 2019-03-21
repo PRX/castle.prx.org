@@ -1,5 +1,5 @@
 defmodule Castle.Repo do
-  use Ecto.Repo, otp_app: :castle
+  use Ecto.Repo, otp_app: :castle, adapter: Ecto.Adapters.Postgres
 
   def init(_, opts) do
     {:ok, load_opts(opts, Mix.env)}

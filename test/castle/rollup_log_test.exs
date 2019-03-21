@@ -50,11 +50,12 @@ defmodule Castle.RollupLogTest do
   end
 
   test "updates rows that have already been inserted" do
+    {:ok, date} = Date.from_erl({2018, 4, 22})
     {1, [%{id: id}]} = Castle.Repo.insert_all Castle.RollupLog, [%{
       table_name: "foobar",
-      date: Ecto.Date.from_erl({2018, 4, 22}),
-      inserted_at: get_dtim("2018-04-22T22:00:00Z"),
-      updated_at: get_dtim("2018-04-22T23:00:00Z"),
+      date: date,
+      inserted_at: Timex.to_naive_datetime(get_dtim("2018-04-22T22:00:00Z")),
+      updated_at: Timex.to_naive_datetime(get_dtim("2018-04-22T23:00:00Z")),
     }], returning: [:id]
 
     log1 = Castle.Repo.get(Castle.RollupLog, id)
@@ -82,6 +83,7 @@ defmodule Castle.RollupLogTest do
   end
 
   defp build_log(name, year, month, day, complete \\ true) do
-    %Castle.RollupLog{table_name: name, date: Ecto.Date.from_erl({year, month, day}), complete: complete}
+    {:ok, date} = Date.from_erl({year, month, day})
+    %Castle.RollupLog{table_name: name, date: date, complete: complete}
   end
 end

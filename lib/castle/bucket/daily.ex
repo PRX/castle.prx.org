@@ -15,7 +15,7 @@ defmodule Castle.Bucket.Daily do
     if Timex.compare(floor(time), time) == 0 do
       time
     else
-      Timex.end_of_day(time) |> Timex.shift(microseconds: 1)
+      Timex.beginning_of_day(time) |> Timex.shift(days: 1)
     end
   end
 

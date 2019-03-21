@@ -47,7 +47,7 @@ defmodule Castle.EpisodeTest do
     assert episode.title == "hello"
     assert episode.subtitle == "world"
     assert episode.image_url == "http://foo.bar/image1.jpg"
-    assert_time episode.created_at, "2018-04-25T04:00:00.129000Z"
+    assert_time episode.created_at, "2018-04-25T04:00:00Z"
     assert_time episode.updated_at, "2018-04-25T05:00:00Z"
     assert_time episode.published_at, "2018-04-25T04:30:00Z"
   end

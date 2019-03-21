@@ -21,7 +21,7 @@ defmodule Mix.Tasks.Postgres.Vacuum do
     if opts[:lock] do
       {:ok, _started} = Application.ensure_all_started(:castle)
     else
-      Mix.Ecto.ensure_started(Castle.Repo, [])
+      Mix.EctoSQL.ensure_started(Castle.Repo, [])
     end
 
     tbl = opts[:table] || get_worst_table()
