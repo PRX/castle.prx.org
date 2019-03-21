@@ -36,12 +36,13 @@ defmodule Castle.Mixfile do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:phoenix, "~> 1.4.0-rc", override: true},
-     {:phoenix_pubsub, "~> 1.0"},
-     {:phoenix_ecto, "~> 3.2"},
+    [{:phoenix, "~> 1.4.2"},
+     {:phoenix_pubsub, "~> 1.1"},
+     {:phoenix_ecto, "~> 4.0"},
+     {:ecto_sql, "~> 3.0"},
      {:postgrex, ">= 0.0.0"},
-     {:phoenix_html, "~> 2.10"},
-     {:phoenix_live_reload, "~> 1.0", only: :dev},
+     {:phoenix_html, "~> 2.11"},
+     {:phoenix_live_reload, "~> 1.2", only: :dev},
      {:ex_doc, "~> 0.14", only: :dev, runtime: false},
      {:gettext, "~> 0.11"},
      {:plug_cowboy, "~> 2.0"},
