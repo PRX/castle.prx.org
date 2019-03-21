@@ -32,7 +32,7 @@ defmodule Castle.PodcastTest do
     assert podcast.title == "hello"
     assert podcast.subtitle == "world"
     assert podcast.image_url == "http://foo.bar/feed.jpg"
-    assert_time podcast.created_at, "2018-04-25T04:00:00.129000Z"
+    assert_time podcast.created_at, "2018-04-25T04:00:00Z"
     assert_time podcast.updated_at, "2018-04-25T05:00:00Z"
     assert_time podcast.published_at, "2018-04-25T04:30:00Z"
   end

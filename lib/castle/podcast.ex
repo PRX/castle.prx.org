@@ -65,6 +65,6 @@ defmodule Castle.Podcast do
   defp parse_dtim(nil), do: nil
   defp parse_dtim(dtim_str) do
     {:ok, dtim} = Timex.parse(dtim_str, "{ISO:Extended:Z}")
-    dtim
+    DateTime.truncate(dtim, :second)
   end
 end
