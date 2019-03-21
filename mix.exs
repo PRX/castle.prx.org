@@ -55,7 +55,7 @@ defmodule Castle.Mixfile do
      {:prx_auth, "~> 0.0.1"},
      {:memoize, "~> 1.2"},
      {:quantum, "~> 2.2"},
-     {:new_relic_phoenix, "~> 0.1.0-rc"},
+     {:new_relic_phoenix, "~> 0.1"},
      {:dotenv, "~> 3.0", only: [:dev, :test]},
      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
      {:mock, "~> 0.3.1", only: :test}]
