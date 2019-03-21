@@ -15,7 +15,7 @@ defmodule Castle.Bucket.Weekly do
     if Timex.compare(floor(time), time) == 0 do
       time
     else
-      Timex.end_of_week(time, 7) |> Timex.shift(microseconds: 1)
+      Timex.beginning_of_week(time, 7) |> Timex.shift(weeks: 1)
     end
   end
 

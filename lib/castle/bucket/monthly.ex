@@ -15,7 +15,7 @@ defmodule Castle.Bucket.Monthly do
     if Timex.compare(floor(time), time) == 0 do
       time
     else
-      Timex.end_of_month(time) |> Timex.shift(microseconds: 1)
+      Timex.beginning_of_month(time) |> Timex.shift(months: 1)
     end
   end
 
