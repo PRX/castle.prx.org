@@ -22,6 +22,8 @@ defmodule Mix.Tasks.Castle.DumpData do
   end
 
   def dump(output_dir: dir) do
+    IO.puts('dumping daily_geo_countries data')
+    dump_daily_geo_countries(dir)
     IO.puts('dumping episode data')
     dump_episodes(dir)
     IO.puts('dumping hourly_download data')
@@ -30,6 +32,10 @@ defmodule Mix.Tasks.Castle.DumpData do
 
   def dump(_) do
     print_help()
+  end
+
+  def dail_geo_countries_query do
+    from(d in Castle.DailyGeoCountry)
   end
 
   def episodes_query do
@@ -53,11 +59,18 @@ defmodule Mix.Tasks.Castle.DumpData do
         query
         |> Castle.Repo.stream(timeout: :infinity)
         |> Stream.map(row_fun)
-        |> Stream.into(File.stream!(path))
+        |> Stream.into(File.stream!(path, [:write]))
         |> Stream.run()
       end,
       timeout: :infinity
     )
+  end
+
+  def dump_daily_geo_countries(dir) do
+    dail_geo_countries_query()
+    |> dump_stream(Path.join(dir, 'daily_geo_countries'), fn d ->
+      "#{d.episode_id} #{d.podcast_id} #{d.day} #{d.count} #{d.country_iso_code}\n"
+    end)
   end
 
   def dump_episodes(dir) do
