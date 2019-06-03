@@ -12,7 +12,7 @@ defmodule BigQuery.Base.Query do
   end
 
   def query_each(sql, func), do: query_each(%{}, sql, func)
-  def query_each(params, sql, func), do: query_each(params, sql, func, nil)
+  def query_each(params, sql, func), do: query_each(params, sql, nil, func)
   def query_each(params, sql, limit, func) do
     sql
     |> post_params(params, limit)
