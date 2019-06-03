@@ -25,13 +25,19 @@ defmodule BigQuery.Rollup.HourlyDownloads do
     """
   end
 
-  defp format_results(rows, day) do
-    Enum.map(rows, &(format_result(&1, day)))
+  defp format_results(rows, from) do
+    epoch = Timex.beginning_of_day(from) |> Timex.to_unix()
+    Enum.map(rows, &(format_result(&1, epoch)))
   end
 
-  defp format_result(%{hour: hour} = row, day) do
+  defp format_result(%{hour: hour} = row, epoch) do
     row
-    |> Map.put(:dtim, Timex.shift(day, hours: hour))
+    |> Map.put(:dtim, fast_shift(epoch, hour))
     |> Map.delete(:hour)
+  end
+
+  # shifting a non-naive timestamp is prohibitively slow
+  defp fast_shift(epoch, hour) do
+    Timex.from_unix(epoch + (hour * 3600), :second)
   end
 end
