@@ -1,11 +1,13 @@
 defmodule BigQuery.Rollup.HourlyDownloads do
   alias BigQuery.Base.Query, as: Query
 
-  def query(), do: query(Timex.now)
-  def query(dtim) do
+  def query(func), do: query(Timex.now, func)
+  def query(dtim, func) do
     BigQuery.Rollup.for_day dtim, fn(day) ->
       {:ok, date_str} = Timex.format(day, "{YYYY}-{0M}-{0D}")
-      Query.query(%{date_str: date_str}, sql()) |> format_results(day)
+      Query.query_each %{date_str: date_str}, sql(), fn(rows) ->
+        format_results(rows, day) |> func.()
+      end
     end
   end
 
@@ -23,8 +25,8 @@ defmodule BigQuery.Rollup.HourlyDownloads do
     """
   end
 
-  defp format_results({rows, meta}, day) do
-    {Enum.map(rows, &(format_result(&1, day))), meta}
+  defp format_results(rows, day) do
+    Enum.map(rows, &(format_result(&1, day)))
   end
 
   defp format_result(%{hour: hour} = row, day) do
