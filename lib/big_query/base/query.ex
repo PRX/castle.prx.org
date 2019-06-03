@@ -11,6 +11,16 @@ defmodule BigQuery.Base.Query do
     run_query(queryParams, sql, pageLimit)
   end
 
+  def query_each(sql, func), do: query_each(%{}, sql, func)
+  def query_each(params, sql, func), do: query_each(params, sql, nil, func)
+  def query_each(params, sql, limit, func) do
+    sql
+    |> post_params(params, limit)
+    |> post("queries")
+    |> page_result(func)
+    |> parse_meta()
+  end
+
   defp run_query(queryParams, sql, pageLimit) do
     sql
     |> post_params(queryParams, pageLimit)
@@ -46,6 +56,16 @@ defmodule BigQuery.Base.Query do
     |> page_result()
   end
   defp page_result(data) do
+    data
+  end
+  defp page_result(%{"pageToken" => token, "jobReference" => %{"jobId" => job}} = data, func) do
+    data |> parse_data() |> func.()
+    %{"pageToken" => token}
+    |> get("queries/#{job}")
+    |> page_result(func)
+  end
+  defp page_result(data, func) do
+    data |> parse_data() |> func.()
     data
   end
 

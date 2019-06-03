@@ -1,11 +1,13 @@
 defmodule BigQuery.Rollup.DailyGeoSubdivs do
   alias BigQuery.Base.Query, as: Query
 
-  def query(), do: query(Timex.now)
-  def query(dtim) do
+  def query(func), do: query(Timex.now, func)
+  def query(dtim, func) do
     BigQuery.Rollup.for_day dtim, fn(day) ->
       {:ok, date_str} = Timex.format(day, "{YYYY}-{0M}-{0D}")
-      Query.query(%{date_str: date_str}, sql()) |> format_results(day)
+      Query.query_each %{date_str: date_str}, sql(), fn(rows) ->
+        format_results(rows, day) |> func.()
+      end
     end
   end
 
@@ -25,9 +27,9 @@ defmodule BigQuery.Rollup.DailyGeoSubdivs do
     """
   end
 
-  defp format_results({rows, meta}, from) do
+  defp format_results(rows, from) do
     day = Timex.beginning_of_day(from) |> Timex.to_date()
-    {Enum.map(rows, &(format_result(&1, day))), meta}
+    Enum.map(rows, &(format_result(&1, day)))
   end
 
   defp format_result(row, day) do

@@ -1,13 +1,14 @@
 defmodule BigQuery.Base.QueryResult do
 
   def from_response(data) do
-    {
-      parse_rows(data["rows"], data["schema"]["fields"]),
-      parse_meta(data),
-    }
+    {parse_data(data), parse_meta(data)}
   end
 
-  defp parse_meta(data) do
+  def parse_data(data) do
+    parse_rows(data["rows"], data["schema"]["fields"])
+  end
+
+  def parse_meta(data) do
     %{
       cached: data |> Map.get("cacheHit", false),
       total: data |> Map.get("totalRows", "0") |> String.to_integer,
@@ -49,7 +50,7 @@ defmodule BigQuery.Base.QueryResult do
         num = if String.contains?(value, "E"),
           do: String.to_float(value) |> round,
           else: String.to_integer(value)
-        {:ok, dtim} = DateTime.from_unix(num)
+        {:ok, dtim} = DateTime.from_unix(num, :second)
         dtim
       {"RECORD", %{"v" => v}} -> parse_value(v, "RECORD")
       {"RECORD", %{"f" => f}} -> parse_value(f, "RECORD")
