@@ -50,7 +50,7 @@ defmodule BigQuery.Base.QueryResult do
         num = if String.contains?(value, "E"),
           do: String.to_float(value) |> round,
           else: String.to_integer(value)
-        {:ok, dtim} = DateTime.from_unix(num)
+        {:ok, dtim} = DateTime.from_unix(num, :second)
         dtim
       {"RECORD", %{"v" => v}} -> parse_value(v, "RECORD")
       {"RECORD", %{"f" => f}} -> parse_value(f, "RECORD")

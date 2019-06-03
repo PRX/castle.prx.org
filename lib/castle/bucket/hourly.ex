@@ -9,12 +9,12 @@ defmodule Castle.Bucket.Hourly do
 
   def floor(time) do
     seconds = Timex.to_unix(time)
-    Timex.from_unix(seconds - rem(seconds, 3600))
+    Timex.from_unix(seconds - rem(seconds, 3600), :second)
   end
 
   def ceiling(time) do
     seconds = Timex.to_unix(time)
-    Timex.from_unix(round(Float.ceil(seconds / 3600) * 3600))
+    Timex.from_unix(round(Float.ceil(seconds / 3600) * 3600), :second)
   end
 
   def next(time) do
