@@ -3,7 +3,7 @@ defmodule Castle.CastleBucketDailyTest do
 
   import Castle.Bucket.Daily
 
-  defp format_floor(str), do: mutate_dtim(str, &floor/1)
+  defp format_floor(str), do: mutate_dtim(str, &Castle.Bucket.Daily.floor/1)
   defp format_ceiling(str), do: mutate_dtim(str, &ceiling/1)
   defp format_next(str), do: mutate_dtim(str, &next/1)
   defp format_range(s1, s2), do: mutate_dtims(s1, s2, &range/2)
