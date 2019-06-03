@@ -18,16 +18,19 @@ defmodule Mix.Tasks.Castle.Rollup.Geosubdivs do
 
   def rollup(rollup_log) do
     Logger.info "Rollup.DailyGeoSubdiv.#{rollup_log.date} querying"
-    {results, meta} = rollup_log.date |> Timex.to_datetime() |> BigQuery.Rollup.daily_geo_subdivs()
-    Logger.info "Rollup.DailyGeoSubdiv.#{rollup_log.date} upserting #{length(results)}"
-    Castle.DailyGeoSubdiv.upsert_all(results)
+
+    meta = BigQuery.Rollup.daily_geo_subdivs(rollup_log.date, fn(results) ->
+      Logger.info "Rollup.DailyGeoSubdiv.#{rollup_log.date} upserting #{length(results)}"
+      Castle.DailyGeoSubdiv.upsert_all(results)
+    end)
+
     case meta do
-      %{complete: true} ->
+      %{complete: true, total: total} ->
         set_complete(rollup_log)
-        Logger.info "Rollup.DailyGeoSubdiv.#{rollup_log.date} complete"
-      %{complete: false, hours_complete: h} ->
+        Logger.info "Rollup.DailyGeoSubdiv.#{rollup_log.date} complete #{total}"
+      %{complete: false, total: total, hours_complete: h} ->
         set_incomplete(rollup_log)
-        Logger.info "Rollup.DailyGeoSubdiv.#{rollup_log.date} incomplete (#{h}/24 hours)"
+        Logger.info "Rollup.DailyGeoSubdiv.#{rollup_log.date} incomplete #{total} (#{h}/24 hours)"
     end
   end
 end

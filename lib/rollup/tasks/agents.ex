@@ -18,16 +18,19 @@ defmodule Mix.Tasks.Castle.Rollup.Agents do
 
   def rollup(rollup_log) do
     Logger.info "Rollup.DailyAgent.#{rollup_log.date} querying"
-    {results, meta} = rollup_log.date |> Timex.to_datetime() |> BigQuery.Rollup.daily_agents()
-    Logger.info "Rollup.DailyAgent.#{rollup_log.date} upserting #{length(results)}"
-    Castle.DailyAgent.upsert_all(results)
+
+    meta = BigQuery.Rollup.daily_agents(rollup_log.date, fn(results) ->
+      Logger.info "Rollup.DailyAgent.#{rollup_log.date} upserting #{length(results)}"
+      Castle.DailyAgent.upsert_all(results)
+    end)
+
     case meta do
-      %{complete: true} ->
+      %{complete: true, total: total} ->
         set_complete(rollup_log)
-        Logger.info "Rollup.DailyAgent.#{rollup_log.date} complete"
-      %{complete: false, hours_complete: h} ->
+        Logger.info "Rollup.DailyAgent.#{rollup_log.date} complete #{total}"
+      %{complete: false, total: total, hours_complete: h} ->
         set_incomplete(rollup_log)
-        Logger.info "Rollup.DailyAgent.#{rollup_log.date} incomplete (#{h}/24 hours)"
+        Logger.info "Rollup.DailyAgent.#{rollup_log.date} incomplete #{total} (#{h}/24 hours)"
     end
   end
 end
