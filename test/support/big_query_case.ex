@@ -13,7 +13,12 @@ defmodule Castle.BigQueryCase do
           data = unquote(mock_result)
           {data, %{bytes: 1, megabytes: 1, cached: false, total: length(data)}}
         end
-        with_mock BigQuery.Base.Query, [query: query] do
+        query_each = fn(_params, _sql, func) ->
+          data = unquote(mock_result)
+          func.(data)
+          %{bytes: 1, megabytes: 1, cached: false, total: length(data)}
+        end
+        with_mock BigQuery.Base.Query, [query: query, query_each: query_each] do
           if unquote(now_str) do
             now = [now: fn() -> get_dtim(unquote(now_str)) end]
             with_mock Timex, [:passthrough], now, do: unquote(expression)
