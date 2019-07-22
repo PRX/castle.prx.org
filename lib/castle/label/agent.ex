@@ -94,6 +94,12 @@ defmodule Castle.Label.Agent do
     89 => "WBEZ App",
     90 => "Wilson FM",
     91 => "Luminary",
+    92 => "Edge",
+    93 => "DoggCatcher",
+    94 => "Chromecast",
+    95 => "Squeezebox",
+    96 => "Spreaker",
+    97 => "VictorReader",
   }
 
   def find(nil), do: "Other"
