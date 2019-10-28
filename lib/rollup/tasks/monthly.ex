@@ -31,9 +31,4 @@ defmodule Mix.Tasks.Castle.Rollup.Monthly do
       Logger.info "Rollup.MonthlyDownloads.#{rollup_log.date} incomplete"
     end
   end
-
-  def is_past_month?(date, now \\ Timex.now) do
-    offset = Timex.shift(now, months: -1, days: -1)
-    Timex.compare(offset, date) > -1
-  end
 end

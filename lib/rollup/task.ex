@@ -81,6 +81,11 @@ defmodule Castle.Rollup.Task do
           _ -> raise "Invalid date provided: #{str}"
         end
       end
+
+      def is_past_month?(date, now \\ Timex.now) do
+        offset = Timex.shift(now, months: -1, days: -1)
+        Timex.compare(offset, date) > -1
+      end
     end
   end
 end

@@ -13,6 +13,7 @@ defmodule BigQuery.Rollup do
   defdelegate daily_geo_metros(d, func), to: BigQuery.Rollup.DailyGeoMetros, as: :query
   defdelegate daily_geo_subdivs(func), to: BigQuery.Rollup.DailyGeoSubdivs, as: :query
   defdelegate daily_geo_subdivs(d, func), to: BigQuery.Rollup.DailyGeoSubdivs, as: :query
+  defdelegate monthly_uniques(d, func), to: BigQuery.Rollup.MonthlyUniques, as: :query
 
   def for_day(dtim, query_fn) do
     now = Timex.now()
