@@ -41,6 +41,13 @@ defmodule Castle.RollupLog do
     """
   end
 
+  def find_missing_singleton(tbl), do: find_missing_singleton(tbl, default_to_date())
+  def find_missing_singleton(table_name, to_date) do
+    find_missing table_name, 1, """
+      SELECT '#{date_str(to_date)}'::date as date
+    """
+  end
+
   defp find_missing(table_name, limit, range_sql) do
     query = """
       SELECT range.date FROM (#{range_sql}) as range

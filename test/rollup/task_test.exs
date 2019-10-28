@@ -24,6 +24,14 @@ defmodule Castle.RollupTaskTest do
     def run(_args), do: nil
   end
 
+  defmodule SingletonTask do
+    use Castle.Rollup.Task
+    @interval "singleton"
+    def run(_args), do: nil
+    def done(log), do: set_complete(log)
+    def undone(log), do: set_incomplete(log)
+  end
+
   setup do
     redis_clear("lock.rollup.*")
     []
@@ -74,5 +82,21 @@ defmodule Castle.RollupTaskTest do
     assert Enum.at(rolls, 0) == this_month
     assert Enum.at(rolls, 1) == last_month
     assert Enum.at(rolls, 2) == prev_month
+  end
+
+  test "handles a singleton lookup" do
+    today = Timex.now |> Timex.to_date
+    roll1 = SingletonTask.do_rollup [], fn(log) ->
+      SingletonTask.done(log)
+      log.date
+    end
+    roll2 = SingletonTask.do_rollup [], fn(log) ->
+      SingletonTask.done(log)
+      log.date
+    end
+    assert length(roll1) == 1
+    assert Enum.at(roll1, 0) == today
+
+    assert length(roll2) == 0
   end
 end

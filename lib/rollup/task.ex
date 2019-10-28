@@ -50,6 +50,7 @@ defmodule Castle.Rollup.Task do
         case get_attribute(:interval) do
           "month" -> Castle.RollupLog.find_missing_months table_name(), count
           "day" -> Castle.RollupLog.find_missing_days table_name(), count
+          "singleton" -> Castle.RollupLog.find_missing_singleton table_name()
         end
       end
       defp find_rollup_logs(_opts), do: find_rollup_logs(%{count: get_attribute(:default_count)})
