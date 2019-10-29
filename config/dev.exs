@@ -48,6 +48,7 @@ config :castle, Castle.Scheduler,
     # {"* * * * *", {Rollup.Hourly,       :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.MonthlyUniques,  :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.LastWeekUniques, :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Last28Uniques, :run, [["--lock"]]}},
 
     # {"* * * * *", {Rollup.Monthly,      :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.Geocountries, :run, [["--lock"]]}},
