@@ -1,5 +1,4 @@
 defmodule BigQuery.Rollup do
-
   # a day isn't "complete" until this many seconds after it's over
   @buffer_seconds 900
 
@@ -14,6 +13,7 @@ defmodule BigQuery.Rollup do
   defdelegate daily_geo_subdivs(func), to: BigQuery.Rollup.DailyGeoSubdivs, as: :query
   defdelegate daily_geo_subdivs(d, func), to: BigQuery.Rollup.DailyGeoSubdivs, as: :query
   defdelegate monthly_uniques(d, func), to: BigQuery.Rollup.MonthlyUniques, as: :query
+  defdelegate weekly_uniques(d, func), to: BigQuery.Rollup.WeeklyUniques, as: :query
   defdelegate last_week_uniques(d, func), to: BigQuery.Rollup.LastWeekUniques, as: :query
   defdelegate last_28_uniques(d, func), to: BigQuery.Rollup.Last28Uniques, as: :query
 

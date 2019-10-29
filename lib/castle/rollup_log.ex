@@ -33,6 +33,14 @@ defmodule Castle.RollupLog do
     """
   end
 
+  def find_missing_weeks(tbl, lim), do: find_missing_weeks(tbl, lim, default_to_date())
+  def find_missing_weeks(table_name, limit, to_date) do
+    find_missing table_name, limit, """
+      SELECT r.DATE as date
+      FROM GENERATE_SERIES('#{date_str(to_date)}', '#{@beginning_of_time}', '-1 WEEK'::INTERVAL) r
+    """
+  end
+
   def find_missing_months(tbl, lim), do: find_missing_months(tbl, lim, default_to_date())
   def find_missing_months(table_name, limit, to_date) do
     find_missing table_name, limit, """
