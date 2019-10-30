@@ -1,5 +1,6 @@
 defmodule BigQuery.Rollup.LastWeekUniques do
   alias BigQuery.Base.Query, as: Query
+  use BigQuery.Rollup.Uniques
 
   def query(func), do: query(Timex.now, func)
   def query(dtim, func) do
@@ -15,21 +16,6 @@ defmodule BigQuery.Rollup.LastWeekUniques do
         format_results(rows, start_day) |> func.()
       end
     end
-  end
-
-  defp sql do
-    """
-    SELECT
-      feeder_podcast as podcast_id,
-      count(distinct listener_id) as count
-    FROM production.dt_downloads
-    WHERE timestamp >= @start_at_str
-      AND timestamp < @end_at_str
-      AND is_duplicate = false
-      AND feeder_podcast IS NOT NULL
-    group by feeder_podcast
-    order by feeder_podcast asc;
-    """
   end
 
   defp format_results(rows, start_day) do
