@@ -16,6 +16,16 @@ defmodule Castle.Plugs.Interval.Bucket do
     end
   end
 
+  def parse(%{assigns: %{interval: %{from: from, to: to}}} = conn, %{min: min}) do
+    buckets = get_buckets(min)
+    best_guess = Enum.find(buckets, List.last(buckets), &(&1.count_range(from, to) < 70))
+    validate_window(conn, best_guess)
+  end
+
+  def parse(_conn, _opts) do
+    {:error, "Invalid interval params"}
+  end
+
   def valid_bucket_labels(buckets, min) do
     bucket_label_grouping =
       case min do
@@ -26,16 +36,6 @@ defmodule Castle.Plugs.Interval.Bucket do
     buckets
     |> Enum.flat_map(fn bucket -> apply(bucket, bucket_label_grouping, []) end)
     |> Enum.join(", ")
-  end
-
-  def parse(%{assigns: %{interval: %{from: from, to: to}}} = conn, %{min: min}) do
-    buckets = get_buckets(min)
-    best_guess = Enum.find(buckets, List.last(buckets), &(&1.count_range(from, to) < 70))
-    validate_window(conn, best_guess)
-  end
-
-  def parse(_conn, _opts) do
-    {:error, "Invalid interval params"}
   end
 
   defp get_buckets("HOUR") do
