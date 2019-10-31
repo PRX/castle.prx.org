@@ -47,6 +47,7 @@ config :castle, Castle.Scheduler,
     # {"* * * * *", {Postgres.Vacuum,     :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.Hourly,       :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.MonthlyUniques,  :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.WeeklyUniques,  :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.LastWeekUniques, :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.Last28Uniques, :run, [["--lock"]]}},
 
