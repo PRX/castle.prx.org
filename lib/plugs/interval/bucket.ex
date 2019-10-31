@@ -7,10 +7,10 @@ defmodule Castle.Plugs.Interval.Bucket do
 
   def parse(%{params: %{"interval" => interval}} = conn, %{min: min}) do
     buckets = get_buckets(min)
-    match = Enum.find(buckets, & &1.is_a?(interval))
+    matched_bucket = Enum.find(buckets, & &1.is_a?(interval))
 
-    if match do
-      validate_window(conn, match)
+    if matched_bucket do
+      validate_window(conn, matched_bucket)
     else
       options = buckets |> Enum.map(& &1.name) |> Enum.join(", ")
       {:error, "Bad interval param: use one of #{options}"}
@@ -35,11 +35,15 @@ defmodule Castle.Plugs.Interval.Bucket do
     [Bucket.Daily, Bucket.Weekly, Bucket.Monthly]
   end
 
-  defp validate_window(%{assigns: %{interval: %{from: from, to: to}}}, rollup) do
-    if rollup.count_range(from, to) > @max_in_window do
+  defp get_buckets("LISTENER_UNIQUES_NON_AGGREGATED") do
+    [Bucket.Weekly, Bucket.Monthly]
+  end
+
+  def validate_window(%{assigns: %{interval: %{from: from, to: to}}}, bucket) do
+    if bucket.count_range(from, to) > @max_in_window do
       {:error, "Time window too large for specified interval"}
     else
-      {:ok, rollup}
+      {:ok, bucket}
     end
   end
 end

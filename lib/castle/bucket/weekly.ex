@@ -5,7 +5,7 @@ defmodule Castle.Bucket.Weekly do
 
   def rollup, do: "week"
 
-  def is_a?(param), do: Enum.member?(["1w", "WEEK"], param)
+  def is_a?(param), do: Enum.member?(["1w", "WEEK", "LAST_WEEK"], param)
 
   def floor(time) do
     Timex.beginning_of_week(time, 7)

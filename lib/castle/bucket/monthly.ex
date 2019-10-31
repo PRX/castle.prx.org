@@ -5,7 +5,7 @@ defmodule Castle.Bucket.Monthly do
 
   def rollup, do: "month"
 
-  def is_a?(param), do: Enum.member?(["1M", "MONTH"], param)
+  def is_a?(param), do: Enum.member?(["1M", "MONTH", "LAST_MONTH"], param)
 
   def floor(time) do
     Timex.beginning_of_month(time)

@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Castle.Plugs.Interval do
   import Plug.Conn
 
@@ -25,27 +27,39 @@ defmodule Castle.Plugs.Interval do
     case valfn.(conn, opts) do
       {:ok, nil} ->
         conn
+
       {:ok, val} ->
         conn |> assign(:interval, Map.put(intv, key, val))
+
       {:error, err} ->
         conn |> send_resp(400, err) |> halt()
     end
   end
+
   defp interval_part(conn, _opts, _key, _valfn), do: conn
 
   defp round_time_window(conn, %{min: "HOUR"}), do: round_time_window(conn, Castle.Bucket.Hourly)
   defp round_time_window(conn, %{min: "DAY"}), do: round_time_window(conn, Castle.Bucket.Daily)
+
+  defp round_time_window(%{assigns: %{interval: %{bucket: bucket}}} = conn, %{
+         min: "LISTENER_UNIQUES_NON_AGGREGATED"
+       }) do
+    round_time_window(conn, bucket)
+  end
+
   defp round_time_window(%{status: nil, assigns: %{interval: intv}} = conn, round_to) do
     assign(conn, :interval, %{
       from: round_to.floor(intv.from),
       to: round_to.ceiling(intv.to),
-      bucket: Map.get(intv, :bucket),
+      bucket: Map.get(intv, :bucket)
     })
   end
+
   defp round_time_window(conn, _round_to), do: conn
 
   defp interval_struct(%{status: nil, assigns: %{interval: intv}} = conn) do
     conn |> assign(:interval, struct!(Castle.Interval, intv))
   end
+
   defp interval_struct(conn), do: conn
 end

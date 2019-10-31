@@ -18,7 +18,7 @@ defmodule CastleWeb.Router do
     plug Castle.Plugs.Group
   end
   pipeline :listener_metrics do
-    plug Castle.Plugs.Interval
+    plug Castle.Plugs.Interval, min: "LISTENER_UNIQUES_NON_AGGREGATED"
   end
 
   scope "/", CastleWeb do
