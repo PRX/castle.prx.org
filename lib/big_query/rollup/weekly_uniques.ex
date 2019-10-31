@@ -6,7 +6,7 @@ defmodule BigQuery.Rollup.WeeklyUniques do
   def query(dtim, func) do
     BigQuery.Rollup.for_day dtim, fn(end_at_day) ->
 
-      start_day = Timex.beginning_of_week(end_at_day, :mon)
+      start_day = Timex.beginning_of_week(end_at_day, 7)
       end_day = Timex.beginning_of_day(end_at_day)
 
       {:ok, start_at_str} = Timex.format(start_day, "{YYYY}-{0M}-{0D}")
