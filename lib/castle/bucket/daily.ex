@@ -5,7 +5,19 @@ defmodule Castle.Bucket.Daily do
 
   def rollup, do: "day"
 
-  def is_a?(param), do: Enum.member?(["1d", "DAY"], param)
+  def is_a?(param), do: Enum.member?(all_labels(), param)
+
+  def listeners_labels do
+    []
+  end
+
+  def downloads_labels do
+    ["1d", "DAY"]
+  end
+
+  def all_labels do
+    listeners_labels() ++ downloads_labels()
+  end
 
   def floor(time) do
     Timex.beginning_of_day(time)
