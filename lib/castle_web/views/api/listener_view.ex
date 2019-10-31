@@ -5,7 +5,7 @@ defmodule CastleWeb.API.ListenerView do
     %{
       id: id,
       interval: interval_json(intv),
-      listens: Enum.map(data, &count_json/1),
+      listeners: Enum.map(data, &count_json/1),
     }
   end
 
