@@ -16,6 +16,12 @@ defmodule Castle.Plugs.Interval.Bucket do
     end
   end
 
+  def parse(%{assigns: %{interval: %{from: from, to: to}}} = conn, %{
+        min: "LISTENER_UNIQUES_NON_AGGREGATED"
+      }) do
+    {:error, "Missing interval query param"}
+  end
+
   def parse(%{assigns: %{interval: %{from: from, to: to}}} = conn, %{min: min}) do
     buckets = get_buckets(min)
     best_guess = Enum.find(buckets, List.last(buckets), &(&1.count_range(from, to) < 70))
