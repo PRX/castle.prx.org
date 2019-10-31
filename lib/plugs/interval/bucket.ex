@@ -47,7 +47,7 @@ defmodule Castle.Plugs.Interval.Bucket do
   end
 
   defp get_buckets("LISTENER_UNIQUES_NON_AGGREGATED") do
-    [Bucket.Weekly, Bucket.Monthly]
+    [Bucket.Weekly, Bucket.Monthly, Bucket.Daily]
   end
 
   def validate_window(%{assigns: %{interval: %{from: from, to: to}}}, bucket) do

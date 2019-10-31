@@ -8,7 +8,7 @@ defmodule Castle.Bucket.Daily do
   def is_a?(param), do: Enum.member?(all_labels(), param)
 
   def listeners_labels do
-    []
+    ["LAST_WEEK", "LAST_28"]
   end
 
   def downloads_labels do
