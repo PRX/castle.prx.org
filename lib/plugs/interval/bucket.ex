@@ -16,7 +16,7 @@ defmodule Castle.Plugs.Interval.Bucket do
     end
   end
 
-  def parse(%{assigns: %{interval: %{from: from, to: to}}} = conn, %{
+  def parse(%{assigns: %{interval: %{from: _from, to: _to}}}, %{
         min: "LISTENER_UNIQUES_NON_AGGREGATED"
       }) do
     {:error, "Missing interval query param"}
