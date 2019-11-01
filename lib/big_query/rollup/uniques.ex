@@ -15,6 +15,13 @@ defmodule BigQuery.Rollup.Uniques do
         order by feeder_podcast asc;
         """
       end
+
+      defp formatted_range(start_day, end_day) do
+        {:ok, start_at_str} = Timex.format(start_day, "{YYYY}-{0M}-{0D}")
+        {:ok, end_at_str} = Timex.format(end_day, "{YYYY}-{0M}-{0D}")
+
+        {start_at_str, end_at_str}
+      end
     end
   end
 end

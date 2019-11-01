@@ -4,13 +4,11 @@ defmodule BigQuery.Rollup.MonthlyUniques do
 
   def query(func), do: query(Timex.now, func)
   def query(dtim, func) do
-    BigQuery.Rollup.for_day dtim, fn(start_at_day) ->
+    BigQuery.Rollup.for_day dtim, fn(day) ->
 
-      start_day = Timex.beginning_of_month(start_at_day)
+      start_day = Timex.beginning_of_month(day)
       end_day = Timex.shift(start_day, months: 1)
-
-      {:ok, start_at_str} = Timex.format(start_day, "{YYYY}-{0M}-{0D}")
-      {:ok, end_at_str} = Timex.format(end_day, "{YYYY}-{0M}-{0D}")
+      {start_at_str, end_at_str} = formatted_range(start_day, end_day)
 
       Query.query_each %{start_at_str: start_at_str, end_at_str: end_at_str}, sql(), fn(rows) ->
         format_results(rows, start_day) |> func.()

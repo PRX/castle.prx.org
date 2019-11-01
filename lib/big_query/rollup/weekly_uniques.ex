@@ -4,13 +4,11 @@ defmodule BigQuery.Rollup.WeeklyUniques do
 
   def query(func), do: query(Timex.now, func)
   def query(dtim, func) do
-    BigQuery.Rollup.for_day dtim, fn(end_at_day) ->
+    BigQuery.Rollup.for_day dtim, fn(day) ->
 
-      start_day = Timex.beginning_of_week(end_at_day, 7)
-      end_day = Timex.beginning_of_day(end_at_day)
-
-      {:ok, start_at_str} = Timex.format(start_day, "{YYYY}-{0M}-{0D}")
-      {:ok, end_at_str} = Timex.format(end_day, "{YYYY}-{0M}-{0D}")
+      start_day = Timex.beginning_of_week(day, 7)
+      end_day = Timex.shift(start_day, weeks: 1)
+      {start_at_str, end_at_str} = formatted_range(start_day, end_day)
 
       Query.query_each %{start_at_str: start_at_str, end_at_str: end_at_str}, sql(), fn(rows) ->
         format_results(rows, start_day) |> func.()
