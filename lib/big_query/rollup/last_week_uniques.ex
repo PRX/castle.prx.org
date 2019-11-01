@@ -19,7 +19,7 @@ defmodule BigQuery.Rollup.LastWeekUniques do
   end
 
   defp format_results(rows, end_day) do
-    start_day = Timex.beginning_of_day(end_day) |> Timex.to_date()
+    end_day = Timex.beginning_of_day(end_day) |> Timex.to_date()
 
     Enum.map(rows, &(format_result(&1, end_day)))
   end
