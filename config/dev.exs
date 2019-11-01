@@ -43,17 +43,16 @@ config :castle, :redis, Castle.Redis.Api
 # Uncomment to run jobs in development
 config :castle, Castle.Scheduler,
   jobs: [
-    # {"* * * * *", {Feeder.Sync,         :run, [["--lock"]]}},
-    # {"* * * * *", {Postgres.Vacuum,     :run, [["--lock"]]}},
-    # {"* * * * *", {Rollup.Hourly,       :run, [["--lock"]]}},
+    # {"* * * * *", {Feeder.Sync,            :run, [["--lock"]]}},
+    # {"* * * * *", {Postgres.Vacuum,        :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Hourly,          :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Monthly,         :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Geocountries,    :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Geometros,       :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Geosubdivs,      :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Agents,          :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.MonthlyUniques,  :run, [["--lock"]]}},
-    # {"* * * * *", {Rollup.WeeklyUniques,  :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.WeeklyUniques,   :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.LastWeekUniques, :run, [["--lock"]]}},
-    # {"* * * * *", {Rollup.Last28Uniques, :run, [["--lock"]]}},
-
-    # {"* * * * *", {Rollup.Monthly,      :run, [["--lock"]]}},
-    # {"* * * * *", {Rollup.Geocountries, :run, [["--lock"]]}},
-    # {"* * * * *", {Rollup.Geometros,    :run, [["--lock"]]}},
-    # {"* * * * *", {Rollup.Geosubdivs,   :run, [["--lock"]]}},
-    # {"* * * * *", {Rollup.Agents,       :run, [["--lock"]]}},
+    # {"* * * * *", {Rollup.Last28Uniques,   :run, [["--lock"]]}},
   ]
