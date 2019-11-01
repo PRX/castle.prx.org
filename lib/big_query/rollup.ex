@@ -21,7 +21,7 @@ defmodule BigQuery.Rollup do
     now = Timex.now()
     day = Timex.beginning_of_day(dtim)
 
-    case completion_state(day, now) do
+    case current_day_completion_state(day, now) do
       :none ->
         %{day: day, complete: false, hours_complete: 0}
 
@@ -36,7 +36,7 @@ defmodule BigQuery.Rollup do
     end
   end
 
-  def completion_state(day, now) do
+  def current_day_completion_state(day, now) do
     today = Timex.beginning_of_day(now)
     buffer_today = Timex.shift(now, seconds: -@buffer_seconds) |> Timex.beginning_of_day()
 
