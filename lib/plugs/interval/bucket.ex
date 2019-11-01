@@ -53,6 +53,7 @@ defmodule Castle.Plugs.Interval.Bucket do
   end
 
   defp get_buckets("LISTENER_UNIQUES_NON_AGGREGATED") do
+    # Bucket.Daily here provides bucketing for rolling week and 28 days
     [Bucket.Weekly, Bucket.Monthly, Bucket.Daily]
   end
 
