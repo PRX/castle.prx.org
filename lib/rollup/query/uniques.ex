@@ -12,7 +12,7 @@ defmodule Castle.Rollup.Query.Uniques do
   end
 
   defp query_podcasts(id, from, to, "LAST_WEEK") do
-    query_listeners_for_interval_type(id, from, to, :week, Castle.LastWeekUnique)
+    query_listeners_for_interval_type(id, from, to, :last_week, Castle.LastWeekUnique)
   end
 
   defp query_podcasts(id, from, to, "WEEK") do

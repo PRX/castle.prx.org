@@ -49,17 +49,17 @@ defmodule Castle.API.ListenerControllerTest do
     Castle.LastWeekUnique.upsert_all([
       %{
         podcast_id: @id,
-        week: ~D[2017-03-06],
+        last_week: ~D[2017-03-06],
         count: 1
       },
       %{
         podcast_id: @id,
-        week: ~D[2017-03-13],
+        last_week: ~D[2017-03-13],
         count: 2
       },
       %{
         podcast_id: @id,
-        week: ~D[2017-03-20],
+        last_week: ~D[2017-03-20],
         count: 3
       }
     ])

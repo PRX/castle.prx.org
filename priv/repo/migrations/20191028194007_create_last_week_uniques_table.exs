@@ -7,9 +7,9 @@ defmodule Castle.Repo.Migrations.CreateLastWeekUniquesTable do
     execute """
       CREATE TABLE last_week_uniques (
         podcast_id integer NOT NULL,
-        week date NOT NULL,
+        last_week date NOT NULL,
         count integer NOT NULL,
-        PRIMARY KEY (podcast_id, week)
+        PRIMARY KEY (podcast_id, last_week)
     );
     """
   end

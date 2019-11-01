@@ -13,19 +13,19 @@ defmodule BigQuery.Rollup.LastWeekUniques do
       {:ok, end_at_str} = Timex.format(end_day, "{YYYY}-{0M}-{0D}")
 
       Query.query_each %{start_at_str: start_at_str, end_at_str: end_at_str}, sql(), fn(rows) ->
-        format_results(rows, start_day) |> func.()
+        format_results(rows, end_day) |> func.()
       end
     end
   end
 
-  defp format_results(rows, start_day) do
-    start_day = Timex.beginning_of_day(start_day) |> Timex.to_date()
+  defp format_results(rows, end_day) do
+    start_day = Timex.beginning_of_day(end_day) |> Timex.to_date()
 
-    Enum.map(rows, &(format_result(&1, start_day)))
+    Enum.map(rows, &(format_result(&1, end_day)))
   end
 
-  defp format_result(row, start_day) do
+  defp format_result(row, end_day) do
     row
-    |> Map.put(:week, start_day)
+    |> Map.put(:last_week, end_day)
   end
 end
