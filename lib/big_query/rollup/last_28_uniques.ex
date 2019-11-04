@@ -6,7 +6,7 @@ defmodule BigQuery.Rollup.Last28Uniques do
   def query(dtim, func) do
     BigQuery.Rollup.for_day dtim, fn(day) ->
 
-      end_day = Timex.beginning_of_day(day)
+      end_day = Castle.Bucket.Daily.floor(day)
       start_day = Timex.shift(end_day, days: -28)
 
       {start_at_str, end_at_str} = formatted_range(start_day, end_day)
