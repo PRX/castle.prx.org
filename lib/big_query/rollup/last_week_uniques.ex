@@ -4,9 +4,9 @@ defmodule BigQuery.Rollup.LastWeekUniques do
 
   def query(func), do: query(Timex.now, func)
   def query(dtim, func) do
-    BigQuery.Rollup.for_day dtim, fn(day) ->
+    BigQuery.Rollup.for_day dtim, fn(end_at_day) ->
 
-      end_day = Castle.Bucket.Daily.floor(day)
+      end_day = Timex.beginning_of_day(end_at_day)
       start_day = Timex.shift(end_day, days: -7)
 
       {:ok, start_at_str} = Timex.format(start_day, "{YYYY}-{0M}-{0D}")
