@@ -40,7 +40,7 @@ defmodule Castle.BigQueryRollupLastWeekUniquesTest do
   test "actually gets data" do
     meta = query get_dtim("2019-05-07T05:14:37Z"), fn(results) ->
       assert length(results) == 111
-      assert hd(results).week == ~D[2019-04-30]
+      assert hd(results).last_week == ~D[2019-05-07]
       assert hd(results).count == 97556
     end
     assert_time meta.day, "2019-05-07T00:00:00Z"
