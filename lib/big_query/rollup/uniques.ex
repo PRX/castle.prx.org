@@ -4,7 +4,7 @@ defmodule BigQuery.Rollup.Uniques do
     SELECT
     feeder_podcast as podcast_id,
     count(distinct listener_id) as count
-    FROM production.dt_downloads
+    FROM dt_downloads
     WHERE timestamp >= @start_at_str
     AND timestamp < @end_at_str
     AND is_duplicate = false
