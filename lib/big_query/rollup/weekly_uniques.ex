@@ -1,6 +1,6 @@
 defmodule BigQuery.Rollup.WeeklyUniques do
   alias BigQuery.Base.Query, as: Query
-  use BigQuery.Rollup.Uniques
+  import BigQuery.Rollup.Uniques
 
   def query(func), do: query(Timex.now, func)
   def query(dtim, func) do
