@@ -79,6 +79,7 @@ defmodule Castle.Rollup.Task do
             case get_attribute(:interval) do
               "month" -> dtim |> Timex.beginning_of_month |> Timex.to_date
               "day" -> dtim |> Timex.beginning_of_day |> Timex.to_date
+              _ -> dtim |> Timex.to_date
             end
           _ -> raise "Invalid date provided: #{str}"
         end
