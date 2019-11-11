@@ -9,6 +9,8 @@ defmodule Castle.Repo.Migrations.CreateWeeklyUniquesTable do
         add :count, :integer, null: false
     end
     create unique_index(:weekly_uniques, [:podcast_id, :week])
+    create index(:weekly_uniques, :podcast_id)
+    create index(:weekly_uniques, :week)
   end
 
   def down do

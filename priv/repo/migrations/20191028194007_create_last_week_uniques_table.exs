@@ -9,6 +9,8 @@ defmodule Castle.Repo.Migrations.CreateLastWeekUniquesTable do
         add :count, :integer,      null: false
     end
     create unique_index(:last_week_uniques, [:podcast_id, :last_week])
+    create index(:last_week_uniques, :podcast_id)
+    create index(:last_week_uniques, :last_week)
   end
 
   def down do

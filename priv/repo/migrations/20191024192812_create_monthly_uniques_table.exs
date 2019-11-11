@@ -9,7 +9,8 @@ defmodule Castle.Repo.Migrations.CreateMonthlyUniquesTable do
         add :count, :integer,      null: false
     end
     create unique_index(:monthly_uniques, [:podcast_id, :month])
-
+    create index(:monthly_uniques, :podcast_id)
+    create index(:monthly_uniques, :month)
   end
 
   def down do

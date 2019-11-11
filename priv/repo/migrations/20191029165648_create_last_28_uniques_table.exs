@@ -9,6 +9,8 @@ defmodule Castle.Repo.Migrations.CreateLast28UniquesTable do
         add :count, :integer,      null: false
     end
     create unique_index(:last_28_uniques, [:podcast_id, :last_28])
+    create index(:last_28_uniques, :podcast_id)
+    create index(:last_28_uniques, :last_28)
   end
 
   def down do
