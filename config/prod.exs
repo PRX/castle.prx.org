@@ -28,15 +28,19 @@ config :castle, :redis, Castle.Redis.Api
 # Scheduled jobs
 config :castle, Castle.Scheduler,
   jobs: [
-    {"* * * * *",   {Feeder.Sync,     :run, [["--lock"]]}},
-    {"*/5 8 * * *", {Postgres.Vacuum, :run, [["--lock"]]}},
+    {"* * * * *",   {Feeder.Sync,                     :run, [["--lock"]]}},
     # 8-9 UTC reserved for vacuuming rollup tables
-    {"15,45 0-7,9-23 * * *", {Rollup.Hourly,       :run, [["--lock"]]}},
-    {"15 6 * * *",           {Rollup.Monthly,      :run, [["--lock"]]}},
-    {"20,50 0-7,9-23 * * *", {Rollup.Geocountries, :run, [["--lock"]]}},
-    {"25,55 0-7,9-23 * * *", {Rollup.Geometros,    :run, [["--lock"]]}},
-    {"30,0 0-7,9-23 * * *",  {Rollup.Geosubdivs,   :run, [["--lock"]]}},
-    {"35,5 0-7,9-23 * * *",  {Rollup.Agents,       :run, [["--lock"]]}},
+    {"*/5 8 * * *", {Postgres.Vacuum,                 :run, [["--lock"]]}},
+    {"15,45 0-7,9-23 * * *", {Rollup.Hourly,          :run, [["--lock"]]}},
+    {"15 6 * * *",           {Rollup.Monthly,         :run, [["--lock"]]}},
+    {"20,50 0-7,9-23 * * *", {Rollup.Geocountries,    :run, [["--lock"]]}},
+    {"25,55 0-7,9-23 * * *", {Rollup.Geometros,       :run, [["--lock"]]}},
+    {"30,0 0-7,9-23 * * *",  {Rollup.Geosubdivs,      :run, [["--lock"]]}},
+    {"35,5 0-7,9-23 * * *",  {Rollup.Agents,          :run, [["--lock"]]}},
+    {"40,10 0-7,9-23 * * *",  {Rollup.MonthlyUniques, :run, [["--lock"]]}},
+    {"40,10 0-7,9-23 * * *",  {Rollup.LastWeekUniques, :run, [["--lock"]]}},
+    {"45,15 0-7,9-23 * * *",  {Rollup.WeeklyUniques,  :run, [["--lock"]]}},
+    {"45,15 0-7,9-23 * * *",  {Rollup.Last28Uniques,   :run, [["--lock"]]}},
   ]
 
 # ## SSL Support

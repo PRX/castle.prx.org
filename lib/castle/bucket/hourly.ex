@@ -5,7 +5,19 @@ defmodule Castle.Bucket.Hourly do
 
   def rollup, do: "hour"
 
-  def is_a?(param), do: Enum.member?(["1h", "HOUR"], param)
+  def is_a?(param), do: Enum.member?(all_labels(), param)
+
+  def listeners_labels do
+    []
+  end
+
+  def downloads_labels do
+    ["1h", "HOUR"]
+  end
+
+  def all_labels do
+    listeners_labels() ++ downloads_labels()
+  end
 
   def floor(time) do
     seconds = Timex.to_unix(time)

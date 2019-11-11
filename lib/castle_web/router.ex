@@ -17,6 +17,9 @@ defmodule CastleWeb.Router do
     plug Castle.Plugs.Interval, min: "DAY", skip_bucket: true
     plug Castle.Plugs.Group
   end
+  pipeline :listener_metrics do
+    plug Castle.Plugs.Interval, min: "LISTENER_UNIQUES_NON_AGGREGATED"
+  end
 
   scope "/", CastleWeb do
     pipe_through :api
@@ -41,6 +44,10 @@ defmodule CastleWeb.Router do
       scope "/:id/downloads", as: :podcast do
         pipe_through :hourly_metrics
         resources "/", DownloadController, only: [:index]
+      end
+      scope "/:id/listeners", as: :podcast do
+        pipe_through :listener_metrics
+        resources "/", ListenerController, only: [:index]
       end
       scope "/:id/ranks", as: :podcast do
         pipe_through :ranked_metrics

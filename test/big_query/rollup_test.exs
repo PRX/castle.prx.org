@@ -25,14 +25,14 @@ defmodule Castle.BigQueryRollupTest do
 
   test "does not indicate a day is complete until 15 minutes after" do
     day = get_dtim("2018-05-23")
-    assert completion_state(day, get_dtim("2018-05-01T22:00:00Z")) == :none
-    assert completion_state(day, get_dtim("2018-05-22T23:59:59Z")) == :none
-    assert completion_state(day, get_dtim("2018-05-23T00:00:00Z")) == :partial
-    assert completion_state(day, get_dtim("2018-05-23T00:01:00Z")) == :partial
-    assert completion_state(day, get_dtim("2018-05-24T00:00:00Z")) == :partial
-    assert completion_state(day, get_dtim("2018-05-24T00:14:59Z")) == :partial
-    assert completion_state(day, get_dtim("2018-05-24T00:15:00Z")) == :complete
-    assert completion_state(day, get_dtim("2018-07-19T04:15:00Z")) == :complete
+    assert current_day_completion_state(day, get_dtim("2018-05-01T22:00:00Z")) == :none
+    assert current_day_completion_state(day, get_dtim("2018-05-22T23:59:59Z")) == :none
+    assert current_day_completion_state(day, get_dtim("2018-05-23T00:00:00Z")) == :partial
+    assert current_day_completion_state(day, get_dtim("2018-05-23T00:01:00Z")) == :partial
+    assert current_day_completion_state(day, get_dtim("2018-05-24T00:00:00Z")) == :partial
+    assert current_day_completion_state(day, get_dtim("2018-05-24T00:14:59Z")) == :partial
+    assert current_day_completion_state(day, get_dtim("2018-05-24T00:15:00Z")) == :complete
+    assert current_day_completion_state(day, get_dtim("2018-07-19T04:15:00Z")) == :complete
   end
 
   test "knows how many hours are complete, given a time" do

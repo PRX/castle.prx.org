@@ -126,6 +126,10 @@ mix castle.rollup.geocountries [--lock,--date [YYYYMMDD],--count [INT]]
 mix castle.rollup.geometros [--lock,--date [YYYYMMDD],--count [INT]]
 mix castle.rollup.geosubdivs [--lock,--date [YYYYMMDD],--count [INT]]
 mix castle.rollup.agents [--lock,--date [YYYYMMDD],--count [INT]]
+mix castle.rollup.weekly_uniques [--lock,--date [yyyymmdd],--count [int]]
+mix castle.rollup.monthly_uniques [--lock,--date [YYYYMMDD],--count [INT]]
+mix castle.rollup.last_week_uniques [--lock,--date [YYYYMMDD],--count [INT]]
+mix castle.rollup.last_28_uniques [--lock,--date [YYYYMMDD],--count [INT]]
 ```
 
 ## Testing

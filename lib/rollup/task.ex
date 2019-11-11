@@ -49,6 +49,7 @@ defmodule Castle.Rollup.Task do
       defp find_rollup_logs(%{count: count}) do
         case get_attribute(:interval) do
           "month" -> Castle.RollupLog.find_missing_months table_name(), count
+          "week" -> Castle.RollupLog.find_missing_weeks table_name(), count
           "day" -> Castle.RollupLog.find_missing_days table_name(), count
         end
       end
@@ -77,9 +78,15 @@ defmodule Castle.Rollup.Task do
             case get_attribute(:interval) do
               "month" -> dtim |> Timex.beginning_of_month |> Timex.to_date
               "day" -> dtim |> Timex.beginning_of_day |> Timex.to_date
+              _ -> dtim |> Timex.to_date
             end
           _ -> raise "Invalid date provided: #{str}"
         end
+      end
+
+      def is_past_month?(date, now \\ Timex.now) do
+        offset = Timex.shift(now, months: -1, days: -1)
+        Timex.compare(offset, date) > -1
       end
     end
   end

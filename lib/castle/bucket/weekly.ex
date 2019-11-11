@@ -5,7 +5,19 @@ defmodule Castle.Bucket.Weekly do
 
   def rollup, do: "week"
 
-  def is_a?(param), do: Enum.member?(["1w", "WEEK"], param)
+  def is_a?(param), do: Enum.member?(all_labels(), param)
+
+  def listeners_labels do
+    ["WEEK"]
+  end
+
+  def downloads_labels do
+    ["1w", "WEEK"]
+  end
+
+  def all_labels do
+    listeners_labels() ++ downloads_labels() |> Enum.uniq
+  end
 
   def floor(time) do
     Timex.beginning_of_week(time, 7)

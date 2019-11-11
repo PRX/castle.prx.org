@@ -1,41 +1,67 @@
 defmodule Castle.Plugs.Interval.Bucket do
-
   alias Castle.Bucket, as: Bucket
 
   @max_in_window 1000
 
   def parse(_conn, %{skip_bucket: true}), do: {:ok, nil}
-  def parse(%{params: %{"interval" => interval}} = conn, %{min: min}) do
+
+  def parse(%{params: %{"interval" => interval_type_label}} = conn, %{min: min}) do
     buckets = get_buckets(min)
-    match = Enum.find(buckets, &(&1.is_a?(interval)))
-    if match do
-      validate_window(conn, match)
+    matched_bucket = Enum.find(buckets, & &1.is_a?(interval_type_label))
+
+    if matched_bucket do
+      validate_window(conn, matched_bucket)
     else
-      options = buckets |> Enum.map(&(&1.name)) |> Enum.join(", ")
-      {:error, "Bad interval param: use one of #{options}"}
+      {:error, "Bad interval param: use one of #{valid_bucket_labels(buckets, min)}"}
     end
   end
+
+  def parse(%{assigns: %{interval: %{from: _from, to: _to}}}, %{
+        min: "LISTENER_UNIQUES_NON_AGGREGATED"
+      }) do
+    {:error, "Missing interval query param"}
+  end
+
   def parse(%{assigns: %{interval: %{from: from, to: to}}} = conn, %{min: min}) do
     buckets = get_buckets(min)
-    best_guess = Enum.find buckets, List.last(buckets), &(&1.count_range(from, to) < 70)
+    best_guess = Enum.find(buckets, List.last(buckets), &(&1.count_range(from, to) < 70))
     validate_window(conn, best_guess)
   end
+
   def parse(_conn, _opts) do
     {:error, "Invalid interval params"}
+  end
+
+  def valid_bucket_labels(buckets, min) do
+    bucket_label_grouping =
+      case min do
+        "LISTENER_UNIQUES_NON_AGGREGATED" -> :listeners_labels
+        _ -> :downloads_labels
+      end
+
+    buckets
+    |> Enum.flat_map(fn bucket -> apply(bucket, bucket_label_grouping, []) end)
+    |> Enum.join(", ")
   end
 
   defp get_buckets("HOUR") do
     [Bucket.Hourly, Bucket.Daily, Bucket.Weekly, Bucket.Monthly]
   end
+
   defp get_buckets("DAY") do
     [Bucket.Daily, Bucket.Weekly, Bucket.Monthly]
   end
 
-  defp validate_window(%{assigns: %{interval: %{from: from, to: to}}}, rollup) do
-    if rollup.count_range(from, to) > @max_in_window do
+  defp get_buckets("LISTENER_UNIQUES_NON_AGGREGATED") do
+    # Bucket.Daily here provides bucketing for rolling week and 28 days
+    [Bucket.Weekly, Bucket.Monthly, Bucket.Daily]
+  end
+
+  def validate_window(%{assigns: %{interval: %{from: from, to: to}}}, bucket) do
+    if bucket.count_range(from, to) > @max_in_window do
       {:error, "Time window too large for specified interval"}
     else
-      {:ok, rollup}
+      {:ok, bucket}
     end
   end
 end

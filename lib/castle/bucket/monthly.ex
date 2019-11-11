@@ -5,7 +5,19 @@ defmodule Castle.Bucket.Monthly do
 
   def rollup, do: "month"
 
-  def is_a?(param), do: Enum.member?(["1M", "MONTH"], param)
+  def is_a?(param), do: Enum.member?(all_labels(), param)
+
+  def listeners_labels do
+    ["MONTH"]
+  end
+
+  def downloads_labels do
+    ["1M", "MONTH"]
+  end
+
+  def all_labels do
+    listeners_labels() ++ downloads_labels() |> Enum.uniq
+  end
 
   def floor(time) do
     Timex.beginning_of_month(time)
