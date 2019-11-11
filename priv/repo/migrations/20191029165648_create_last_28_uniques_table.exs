@@ -3,14 +3,12 @@ defmodule Castle.Repo.Migrations.CreateLast28UniquesTable do
 
   def up do
     execute "DELETE FROM rollup_logs WHERE table_name = 'last_28_uniques'"
-    execute """
-      CREATE TABLE last_28_uniques (
-        podcast_id integer NOT NULL,
-        last_28 date NOT NULL,
-        count integer NOT NULL,
-        PRIMARY KEY (podcast_id, last_28)
-    );
-    """
+    create table(:last_28_uniques, primary_key: false) do
+        add :podcast_id, :integer, null: false
+        add :last_28, :date,       null: false
+        add :count, :integer,      null: false
+    end
+    create unique_index(:last_28_uniques, [:podcast_id, :last_28])
   end
 
   def down do

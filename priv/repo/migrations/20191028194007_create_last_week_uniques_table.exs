@@ -1,17 +1,14 @@
 defmodule Castle.Repo.Migrations.CreateLastWeekUniquesTable do
   use Ecto.Migration
 
-
   def up do
     execute "DELETE FROM rollup_logs WHERE table_name = 'last_week_uniques'"
-    execute """
-      CREATE TABLE last_week_uniques (
-        podcast_id integer NOT NULL,
-        last_week date NOT NULL,
-        count integer NOT NULL,
-        PRIMARY KEY (podcast_id, last_week)
-    );
-    """
+    create table(:last_week_uniques, primary_key: false) do
+        add :podcast_id, :integer, null: false
+        add :last_week, :date,     null: false
+        add :count, :integer,      null: false
+    end
+    create unique_index(:last_week_uniques, [:podcast_id, :last_week])
   end
 
   def down do

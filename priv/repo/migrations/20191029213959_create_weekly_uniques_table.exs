@@ -3,14 +3,12 @@ defmodule Castle.Repo.Migrations.CreateWeeklyUniquesTable do
 
   def up do
     execute "DELETE FROM rollup_logs WHERE table_name = 'weekly_uniques'"
-    execute """
-      CREATE TABLE weekly_uniques (
-        podcast_id integer NOT NULL,
-        week date NOT NULL,
-        count integer NOT NULL,
-        PRIMARY KEY (podcast_id, week)
-    );
-    """
+    create table(:weekly_uniques, primary_key: false) do
+        add :podcast_id, :integer, null: false, primary: true
+        add :week, :date, null: false, primary: true
+        add :count, :integer, null: false
+    end
+    create unique_index(:weekly_uniques, [:podcast_id, :week])
   end
 
   def down do
