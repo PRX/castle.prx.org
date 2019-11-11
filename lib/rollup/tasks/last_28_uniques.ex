@@ -3,7 +3,7 @@ defmodule Mix.Tasks.Castle.Rollup.Last28Uniques do
 
   @shortdoc "Rollup uniques"
 
-  @interval "singleton"
+  @interval "day"
   @table "last_28_uniques"
   @lock "lock.rollup.last_28_uniques"
 
