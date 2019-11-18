@@ -1,5 +1,4 @@
 defmodule Castle.Label.Agent do
-
   @default "Unknown"
 
   @labels %{
@@ -100,11 +99,30 @@ defmodule Castle.Label.Agent do
     95 => "Squeezebox",
     96 => "Spreaker",
     97 => "VictorReader",
+    98 => "Podcoin",
+    99 => "Castamatic",
+    100 => "Deezer",
+    101 => "Audiobooks",
+    102 => "Hamro Patro",
+    103 => "HondaLink",
+    104 => "Hubhopper",
+    105 => "Instacast",
+    106 => "KERA App",
+    107 => "Kids Listen",
+    108 => "Kodi",
+    109 => "MusicBee",
+    110 => "Orange Radio",
+    111 => "Outcast",
+    112 => "Playapod",
+    113 => "Plex",
+    114 => "PRI App",
+    115 => "WBUR App",
+    116 => "Opera"
   }
 
   def find(nil), do: "Other"
+
   def find(id) when is_integer(id) do
     @labels[id] || @default
   end
-
 end
