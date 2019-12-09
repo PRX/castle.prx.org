@@ -120,6 +120,10 @@ table = dataset.create_table 'dt_impressions' do |table|
     schema.string 'digest'
     schema.string 'listener_session'
     schema.integer 'segment'
+
+    # dovetail3 fields
+    schema.string 'zone_name'
+    schema.string 'target_path'
   end
 end
 puts 'ok'
