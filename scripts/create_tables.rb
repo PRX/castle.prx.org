@@ -70,6 +70,14 @@ table = dataset.create_table 'dt_downloads' do |table|
     schema.string 'postal_code'
     schema.float 'latitude'
     schema.float 'longitude'
+
+    # iab2 fields
+    schema.boolean 'is_confirmed'
+    schema.boolean 'is_bytes'
+    schema.string 'url'
+    schema.string 'listener_id'
+    schema.string 'listener_episode'
+    schema.string 'listener_session'
   end
 end
 puts 'ok'
@@ -105,6 +113,13 @@ table = dataset.create_table 'dt_impressions' do |table|
     schema.integer 'campaign_id'
     schema.integer 'creative_id'
     schema.integer 'flight_id'
+
+    # iab2 fields
+    schema.boolean 'is_confirmed'
+    schema.boolean 'is_bytes'
+    schema.string 'digest'
+    schema.string 'listener_session'
+    schema.integer 'segment'
   end
 end
 puts 'ok'
