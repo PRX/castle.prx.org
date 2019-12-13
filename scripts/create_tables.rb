@@ -122,6 +122,7 @@ table = dataset.create_table 'dt_impressions' do |table|
     schema.integer 'segment'
 
     # dovetail3 fields
+    schema.string 'placements_key'
     schema.string 'zone_name'
     schema.string 'target_path'
   end
