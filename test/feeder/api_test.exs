@@ -2,7 +2,7 @@ defmodule Feeder.ApiTest do
   use Castle.HttpCase
 
   @feeder PrxAccess.Remote.host_to_url(Env.get(:feeder_host))
-  @all "per=100&since=1970-01-01"
+  @all "per=200&since=1970-01-01"
   @podcasts "#{@feeder}/api/v1/authorization/podcasts"
   @episodes "#{@feeder}/api/v1/authorization/episodes"
   @all_podcasts "#{@podcasts}?#{@all}"
@@ -84,7 +84,7 @@ defmodule Feeder.ApiTest do
   end
 
   defp mock_episodes_since(date_str) do
-    Map.put(@mocks, "#{@episodes}?per=100&since=#{date_str}", %{})
+    Map.put(@mocks, "#{@episodes}?per=200&since=#{date_str}", %{})
   end
 
   defp mock_podcast_pages(1) do

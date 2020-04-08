@@ -7,58 +7,75 @@ defmodule Castle.Episode do
   @foreign_key_type :binary_id
 
   schema "episodes" do
-    field :podcast_id, :integer
-    field :title, :string
-    field :subtitle, :string
-    field :image_url, :string
-    field :created_at, :utc_datetime
-    field :updated_at, :utc_datetime
-    field :published_at, :utc_datetime
+    field(:podcast_id, :integer)
+    field(:title, :string)
+    field(:subtitle, :string)
+    field(:image_url, :string)
+    field(:created_at, :utc_datetime)
+    field(:updated_at, :utc_datetime)
+    field(:published_at, :utc_datetime)
   end
 
   @doc false
   def changeset(episode, attrs) do
     episode
-    |> cast(attrs, [:podcast_id, :title, :subtitle, :image_url, :created_at, :updated_at, :published_at])
+    |> cast(attrs, [
+      :podcast_id,
+      :title,
+      :subtitle,
+      :image_url,
+      :created_at,
+      :updated_at,
+      :published_at
+    ])
     |> validate_required([:podcast_id])
   end
 
   def recent_query(pid) when is_integer(pid) do
-    from e in Castle.Episode,
+    from(e in Castle.Episode,
       where: e.podcast_id == ^pid,
       order_by: [desc: :published_at]
+    )
   end
 
-  def recent_query(accounts) when is_list (accounts) do
-    podcast_query = subquery(
-      from p in Castle.Podcast,
-      select: %{id: p.id, account_id: p.account_id}
-    )
+  def recent_query(accounts) when is_list(accounts) do
+    podcast_query =
+      subquery(
+        from(p in Castle.Podcast,
+          select: %{id: p.id, account_id: p.account_id}
+        )
+      )
 
-    from e in Castle.Episode,
+    from(e in Castle.Episode,
       join: p in ^podcast_query,
       where: e.podcast_id == p.id and p.account_id in ^accounts,
       order_by: [desc: :published_at]
+    )
   end
 
   def total(queryable) do
-    Castle.Repo.one(from r in subquery(queryable), select: count(r.id))
+    Castle.Repo.one(from(r in subquery(queryable), select: count(r.id)))
   end
 
   def max_updated_at() do
-    Castle.Repo.one(from e in Castle.Episode, select: max(e.updated_at))
+    Castle.Repo.one(from(e in Castle.Episode, select: max(e.updated_at)))
   end
+
   def max_updated_at(pid) do
-    Castle.Repo.one(from e in Castle.Episode, select: max(e.updated_at), where: e.podcast_id == ^pid)
+    Castle.Repo.one(
+      from(e in Castle.Episode, select: max(e.updated_at), where: e.podcast_id == ^pid)
+    )
   end
 
   def from_feeder(doc) do
-    struct!(Castle.Episode, parse_feeder(doc)) |> Castle.Repo.insert!
+    struct!(Castle.Episode, parse_feeder(doc)) |> Castle.Repo.insert!()
   end
+
   def from_feeder(episode, doc) do
     changes = parse_feeder(doc)
+
     if Timex.compare(changes.updated_at, episode.updated_at) >= 0 do
-      changeset(episode, changes) |> Castle.Repo.update!
+      changeset(episode, changes) |> Castle.Repo.update!()
     end
   end
 
@@ -71,20 +88,22 @@ defmodule Castle.Episode do
       image_url: image_url(doc["images"]),
       created_at: parse_dtim(doc["createdAt"]),
       updated_at: parse_dtim(doc["updatedAt"]),
-      published_at: parse_dtim(doc["publishedAt"]),
+      published_at: parse_dtim(doc["publishedAt"])
     }
   end
 
-  defp podcast_id(%{"prx:podcast" => %{"href" => href}}) do
+  defp podcast_id(%{"prx:podcast" => %{href: href}}) do
     "/api/v1/podcasts/" <> id = href
     String.to_integer(id)
   end
+
   defp podcast_id(_any), do: nil
 
   defp image_url([img | _rest]), do: img["url"]
   defp image_url(_any), do: nil
 
   defp parse_dtim(nil), do: nil
+
   defp parse_dtim(dtim_str) do
     {:ok, dtim} = Timex.parse(dtim_str, "{ISO:Extended:Z}")
     DateTime.truncate(dtim, :second)
