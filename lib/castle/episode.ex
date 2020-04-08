@@ -92,9 +92,12 @@ defmodule Castle.Episode do
     }
   end
 
-  defp podcast_id(%{"prx:podcast" => %{href: href}}) do
-    "/api/v1/podcasts/" <> id = href
-    String.to_integer(id)
+  defp podcast_id(%{"prx:podcast" => link}) do
+    case link do
+      %{"href" => "/api/v1/podcasts/" <> id} -> String.to_integer(id)
+      %{href: "/api/v1/podcasts/" <> id} -> String.to_integer(id)
+      _ -> nil
+    end
   end
 
   defp podcast_id(_any), do: nil
