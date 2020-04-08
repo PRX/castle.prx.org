@@ -33,7 +33,7 @@ defmodule Feeder.Api do
     total = Map.get(doc.attributes, "total", length(items))
 
     cond do
-      !PrxAccess.link?(doc, "next") -> {:ok, length(items), items}
+      !PrxAccess.link?(doc, "next") -> {:ok, total, items}
       depth + 1 > @max_pages -> {:partial, total, items}
       true -> PrxAccess.follow(doc, "next") |> get_item_pages(items, depth + 1)
     end
