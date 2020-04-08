@@ -22,34 +22,28 @@ defmodule Mix.Tasks.Feeder.Sync do
     pod_since = if force, do: nil, else: Castle.Podcast.max_updated_at()
     ep_since = if force, do: nil, else: Castle.Episode.max_updated_at()
 
-    {:ok, root} = Feeder.Api.root()
-
-    unless Map.has_key?(root.attributes, "userId") do
-      Logger.warn("Feeder.Sync using non-authorized access")
-    end
-
     if lock do
-      lock("#{@lock}.podcasts", @lock_ttl, @success_ttl, do: sync_podcasts(root, pod_since, all))
-      lock("#{@lock}.episodes", @lock_ttl, @success_ttl, do: sync_episodes(root, ep_since, all))
+      lock("#{@lock}.podcasts", @lock_ttl, @success_ttl, do: sync_podcasts(pod_since, all))
+      lock("#{@lock}.episodes", @lock_ttl, @success_ttl, do: sync_episodes(ep_since, all))
     else
-      sync_podcasts(root, pod_since, all)
-      sync_episodes(root, ep_since, all)
+      sync_podcasts(pod_since, all)
+      sync_episodes(ep_since, all)
     end
   end
 
-  defp sync_podcasts(root, since, process_all) do
-    status = since |> log_start(@podlabel) |> Feeder.SyncPodcasts.sync(root) |> log_end(@podlabel)
+  defp sync_podcasts(since, process_all) do
+    status = since |> log_start(@podlabel) |> Feeder.SyncPodcasts.sync() |> log_end(@podlabel)
 
     if status == :remaining && process_all do
-      sync_podcasts(root, Castle.Podcast.max_updated_at(), process_all)
+      sync_podcasts(Castle.Podcast.max_updated_at(), process_all)
     end
   end
 
-  defp sync_episodes(root, since, process_all) do
-    status = since |> log_start(@eplabel) |> Feeder.SyncEpisodes.sync(root) |> log_end(@eplabel)
+  defp sync_episodes(since, process_all) do
+    status = since |> log_start(@eplabel) |> Feeder.SyncEpisodes.sync() |> log_end(@eplabel)
 
     if status == :remaining && process_all do
-      sync_episodes(root, Castle.Episode.max_updated_at(), process_all)
+      sync_episodes(Castle.Episode.max_updated_at(), process_all)
     end
   end
 
@@ -72,7 +66,7 @@ defmodule Mix.Tasks.Feeder.Sync do
     if remaining > 0, do: :remaining, else: :done
   end
 
-  defp log_end({:error, err}, label) do
+  defp log_end({:error, "" <> err}, label) do
     Logger.error("#{label} #{inspect(err)}")
     :error
   end

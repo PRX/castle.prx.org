@@ -5,7 +5,7 @@ defmodule Feeder.Api do
   @max_pages 4
   @ever "1970-01-01"
 
-  defmemo root() do
+  defmemo root(), expires_in: :timer.seconds(300) do
     Env.get(:feeder_host)
     |> PrxAccess.root(
       account: "*",

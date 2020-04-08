@@ -1,6 +1,8 @@
 defmodule Feeder.SyncEpisodes do
-  def sync(dtim, root) do
-    case get_episodes(root, dtim) do
+  def sync(), do: sync(nil)
+
+  def sync(dtim) do
+    case get_episodes(dtim) do
       {:error, err} ->
         {:error, err}
 
@@ -10,8 +12,8 @@ defmodule Feeder.SyncEpisodes do
     end
   end
 
-  defp get_episodes(root, nil), do: Feeder.Api.episodes(root)
-  defp get_episodes(root, dtim), do: Feeder.Api.episodes(root, Timex.shift(dtim, milliseconds: 1))
+  defp get_episodes(nil), do: Feeder.Api.episodes()
+  defp get_episodes(dtim), do: Timex.shift(dtim, milliseconds: 1) |> Feeder.Api.episodes()
 
   defp with_podcast(docs) do
     Enum.filter(docs, fn doc -> PrxAccess.link?(doc, "prx:podcast") end)
