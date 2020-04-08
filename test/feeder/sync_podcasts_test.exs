@@ -39,7 +39,7 @@ defmodule Feeder.SyncPodcastsTest do
       updated_at: get_dtim("2018-04-25T04:00:00Z")
     })
 
-    assert {:ok, 1, 2, 0} = Feeder.SyncPodcasts.sync()
+    assert {:ok, 1, 2, 0} = Feeder.SyncPodcasts.sync("1970-01-01")
     assert Castle.Repo.get(Castle.Podcast, 123).title == "one-changed"
     assert Castle.Repo.get(Castle.Podcast, 456).title == "two"
     # updated_at stale

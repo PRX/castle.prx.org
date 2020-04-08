@@ -12,7 +12,11 @@ defmodule Feeder.SyncEpisodes do
     end
   end
 
-  defp get_episodes(nil), do: Feeder.Api.episodes()
+  defp get_episodes(nil) do
+    Ecto.Adapters.SQL.query!(Castle.Repo, "UPDATE episodes SET updated_at = NULL")
+    Feeder.Api.episodes()
+  end
+
   defp get_episodes(dtim), do: Timex.shift(dtim, milliseconds: 1) |> Feeder.Api.episodes()
 
   defp with_podcast(docs) do
