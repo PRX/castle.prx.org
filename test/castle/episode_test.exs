@@ -37,6 +37,9 @@ defmodule Castle.EpisodeTest do
       "createdAt" => "2018-04-25T04:00:00.129Z",
       "updatedAt" => "2018-04-25T05:00:00Z",
       "publishedAt" => "2018-04-25T04:30:00Z",
+      "releasedAt" => "2018-04-25T04:30:01Z",
+      "segmentCount" => 2,
+      "audioVersion" => "my-version",
       "images" => [
         %{"url" => "http://foo.bar/image1.jpg"},
         %{"url" => "http://foo.bar/image2.jpg"}
@@ -54,6 +57,9 @@ defmodule Castle.EpisodeTest do
     assert_time(episode.created_at, "2018-04-25T04:00:00Z")
     assert_time(episode.updated_at, "2018-04-25T05:00:00Z")
     assert_time(episode.published_at, "2018-04-25T04:30:00Z")
+    assert_time(episode.released_at, "2018-04-25T04:30:01Z")
+    assert episode.segment_count == 2
+    assert episode.audio_version == "my-version"
   end
 
   test "updates from a feeder doc" do
