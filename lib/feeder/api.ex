@@ -28,7 +28,7 @@ defmodule Feeder.Api do
   end
 
   defp get_item_pages({:ok, doc}, acc, depth) do
-    items = acc ++ get_items_attributes(doc)
+    items = acc ++ get_items(doc)
     total = Map.get(doc.attributes, "total", length(items))
 
     cond do
@@ -40,9 +40,9 @@ defmodule Feeder.Api do
 
   defp get_item_pages(err, _, _), do: err
 
-  defp get_items_attributes(doc) do
+  defp get_items(doc) do
     case PrxAccess.follow(doc, "prx:items") do
-      {:ok, docs} -> Enum.map(docs, & &1.attributes)
+      {:ok, docs} -> docs
       _ -> []
     end
   end
