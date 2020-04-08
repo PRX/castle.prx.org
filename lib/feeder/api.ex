@@ -1,28 +1,29 @@
 defmodule Feeder.Api do
+  use Memoize
+
   @per 200
   @max_pages 4
   @ever "1970-01-01"
 
-  def root(token \\ nil) do
+  defmemo root() do
     Env.get(:feeder_host)
     |> PrxAccess.root(
       account: "*",
       id_host: Env.get(:id_host),
       client_id: Env.get(:client_id),
-      client_secret: Env.get(:client_secret),
-      token: token
+      client_secret: Env.get(:client_secret)
     )
     |> PrxAccess.follow("/api/v1/authorization")
   end
 
-  def podcasts(%PrxAccess.Resource{} = root, since \\ @ever) do
-    root
+  def podcasts(since \\ @ever) do
+    root()
     |> PrxAccess.follow("prx:podcasts", since: format(since), per: @per)
     |> get_item_pages([], 1)
   end
 
-  def episodes(%PrxAccess.Resource{} = root, since \\ @ever) do
-    root
+  def episodes(since \\ @ever) do
+    root()
     |> PrxAccess.follow("prx:episodes", since: format(since), per: @per)
     |> get_item_pages([], 1)
   end
