@@ -1,57 +1,53 @@
 defmodule Feeder.Api do
-
   @per 100
   @max_pages 4
   @ever "1970-01-01"
 
-  def podcasts(), do: get_items("/api/v1/podcasts", %{since: @ever, per: @per})
-  def podcasts(since), do: get_items("/api/v1/podcasts", %{since: format(since), per: @per})
+  def root(token \\ nil) do
+    Env.get(:feeder_host)
+    |> PrxAccess.root(
+      account: "*",
+      id_host: Env.get(:id_host),
+      client_id: Env.get(:client_id),
+      client_secret: Env.get(:client_secret),
+      token: token
+    )
+    |> PrxAccess.follow("/api/v1/authorization")
+  end
 
-  def episodes(), do: get_items("/api/v1/episodes", %{since: @ever, per: @per})
-  def episodes(pid) when is_integer(pid), do: get_items("/api/v1/podcasts/#{pid}/episodes", %{since: @ever, per: @per})
-  def episodes(since), do: get_items("/api/v1/episodes", %{since: format(since), per: @per})
-  def episodes(pid, since), do: get_items("/api/v1/podcasts/#{pid}/episodes", %{since: format(since), per: @per})
+  def podcasts(%PrxAccess.Resource{} = root, since \\ @ever) do
+    root
+    |> PrxAccess.follow("prx:podcasts", since: format(since), per: @per)
+    |> get_item_pages([], 1)
+  end
 
-  def get_items(path, params, depth \\ 1) do
-    case HTTPoison.get(url(path), [], params: params) do
-      {:ok, %{status_code: 200, body: body}} ->
-        case Poison.decode(body) do
-          {:ok, json} -> get_item_pages(json, depth)
-          _any -> {:error, "invalid json from #{url(path)}"}
-        end
-      {:ok, %{status_code: code}} -> {:error, "got #{code} from #{url(path)}"}
-      {:error, %{reason: reason}} -> {:error, reason}
+  def episodes(%PrxAccess.Resource{} = root, since \\ @ever) do
+    root
+    |> PrxAccess.follow("prx:episodes", since: format(since), per: @per)
+    |> get_item_pages([], 1)
+  end
+
+  defp get_item_pages({:ok, doc}, acc, depth) do
+    items = acc ++ get_items_attributes(doc)
+    total = Map.get(doc.attributes, "total", length(items))
+
+    cond do
+      !PrxAccess.link?(doc, "next") -> {:ok, length(items), items}
+      depth + 1 > @max_pages -> {:partial, total, items}
+      true -> PrxAccess.follow(doc, "next") |> get_item_pages(items, depth + 1)
     end
   end
 
-  def url("http" <> rest), do: "http#{rest}"
-  def url(path) do
-    case Env.get(:feeder_host) |> String.split(".") |> List.last() do
-      "org" -> "https://#{Env.get(:feeder_host)}#{path}"
-      "tech" -> "https://#{Env.get(:feeder_host)}#{path}"
-      _ -> "http://#{Env.get(:feeder_host)}#{path}"
+  defp get_item_pages(err, _, _), do: err
+
+  defp get_items_attributes(doc) do
+    case PrxAccess.follow(doc, "prx:items") do
+      {:ok, docs} -> Enum.map(docs, & &1.attributes)
+      _ -> []
     end
   end
 
-  defp get_item_pages(%{"_embedded" => %{"prx:items" => items}} = doc, depth) do
-    case next_page(doc, depth + 1) do
-      {:partial, total} -> {:partial, total, items}
-      {:error, err} -> {:error, err}
-      {state, total, next_items} -> {state, total, items ++ next_items}
-    end
-  end
-  defp get_item_pages(%{"total" => total}, _depth), do: {:ok, total, []}
-  defp get_item_pages(_doc, _depth), do: {:ok, 0, []}
-
-  defp next_page(%{"total" => total}, depth) when depth > @max_pages do
-    {:partial, total}
-  end
-  defp next_page(%{"_links" => %{"next" => %{"href" => href}}}, depth) do
-    get_items(href, %{}, depth)
-  end
-  defp next_page(%{"total" => total}, _depth) do
-    {:ok, total, []}
-  end
+  defp format("" <> dtim_str), do: dtim_str
 
   defp format(dtim) do
     {:ok, dtim_str} = Timex.format(dtim, "{ISO:Extended:Z}")
