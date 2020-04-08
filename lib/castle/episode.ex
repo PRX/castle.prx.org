@@ -33,7 +33,7 @@ defmodule Castle.Episode do
 
   def recent_query(pid) when is_integer(pid) do
     from(e in Castle.Episode,
-      where: e.podcast_id == ^pid,
+      where: e.podcast_id == ^pid and e.published_at <= ^Timex.now(),
       order_by: [desc: :published_at]
     )
   end
@@ -48,7 +48,8 @@ defmodule Castle.Episode do
 
     from(e in Castle.Episode,
       join: p in ^podcast_query,
-      where: e.podcast_id == p.id and p.account_id in ^accounts,
+      where:
+        e.podcast_id == p.id and p.account_id in ^accounts and e.published_at <= ^Timex.now(),
       order_by: [desc: :published_at]
     )
   end
