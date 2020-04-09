@@ -1,34 +1,17 @@
 defmodule Feeder.SyncEpisodesTest do
   use Castle.HttpCase
+  use Castle.FeederHelpers
   use Castle.TimeHelpers
 
-  @feeder PrxAccess.Remote.host_to_url(Env.get(:feeder_host))
-  @episodes "#{@feeder}/api/v1/authorization/episodes?per=200&since=1970-01-01"
   @id1 UUID.uuid4()
   @id2 UUID.uuid4()
   @id3 UUID.uuid4()
-  @root %PrxAccess.Resource{
-    attributes: %{"userId" => "1234"},
-    _links: %{
-      "prx:episodes" => %PrxAccess.Resource.Link{
-        href: "/api/v1/authorization/episodes{?page,per,zoom,since}"
-      }
-    },
-    _embedded: %{},
-    _url: "#{@feeder}/api/v1/authorization",
-    _status: 200
-  }
 
-  setup do
-    Memoize.Cache.get_or_run({Feeder.Api, :root, []}, fn -> {:ok, @root} end)
-    []
-  end
-
-  test_with_http "updates nothing", %{@episodes => %{}} do
+  test_with_http "updates nothing", %{@feeder_all_episodes => %{}} do
     assert {:ok, 0, 0, 0} = Feeder.SyncEpisodes.sync()
   end
 
-  test_with_http "creates and updates", %{@episodes => updates_and_creates(3)} do
+  test_with_http "creates and updates", %{@feeder_all_episodes => mock_items(3)} do
     Castle.Repo.insert!(%Castle.Episode{
       id: @id2,
       title: "two",
@@ -42,15 +25,15 @@ defmodule Feeder.SyncEpisodesTest do
     assert Castle.Repo.get(Castle.Episode, @id3).title == "three"
   end
 
-  test_with_http "has remaining items to process", %{@episodes => updates_and_creates(10)} do
+  test_with_http "has remaining items to process", %{@feeder_all_episodes => mock_items(10)} do
     assert {:ok, 3, 0, 7} = Feeder.SyncEpisodes.sync()
   end
 
-  test_with_http "skips episodes with no podcast", %{@episodes => updates_and_creates(10, true)} do
+  test_with_http "skips episodes with no podcast", %{@feeder_all_episodes => mock_items(10, true)} do
     assert {:ok, 2, 0, 8} = Feeder.SyncEpisodes.sync()
   end
 
-  defp updates_and_creates(total, skip_podcast \\ false) do
+  defp mock_items(total, skip_podcast \\ false) do
     %{
       "total" => total,
       "_embedded" => %{
