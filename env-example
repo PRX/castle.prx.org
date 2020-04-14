@@ -6,7 +6,10 @@ BQ_CLIENT_EMAIL=someone@your-project-id.iam.gserviceaccount.com
 BQ_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----"
 BQ_PROJECT_ID=
 BQ_DATASET=
+CLIENT_ID=
+CLIENT_SECRET=
 FEEDER_HOST=feeder.prx.org
+ID_HOST=
 NEW_RELIC_LICENSE_KEY=
 NEW_RELIC_APP_NAME=
 PG_DATABASE=castle_development
@@ -18,5 +21,5 @@ PG_USER=castle_user
 REDIS_HOST=
 REDIS_PORT=
 REDIS_POOL_SIZE=
-ID_HOST=
+# fake account-id auth in development
 DEV_AUTH=

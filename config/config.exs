@@ -15,8 +15,7 @@ config :castle, CastleWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "+DVZXtoG6yRaQrhCNCPNjdyhioRgRlrKMUDDlZkPLXCghP4NCJ+JafxydZD/QnOq",
   render_errors: [view: CastleWeb.ErrorView, accepts: ~w(html json hal)],
-  pubsub: [name: Castle.PubSub,
-           adapter: Phoenix.PubSub.PG2],
+  pubsub: [name: Castle.PubSub, adapter: Phoenix.PubSub.PG2],
   http: [compress: true]
 
 # Environment config (precompiled OR from env variables)
@@ -26,13 +25,15 @@ config :castle, :env_config,
   bq_private_key: System.get_env("BQ_PRIVATE_KEY") || "${BQ_PRIVATE_KEY}",
   bq_project_id: System.get_env("BQ_PROJECT_ID") || "${BQ_PROJECT_ID}",
   bq_dataset: System.get_env("BQ_DATASET") || "${BQ_DATASET}",
+  client_id: System.get_env("CLIENT_ID") || "${CLIENT_ID}",
+  client_secret: System.get_env("CLIENT_SECRET") || "${CLIENT_SECRET}",
   feeder_host: System.get_env("FEEDER_HOST") || "${FEEDER_HOST}",
+  id_host: System.get_env("ID_HOST") || "${ID_HOST}",
   new_relic_key: System.get_env("NEW_RELIC_KEY") || "${NEW_RELIC_KEY}",
   new_relic_name: System.get_env("NEW_RELIC_NAME") || "${NEW_RELIC_NAME}",
   redis_host: System.get_env("REDIS_HOST") || "${REDIS_HOST}",
   redis_port: System.get_env("REDIS_PORT") || "${REDIS_PORT}",
   redis_pool_size: System.get_env("REDIS_POOL_SIZE") || "${REDIS_POOL_SIZE}",
-  id_host: System.get_env("ID_HOST") || "${ID_HOST}",
   dev_auth: System.get_env("DEV_AUTH") || "${DEV_AUTH}"
 
 # HAL mime type
@@ -47,4 +48,4 @@ config :logger, :console,
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"
