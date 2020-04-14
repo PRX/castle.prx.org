@@ -52,7 +52,7 @@ defmodule Feeder.ApiTest do
   end
 
   test_with_http "loads episodes since", %{
-    "#{@feeder_episodes}?per=200&since=2018-04-01T00%3A00%3A00Z" => %{}
+    "#{@feeder_episodes}?per=100&since=2018-04-01T00%3A00%3A00Z" => %{}
   } do
     {:ok, dtim} = Timex.parse("2018-04-01", "{YYYY}-{0M}-{0D}")
     assert {:ok, 0, []} = Feeder.Api.episodes(dtim)

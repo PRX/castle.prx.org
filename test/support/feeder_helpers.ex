@@ -2,7 +2,7 @@ defmodule Castle.FeederHelpers do
   defmacro __using__(_opts) do
     quote do
       @feeder PrxAccess.Remote.host_to_url(Env.get(:feeder_host))
-      @feeder_params "per=200&since=1970-01-01"
+      @feeder_params "per=100&since=1970-01-01"
       @feeder_podcasts "#{@feeder}/api/v1/authorization/podcasts"
       @feeder_episodes "#{@feeder}/api/v1/authorization/episodes"
       @feeder_all_podcasts "#{@feeder_podcasts}?#{@feeder_params}"

@@ -1,7 +1,7 @@
 defmodule Feeder.Api do
   use Memoize
 
-  @per 200
+  @per 100
   @max_pages 4
   @ever "1970-01-01"
 
