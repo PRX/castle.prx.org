@@ -9,6 +9,7 @@ defmodule Feeder.Api do
     Env.get(:feeder_host)
     |> PrxAccess.root(
       account: "*",
+      scope: "read-private",
       id_host: Env.get(:id_host),
       client_id: Env.get(:client_id),
       client_secret: Env.get(:client_secret)
