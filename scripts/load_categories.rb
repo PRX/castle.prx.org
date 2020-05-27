@@ -63,8 +63,13 @@ Dir.mkdir("#{HERE}/tmp") unless Dir.exists?("#{HERE}/tmp")
 File.open("#{HERE}/tmp/categories.json", 'w') do |file|
   res.each do |row|
     cats = JSON.parse(row['categories'])
-    # TODO: should these be left alone?
-    normalized = cats.map(&:downcase).map(&:strip)
+
+    # normalize using the same logic as dovetail
+    # https://github.com/PRX/dovetail.prx.org/blob/master/models/decision.js#L79
+    normalized = cats.map do |c|
+      c.downcase.gsub(/[:,]/, ' ').gsub(/[^ a-zA-Z0-9_-]/, '').gsub(/\s+/, ' ').strip
+    end
+
     normalized.uniq.each do |cat|
       file << JSON.generate({feeder_episode: row['guid'], category: cat}) + "\n"
     end
