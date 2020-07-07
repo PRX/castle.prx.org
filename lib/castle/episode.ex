@@ -33,7 +33,8 @@ defmodule Castle.Episode do
       :published_at,
       :released_at,
       :segment_count,
-      :audio_version
+      :audio_version,
+      :keywords
     ])
     |> validate_required([:podcast_id])
   end
