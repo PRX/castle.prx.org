@@ -3,7 +3,7 @@ defmodule Castle.Repo.Migrations.EpisodesHaveTags do
 
   def change do
     alter table(:episodes) do
-      add(:keywords, {:array, :string})
+      add(:keywords, {:array, :text})
     end
   end
 end
