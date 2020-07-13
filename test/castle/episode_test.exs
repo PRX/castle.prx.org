@@ -46,7 +46,11 @@ defmodule Castle.EpisodeTest do
       ],
       "_links" => %{
         "prx:podcast" => %{"href" => "/api/v1/podcasts/123"}
-      }
+      },
+      "categories" => [
+        "some",
+        "tag"
+      ]
     })
 
     assert episode = get(Castle.Episode, @id1)
@@ -60,6 +64,7 @@ defmodule Castle.EpisodeTest do
     assert_time(episode.released_at, "2018-04-25T04:30:01Z")
     assert episode.segment_count == 2
     assert episode.audio_version == "my-version"
+    assert episode.keywords == ["some", "tag"]
   end
 
   test "updates from a feeder doc" do
