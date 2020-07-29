@@ -57,7 +57,7 @@ defmodule Castle.Mixfile do
       {:timex, "~> 3.0"},
       {:redix, ">= 0.6.0"},
       {:corsica, "~> 1.0"},
-      {:prx_auth, "~> 0.0.1"},
+      {:prx_auth, "~> 0.1.0"},
       {:prx_access, "~> 0.2.0"},
       {:memoize, "~> 1.2"},
       {:quantum, "~> 2.2"},
