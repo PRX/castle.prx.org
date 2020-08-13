@@ -7,7 +7,7 @@ defmodule Castle.PlugsAuthTest do
     System.put_env("DEV_AUTH", "123,456")
     conn = Castle.Plugs.Auth.call(conn, [])
     assert Map.has_key?(conn, :prx_user)
-    assert conn.prx_user.id == 999_999
+    assert conn.prx_user.id == 999999
     assert Map.keys(conn.prx_user.auths) == ["123", "456"]
     assert conn.prx_user.auths["123"] == %{"castle:read_private" => true}
     assert conn.prx_user.auths["456"] == %{"castle:read_private" => true}
@@ -32,7 +32,7 @@ defmodule Castle.PlugsAuthTest do
     System.put_env("DEV_AUTH", "*")
     conn = Castle.Plugs.Auth.call(conn, [])
     assert Map.has_key?(conn, :prx_user)
-    assert conn.prx_user.id == 999_999
+    assert conn.prx_user.id == 999999
     assert Map.keys(conn.prx_user.auths) == ["234", "567"]
     assert conn.prx_user.auths["234"] == %{"castle:read_private" => true}
     assert conn.prx_user.auths["567"] == %{"castle:read_private" => true}
