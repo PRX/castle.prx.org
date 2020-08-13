@@ -38,6 +38,6 @@ defmodule Castle.Plugs.Auth do
   defp make_auths(ids), do: make_auths ids, %{}
   defp make_auths([], auths), do: auths
   defp make_auths([id | rest], auths) do
-    make_auths rest, Map.put(auths, "#{id}", %{"apps" => true})
+    make_auths rest, Map.put(auths, "#{id}", %{"castle:read_private" => true})
   end
 end
