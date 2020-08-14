@@ -7,7 +7,7 @@ defmodule CastleWeb.API.PodcastController do
   def index(%{prx_user: user} = conn, params) do
     {page, per} = parse_paging(params)
     {search} = CastleWeb.Search.parse_search(params)
-    accounts = Map.keys(user.auths)
+    accounts = PrxAuth.authorized_resources(user, :castle, :read_private)
 
     queryable =
       Castle.Podcast.recent_query(accounts)

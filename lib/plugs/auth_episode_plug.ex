@@ -7,18 +7,18 @@ defmodule Castle.Plugs.AuthEpisode do
   def call(conn, []), do: call(conn, "id")
   def call(%{params: params, prx_user: user} = conn, param_name) do
     if Map.has_key?(params, param_name) do
-      get_episode conn, params[param_name], user.auths
+      get_episode conn, params[param_name], user
     else
       conn
     end
   end
 
-  defp get_episode(conn, episode_id, user_auths) do
+  defp get_episode(conn, episode_id, user) do
     case get_episode_and_account(episode_id) do
       nil ->
         conn |> send_resp(404, "Episode #{episode_id} not found") |> halt()
       {episode, account_id} ->
-        if user_auths[account_id] || user_auths["#{account_id}"] do
+        if PrxAuth.is_authorized?(user, account_id, :castle, :read_private) do
           conn |> assign(:episode, episode)
         else
           conn |> send_resp(403, "You do not have access to episode #{episode_id}") |> halt()

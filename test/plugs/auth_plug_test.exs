@@ -9,14 +9,15 @@ defmodule Castle.PlugsAuthTest do
     assert Map.has_key?(conn, :prx_user)
     assert conn.prx_user.id == 999999
     assert Map.keys(conn.prx_user.auths) == ["123", "456"]
-    assert conn.prx_user.auths["123"] == %{"apps" => true}
-    assert conn.prx_user.auths["456"] == %{"apps" => true}
+    assert conn.prx_user.auths["123"] == %{"castle:read_private" => true}
+    assert conn.prx_user.auths["456"] == %{"castle:read_private" => true}
   end
 
   test "does not mock auth in production", %{conn: conn} do
-    with_mock Mix, [:passthrough], [env: fn() -> :prod end] do
-      fake_call = fn(conn, _opts) -> Map.put(conn, :prx_user, :called) end
-      with_mock PrxAuth.Plug, [call: fake_call] do
+    with_mock Mix, [:passthrough], env: fn -> :prod end do
+      fake_call = fn conn, _opts -> Map.put(conn, :prx_user, :called) end
+
+      with_mock PrxAuth.Plug, call: fake_call do
         conn = Castle.Plugs.Auth.call(conn, [])
         assert conn.prx_user == :called
       end
@@ -33,7 +34,7 @@ defmodule Castle.PlugsAuthTest do
     assert Map.has_key?(conn, :prx_user)
     assert conn.prx_user.id == 999999
     assert Map.keys(conn.prx_user.auths) == ["234", "567"]
-    assert conn.prx_user.auths["234"] == %{"apps" => true}
-    assert conn.prx_user.auths["567"] == %{"apps" => true}
+    assert conn.prx_user.auths["234"] == %{"castle:read_private" => true}
+    assert conn.prx_user.auths["567"] == %{"castle:read_private" => true}
   end
 end
