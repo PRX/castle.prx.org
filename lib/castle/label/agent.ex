@@ -126,7 +126,8 @@ defmodule Castle.Label.Agent do
     122 => "Podcast Guru",
     123 => "Xiaoyuzhou",
     124 => "Nvidia Shield",
-    125 => "Sony Bravia"
+    125 => "Sony Bravia",
+    126 => "Amazon Music"
   }
 
   def find(nil), do: "Other"
