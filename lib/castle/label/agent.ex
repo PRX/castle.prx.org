@@ -128,7 +128,12 @@ defmodule Castle.Label.Agent do
     124 => "Nvidia Shield",
     125 => "Sony Bravia",
     126 => "Amazon Music",
-    127 => "TikTok"
+    127 => "TikTok",
+    128 => "SiriusXM",
+    129 => "iVoox",
+    130 => "Audible",
+    131 => "Airr",
+    132 => "Podhero"
   }
 
   def find(nil), do: "Other"
