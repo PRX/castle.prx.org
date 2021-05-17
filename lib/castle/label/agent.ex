@@ -133,7 +133,10 @@ defmodule Castle.Label.Agent do
     129 => "iVoox",
     130 => "Audible",
     131 => "Airr",
-    132 => "Podhero"
+    132 => "Podhero",
+    133 => "MixerBox",
+    134 => "Xbox",
+    135 => "Samsung Free"
   }
 
   def find(nil), do: "Other"
