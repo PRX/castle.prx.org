@@ -125,6 +125,14 @@ table = dataset.create_table 'dt_impressions' do |table|
     schema.string 'placements_key'
     schema.string 'zone_name'
     schema.string 'target_path'
+
+    # VAST fields
+    schema.string 'vast_advertiser'
+    schema.string 'vast_ad_id'
+    schema.string 'vast_creative_id'
+    schema.numeric 'vast_price_value'
+    schema.string 'vast_price_currency'
+    schema.string 'vast_price_model'
   end
 end
 puts 'ok'
