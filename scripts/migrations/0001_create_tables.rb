@@ -4,7 +4,7 @@ require 'google/cloud/bigquery'
 
 options = {force: false}
 parser = OptionParser.new do |opt|
-  opt.banner = %q(Usage: create_tables.rb [options]
+  opt.banner = %q(Usage: 0001_create_tables.rb [options]
 
     Create the downloads and impressions tables for use by castle
   )
@@ -17,11 +17,12 @@ parser.parse!
 HERE = File.expand_path(File.dirname(__FILE__))
 abort "Missing required param: project\n\n#{parser}" if options[:project].nil? || options[:project].empty?
 abort "Missing required param: dataset\n\n#{parser}" if options[:dataset].nil? || options[:dataset].empty?
-unless File.exists?("#{HERE}/.credentials.json")
+unless File.exists?("#{HERE}/../.credentials.json")
   abort "You must add a .credentials.json file in the scripts directory!\n\n#{parser}"
 end
 
-bigquery = Google::Cloud::Bigquery.new(project: options[:project], keyfile: "#{HERE}/.credentials.json")
+
+bigquery = Google::Cloud::Bigquery.new(project: options[:project], keyfile: "#{HERE}/../.credentials.json")
 dataset = bigquery.dataset(options[:dataset])
 abort "Dataset '#{options[:dataset]}' does not exist!" unless dataset
 
@@ -125,14 +126,6 @@ table = dataset.create_table 'dt_impressions' do |table|
     schema.string 'placements_key'
     schema.string 'zone_name'
     schema.string 'target_path'
-
-    # VAST fields
-    schema.string 'vast_advertiser'
-    schema.string 'vast_ad_id'
-    schema.string 'vast_creative_id'
-    schema.numeric 'vast_price_value'
-    schema.string 'vast_price_currency'
-    schema.string 'vast_price_model'
   end
 end
 puts 'ok'
