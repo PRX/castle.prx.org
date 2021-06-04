@@ -149,12 +149,30 @@ mix test --include external
 
 The `/scripts/` directory contains some useful utilities for load/reloading
 3rd party data (Geolite, User-Agents, etc).  These are not intended to be run
-often, so buyer beware.  You will need to install some global ruby gems to get
-the scripts to work, but that's all manual at this point.
+often, so buyer beware.
+
+You will need to install ruby and some gems to get the scripts to work.
+These are managed with `.ruby-version` and `Gemfile`, install them as follows:
+```
+# install the ruby specified in /scripts/.ruby-version
+rbenv install
+
+# install the necessary gems
+bundle install
+```
 
 You'll also need to [set up a Google API key](https://support.google.com/googleapi/answer/6158862).
 Create a Service Account key with write access to the project/tables you want to
 alter, and save it to `/scripts/.credentials.json`.
+
+Changes to the BigQuery table structures are defined in `/scripts/` as well.
+`/scripts/create_tables.rb` will create the tables anew for a new install
+`/scripts/migrations/*.rb` files will update an existing environment with changes to the datasets, tables, or schemas.
+They are meant to be run in order, and while not reversible, are written to be idempotent.
+```
+# execute the migration to add VAST fields to the BQ schema
+bundle exec ruby migrations/0002_add_vast.rb -p prx-metrics -d development
+```
 
 ## License
 
