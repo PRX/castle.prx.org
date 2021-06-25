@@ -8,9 +8,10 @@ defmodule Castle.HourlyDownloadTest do
   @guid "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 
   setup do
-    Enum.map list_partitions(), fn(table_name) ->
-      Ecto.Adapters.SQL.query!("DROP TABLE #{table_name}")
-    end
+    Enum.map(list_partitions(), fn table_name ->
+      Ecto.Adapters.SQL.query!("DROP TABLE #{table_name}", [])
+    end)
+
     []
   end
 
@@ -33,10 +34,13 @@ defmodule Castle.HourlyDownloadTest do
   end
 
   defp do_upsert_all(dtim, count), do: do_upsert_all([{dtim, count}])
+
   defp do_upsert_all(rows) when is_list(rows) do
     rows
-      |> Enum.map(fn({dtim, count}) -> %{podcast_id: @id, episode_id: @guid, dtim: get_dtim(dtim), count: count} end)
-      |> upsert_all()
+    |> Enum.map(fn {dtim, count} ->
+      %{podcast_id: @id, episode_id: @guid, dtim: get_dtim(dtim), count: count}
+    end)
+    |> upsert_all()
   end
 
   defp count_partition(month) do
@@ -50,5 +54,4 @@ defmodule Castle.HourlyDownloadTest do
     result = Ecto.Adapters.SQL.query!(Castle.Repo, query, [])
     List.flatten(result.rows)
   end
-
 end
