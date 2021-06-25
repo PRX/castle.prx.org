@@ -54,6 +54,18 @@ defmodule Castle.API.EpisodeControllerTest do
       assert resp["_links"]["first"]["href"] == "/api/v1/episodes"
     end
 
+    test "hides deleted episodes", %{conn: conn} do
+      Castle.Episode
+      |> Castle.Repo.get(@guid1)
+      |> Castle.Episode.changeset(%{deleted_at: Timex.now()})
+      |> Castle.Repo.update!()
+
+      resp = conn |> get(api_episode_path(conn, :index)) |> json_response(200)
+      assert length(resp["_embedded"]["prx:items"]) == 1
+      assert Enum.at(resp["_embedded"]["prx:items"], 0)["id"] == @guid2
+      assert Enum.at(resp["_embedded"]["prx:items"], 0)["title"] == "two"
+    end
+
     test "allows searching with search, page and per params", %{conn: conn} do
       insert!(%Castle.Episode{
         id: @guid4,
