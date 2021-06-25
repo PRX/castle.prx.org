@@ -12,6 +12,7 @@ defmodule Castle.Podcast do
     field(:image_url, :string)
     field(:created_at, :utc_datetime)
     field(:updated_at, :utc_datetime)
+    field(:deleted_at, :utc_datetime)
     field(:published_at, :utc_datetime)
   end
 
@@ -24,6 +25,7 @@ defmodule Castle.Podcast do
       :image_url,
       :created_at,
       :updated_at,
+      :deleted_at,
       :published_at
     ])
   end
@@ -61,6 +63,7 @@ defmodule Castle.Podcast do
       image_url: image_url(doc),
       created_at: parse_dtim(doc["createdAt"]),
       updated_at: parse_dtim(doc["updatedAt"]),
+      deleted_at: parse_dtim(doc["deletedAt"]),
       published_at: parse_dtim(doc["publishedAt"])
     }
   end

@@ -36,6 +36,7 @@ defmodule Castle.EpisodeTest do
       "subtitle" => "world",
       "createdAt" => "2018-04-25T04:00:00.129Z",
       "updatedAt" => "2018-04-25T05:00:00Z",
+      "deletedAt" => "2018-04-25T05:00:01Z",
       "publishedAt" => "2018-04-25T04:30:00Z",
       "releasedAt" => "2018-04-25T04:30:01Z",
       "segmentCount" => 2,
@@ -60,6 +61,7 @@ defmodule Castle.EpisodeTest do
     assert episode.image_url == "http://foo.bar/image1.jpg"
     assert_time(episode.created_at, "2018-04-25T04:00:00Z")
     assert_time(episode.updated_at, "2018-04-25T05:00:00Z")
+    assert_time(episode.deleted_at, "2018-04-25T05:00:01Z")
     assert_time(episode.published_at, "2018-04-25T04:30:00Z")
     assert_time(episode.released_at, "2018-04-25T04:30:01Z")
     assert episode.segment_count == 2

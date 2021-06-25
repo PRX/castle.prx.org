@@ -23,6 +23,7 @@ defmodule Castle.PodcastTest do
       "subtitle" => "world",
       "createdAt" => "2018-04-25T04:00:00.129Z",
       "updatedAt" => "2018-04-25T05:00:00Z",
+      "deletedAt" => "2018-04-25T05:00:01Z",
       "publishedAt" => "2018-04-25T04:30:00Z",
       "itunesImage" => %{"url" => "http://foo.bar/itunes.jpg"},
       "feedImage" => %{"url" => "http://foo.bar/feed.jpg"}
@@ -35,6 +36,7 @@ defmodule Castle.PodcastTest do
     assert podcast.image_url == "http://foo.bar/feed.jpg"
     assert_time(podcast.created_at, "2018-04-25T04:00:00Z")
     assert_time(podcast.updated_at, "2018-04-25T05:00:00Z")
+    assert_time(podcast.deleted_at, "2018-04-25T05:00:01Z")
     assert_time(podcast.published_at, "2018-04-25T04:30:00Z")
   end
 

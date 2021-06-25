@@ -13,6 +13,7 @@ defmodule Castle.Episode do
     field(:image_url, :string)
     field(:created_at, :utc_datetime)
     field(:updated_at, :utc_datetime)
+    field(:deleted_at, :utc_datetime)
     field(:published_at, :utc_datetime)
     field(:released_at, :utc_datetime)
     field(:segment_count, :integer)
@@ -30,6 +31,7 @@ defmodule Castle.Episode do
       :image_url,
       :created_at,
       :updated_at,
+      :deleted_at,
       :published_at,
       :released_at,
       :segment_count,
@@ -97,6 +99,7 @@ defmodule Castle.Episode do
       image_url: image_url(doc["images"]),
       created_at: parse_dtim(doc["createdAt"]),
       updated_at: parse_dtim(doc["updatedAt"]),
+      deleted_at: parse_dtim(doc["deletedAt"]),
       published_at: parse_dtim(doc["publishedAt"]),
       released_at: parse_dtim(doc["releasedAt"]),
       segment_count: doc["segmentCount"],
