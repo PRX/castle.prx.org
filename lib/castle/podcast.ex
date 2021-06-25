@@ -34,6 +34,10 @@ defmodule Castle.Podcast do
     from(p in Castle.Podcast, where: p.account_id in ^accounts, order_by: [asc: :title])
   end
 
+  def undeleted(queryable) do
+    from(r in queryable, where: is_nil(r.deleted_at))
+  end
+
   def total(queryable) do
     Castle.Repo.one(from(r in subquery(queryable), select: count(r.id)))
   end
