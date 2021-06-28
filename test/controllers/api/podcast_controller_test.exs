@@ -31,6 +31,18 @@ defmodule Castle.API.PodcastControllerTest do
       assert Enum.at(resp["_embedded"]["prx:items"], 0)["title"] == "two"
       assert resp["_links"]["first"]["href"] == "/api/v1/podcasts?search=two"
     end
+
+    test "hides deleted podcasts", %{conn: conn} do
+      Castle.Podcast
+      |> Castle.Repo.get(123)
+      |> Castle.Podcast.changeset(%{deleted_at: Timex.now()})
+      |> Castle.Repo.update!()
+
+      resp = conn |> get(api_podcast_path(conn, :index)) |> json_response(200)
+      assert length(resp["_embedded"]["prx:items"]) == 1
+      assert Enum.at(resp["_embedded"]["prx:items"], 0)["id"] == 456
+      assert Enum.at(resp["_embedded"]["prx:items"], 0)["title"] == "two"
+    end
   end
 
   describe "show/2" do

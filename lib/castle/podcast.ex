@@ -6,39 +6,55 @@ defmodule Castle.Podcast do
   @primary_key {:id, :integer, autogenerate: false}
 
   schema "podcasts" do
-    field :account_id, :integer
-    field :title, :string
-    field :subtitle, :string
-    field :image_url, :string
-    field :created_at, :utc_datetime
-    field :updated_at, :utc_datetime
-    field :published_at, :utc_datetime
+    field(:account_id, :integer)
+    field(:title, :string)
+    field(:subtitle, :string)
+    field(:image_url, :string)
+    field(:created_at, :utc_datetime)
+    field(:updated_at, :utc_datetime)
+    field(:deleted_at, :utc_datetime)
+    field(:published_at, :utc_datetime)
   end
 
   def changeset(podcast, attrs) do
     podcast
-    |> cast(attrs, [:account_id, :title, :subtitle, :image_url, :created_at, :updated_at, :published_at])
+    |> cast(attrs, [
+      :account_id,
+      :title,
+      :subtitle,
+      :image_url,
+      :created_at,
+      :updated_at,
+      :deleted_at,
+      :published_at
+    ])
   end
 
   def recent_query(accounts) do
-    from p in Castle.Podcast, where: p.account_id in ^accounts, order_by: [asc: :title]
+    from(p in Castle.Podcast, where: p.account_id in ^accounts, order_by: [asc: :title])
+  end
+
+  def undeleted(queryable) do
+    from(r in queryable, where: is_nil(r.deleted_at))
   end
 
   def total(queryable) do
-    Castle.Repo.one(from r in subquery(queryable), select: count(r.id))
+    Castle.Repo.one(from(r in subquery(queryable), select: count(r.id)))
   end
 
   def max_updated_at do
-    Castle.Repo.one(from p in Castle.Podcast, select: max(p.updated_at))
+    Castle.Repo.one(from(p in Castle.Podcast, select: max(p.updated_at)))
   end
 
   def from_feeder(doc) do
-    struct!(Castle.Podcast, parse_feeder(doc)) |> Castle.Repo.insert!
+    struct!(Castle.Podcast, parse_feeder(doc)) |> Castle.Repo.insert!()
   end
+
   def from_feeder(podcast, doc) do
     changes = parse_feeder(doc)
+
     if Timex.compare(changes.updated_at, podcast.updated_at) >= 0 do
-      changeset(podcast, changes) |> Castle.Repo.update!
+      changeset(podcast, changes) |> Castle.Repo.update!()
     end
   end
 
@@ -51,7 +67,8 @@ defmodule Castle.Podcast do
       image_url: image_url(doc),
       created_at: parse_dtim(doc["createdAt"]),
       updated_at: parse_dtim(doc["updatedAt"]),
-      published_at: parse_dtim(doc["publishedAt"]),
+      deleted_at: parse_dtim(doc["deletedAt"]),
+      published_at: parse_dtim(doc["publishedAt"])
     }
   end
 
@@ -63,6 +80,7 @@ defmodule Castle.Podcast do
   defp image_url(_any), do: nil
 
   defp parse_dtim(nil), do: nil
+
   defp parse_dtim(dtim_str) do
     {:ok, dtim} = Timex.parse(dtim_str, "{ISO:Extended:Z}")
     DateTime.truncate(dtim, :second)

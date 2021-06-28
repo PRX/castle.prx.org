@@ -10,6 +10,7 @@ defmodule CastleWeb.API.EpisodeController do
 
     queryable =
       Castle.Episode.recent_query(podcast.id)
+      |> Castle.Episode.undeleted()
       |> CastleWeb.Search.filter_title_search(search)
 
     total = Castle.Episode.total(queryable)
@@ -25,6 +26,7 @@ defmodule CastleWeb.API.EpisodeController do
 
     queryable =
       Castle.Episode.recent_query(accounts)
+      |> Castle.Episode.undeleted()
       |> CastleWeb.Search.filter_title_search(search)
 
     total = Castle.Episode.total(queryable)

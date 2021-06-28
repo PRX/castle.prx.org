@@ -12,7 +12,7 @@ defmodule Castle.PodcastTest do
     insert!(%Castle.Podcast{id: 1, account_id: 123, updated_at: get_dtim("2018-04-25T04:00:00Z")})
     insert!(%Castle.Podcast{id: 2, account_id: 456, updated_at: get_dtim("2018-04-25T02:00:00Z")})
     insert!(%Castle.Podcast{id: 3, account_id: 123, updated_at: get_dtim("2018-04-25T18:00:00Z")})
-    assert_time max_updated_at(), "2018-04-25T18:00:00Z"
+    assert_time(max_updated_at(), "2018-04-25T18:00:00Z")
   end
 
   test "creates from a feeder doc" do
@@ -23,31 +23,56 @@ defmodule Castle.PodcastTest do
       "subtitle" => "world",
       "createdAt" => "2018-04-25T04:00:00.129Z",
       "updatedAt" => "2018-04-25T05:00:00Z",
+      "deletedAt" => "2018-04-25T05:00:01Z",
       "publishedAt" => "2018-04-25T04:30:00Z",
       "itunesImage" => %{"url" => "http://foo.bar/itunes.jpg"},
-      "feedImage" => %{"url" => "http://foo.bar/feed.jpg"},
+      "feedImage" => %{"url" => "http://foo.bar/feed.jpg"}
     })
+
     assert podcast = get(Castle.Podcast, 123)
     assert podcast.account_id == 456
     assert podcast.title == "hello"
     assert podcast.subtitle == "world"
     assert podcast.image_url == "http://foo.bar/feed.jpg"
-    assert_time podcast.created_at, "2018-04-25T04:00:00Z"
-    assert_time podcast.updated_at, "2018-04-25T05:00:00Z"
-    assert_time podcast.published_at, "2018-04-25T04:30:00Z"
+    assert_time(podcast.created_at, "2018-04-25T04:00:00Z")
+    assert_time(podcast.updated_at, "2018-04-25T05:00:00Z")
+    assert_time(podcast.deleted_at, "2018-04-25T05:00:01Z")
+    assert_time(podcast.published_at, "2018-04-25T04:30:00Z")
   end
 
   test "updates from a feeder doc" do
-    original = insert!(%Castle.Podcast{id: 123, title: "hello", updated_at: get_dtim("2018-04-25T04:00:00Z")})
-    from_feeder(original, %{"id" => 123, "title" => "world", "updatedAt" => "2018-04-25T05:00:00Z"})
+    original =
+      insert!(%Castle.Podcast{
+        id: 123,
+        title: "hello",
+        updated_at: get_dtim("2018-04-25T04:00:00Z")
+      })
+
+    from_feeder(original, %{
+      "id" => 123,
+      "title" => "world",
+      "updatedAt" => "2018-04-25T05:00:00Z"
+    })
+
     assert podcast = get(Castle.Podcast, 123)
     assert podcast.title == "world"
-    assert_time podcast.updated_at, "2018-04-25T05:00:00Z"
+    assert_time(podcast.updated_at, "2018-04-25T05:00:00Z")
   end
 
   test "ignores updates with an older timestamp" do
-    original = insert!(%Castle.Podcast{id: 123, title: "hello", updated_at: get_dtim("2018-04-25T04:00:00Z")})
-    from_feeder(original, %{"id" => 123, "title" => "world", "updatedAt" => "2018-04-25T03:00:00Z"})
+    original =
+      insert!(%Castle.Podcast{
+        id: 123,
+        title: "hello",
+        updated_at: get_dtim("2018-04-25T04:00:00Z")
+      })
+
+    from_feeder(original, %{
+      "id" => 123,
+      "title" => "world",
+      "updatedAt" => "2018-04-25T03:00:00Z"
+    })
+
     assert podcast = get(Castle.Podcast, 123)
     assert podcast.title == "hello"
   end
@@ -69,8 +94,11 @@ defmodule Castle.PodcastTest do
     insert!(%Castle.Podcast{id: 1, account_id: 123})
     insert!(%Castle.Podcast{id: 2, account_id: 456})
     insert!(%Castle.Podcast{id: 3, account_id: 123})
-    podcasts = recent_query([123])
-               |> Castle.Repo.all
+
+    podcasts =
+      recent_query([123])
+      |> Castle.Repo.all()
+
     assert length(podcasts) == 2
     assert Enum.at(podcasts, 0).id == 1
     assert Enum.at(podcasts, 1).id == 3
@@ -90,26 +118,23 @@ defmodule Castle.PodcastTest do
     insert!(%Castle.Podcast{id: 2, account_id: 1, subtitle: "test foo jumps over"})
     insert!(%Castle.Podcast{id: 3, account_id: 1, title: "test bar the sleeping dog"})
 
-    assert (recent_query([1])
-    |> CastleWeb.Search.filter_title_search("dog")
-    |> Castle.Repo.all
-    |> Enum.map(fn e -> e.id end)
-    |> Enum.sort
-    ) == [3]
+    assert recent_query([1])
+           |> CastleWeb.Search.filter_title_search("dog")
+           |> Castle.Repo.all()
+           |> Enum.map(fn e -> e.id end)
+           |> Enum.sort() == [3]
 
-    assert (recent_query([1])
-    |> CastleWeb.Search.filter_title_search("test foo")
-    |> Castle.Repo.all
-    |> Enum.map(fn e -> e.id end)
-    |> Enum.sort
-    ) == [1, 2] |> Enum.sort
+    assert recent_query([1])
+           |> CastleWeb.Search.filter_title_search("test foo")
+           |> Castle.Repo.all()
+           |> Enum.map(fn e -> e.id end)
+           |> Enum.sort() == [1, 2] |> Enum.sort()
 
     # prefix search
-    assert (recent_query([1])
-    |> CastleWeb.Search.filter_title_search("j")
-    |> Castle.Repo.all
-    |> Enum.map(fn e -> e.id end)
-    |> Enum.sort
-    ) == [2] |> Enum.sort
+    assert recent_query([1])
+           |> CastleWeb.Search.filter_title_search("j")
+           |> Castle.Repo.all()
+           |> Enum.map(fn e -> e.id end)
+           |> Enum.sort() == [2] |> Enum.sort()
   end
 end
