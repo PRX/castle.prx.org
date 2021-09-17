@@ -15,7 +15,7 @@ config :castle, CastleWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "+DVZXtoG6yRaQrhCNCPNjdyhioRgRlrKMUDDlZkPLXCghP4NCJ+JafxydZD/QnOq",
   render_errors: [view: CastleWeb.ErrorView, accepts: ~w(html json hal)],
-  pubsub: [name: Castle.PubSub, adapter: Phoenix.PubSub.PG2],
+  pubsub_server: MyApp.PubSub,
   http: [compress: true]
 
 # Environment config (precompiled OR from env variables)
@@ -45,6 +45,9 @@ config :mime, :types, %{
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
+
+# Use Jason for JSON parsing in Phoenix
+config :phoenix, :json_library, Poison
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

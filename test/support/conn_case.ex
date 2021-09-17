@@ -18,7 +18,8 @@ defmodule Castle.ConnCase do
   using do
     quote do
       # Import conveniences for testing with connections
-      use Phoenix.ConnTest
+      import Plug.Conn
+      import Phoenix.ConnTest
 
       import CastleWeb.Router.Helpers
 
@@ -29,13 +30,16 @@ defmodule Castle.ConnCase do
 
   setup tags do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Castle.Repo)
+
     unless tags[:async] do
       Ecto.Adapters.SQL.Sandbox.mode(Castle.Repo, {:shared, self()})
     end
+
     {:ok, conn: Phoenix.ConnTest.build_conn() |> skip_prx_auth(tags)}
   end
 
   defp skip_prx_auth(conn, %{prx_auth: true}), do: conn
+
   defp skip_prx_auth(conn, _tags) do
     Map.put(conn, :skip_prx_auth_during_tests, true)
   end
