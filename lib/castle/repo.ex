@@ -2,13 +2,13 @@ defmodule Castle.Repo do
   use Ecto.Repo, otp_app: :castle, adapter: Ecto.Adapters.Postgres
 
   def init(_, opts) do
-    {:ok, load_opts(opts, Mix.env)}
+    {:ok, load_opts(opts, Mix.env())}
   end
 
   defp load_opts(opts, env) when env in [:dev, :test] do
-    Dotenv.load!
     load_opts(opts, nil)
   end
+
   defp load_opts(opts, _env) do
     opts
     |> Keyword.put(:database, database())
@@ -20,7 +20,7 @@ defmodule Castle.Repo do
   end
 
   defp database() do
-    case Mix.env do
+    case Mix.env() do
       :test -> "castle_test"
       _ -> Env.get(:pg_database)
     end
