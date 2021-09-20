@@ -1,7 +1,7 @@
 defmodule CastleWeb.Router do
   use CastleWeb, :router
 
-  pipeline :api, do: plug :accepts, ["json", "hal"]
+  pipeline :api, do: plug :accepts, ["json"]
   pipeline :logged, do: plug Plug.Logger
 
   pipeline :authorized, do: plug Castle.Plugs.Auth

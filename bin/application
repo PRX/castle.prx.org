@@ -4,13 +4,17 @@ PROCESS=
 CMD_ARGS=
 
 ApplicationUsage () {
-  echo "usage: application [ help | test | web | mix | compile | -- ]"
+  echo "usage: application [ help | web | web-built | console | console-built | test | watch | mix | -- ]"
 }
 
 ApplicationParseOpts () {
   PROCESS=$1
   shift
   CMD_ARGS=$*
+}
+
+CheckDependencies () {
+  mix deps.get > /dev/null
 }
 
 UpdateEnvironment () {
@@ -30,24 +34,65 @@ ApplicationRun () {
     exit
   elif [ "$PROCESS" = "web" ] ; then
     UpdateEnvironment
-    CMD="mix do ecto.migrate, phx.server"
+    mix do ecto.migrate, phx.server
+  elif [ "$PROCESS" = "web-built" ] ; then
+    UpdateEnvironment
+    trap 'exit' INT; /opt/built/bin/castle foreground
+  elif [ "$PROCESS" = "console" ] ; then
+    UpdateEnvironment
+    iex -S mix
+  elif [ "$PROCESS" = "console-built" ] ; then
+    UpdateEnvironment
+    trap 'exit' INT; /opt/built/bin/castle remote_console
   elif [ "$PROCESS" = "test" ] ; then
-    CMD="mix test"
+    CheckDependencies
+    mix test
+  elif [ "$PROCESS" = "watch" ] ; then
+    CheckDependencies
+    mix test.watch
   elif [ "$PROCESS" = "mix" ] ; then
-    CMD="mix"
-  elif [ "$PROCESS" = "compile" ] ; then
-    CMD="mix do deps.get, compile"
+    mix $CMD_ARGS
   elif [ "$PROCESS" = "--" ] ; then
     UpdateEnvironment
-    CMD=
+    exec $CMD_ARGS
   else
     echo "ERROR: $PROCESS is not a valid command."
     ApplicationUsage
-    exit
+    exit 1
   fi
+}
 
-  exec $CMD $CMD_ARGS
+BuiltUsage () {
+  echo "usage: application [ help | okay | web | console | -- ]"
+}
+
+BuiltRun () {
+  CMD=
+  if [ "$PROCESS" = "help" ] ; then
+    BuiltUsage
+    exit
+  elif [ "$PROCESS" = "okay" ] ; then
+    echo "okay"
+    exit
+  elif [ "$PROCESS" = "web" ] ; then
+    UpdateEnvironment
+    trap 'exit' INT; /opt/app/bin/castle foreground
+  elif [ "$PROCESS" = "console" ] ; then
+    UpdateEnvironment
+    trap 'exit' INT; /opt/app/bin/castle remote_console
+  elif [ "$PROCESS" = "--" ] ; then
+    UpdateEnvironment
+    trap 'exit' INT; /opt/app/bin/castle $CMD_ARGS
+  else
+    echo "ERROR: $PROCESS is not a valid command."
+    BuiltUsage
+    exit 1
+  fi
 }
 
 ApplicationParseOpts $*
-ApplicationRun
+if [ "$USE_BUILT" = "true" ] ; then
+  BuiltRun
+else
+  ApplicationRun
+fi

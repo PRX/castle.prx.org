@@ -6,12 +6,9 @@ config :castle, Castle.Repo, adapter: Ecto.Adapters.Postgres, timeout: 30_000, l
 
 # Configures the endpoint
 config :castle, CastleWeb.Endpoint,
-  render_errors: [view: CastleWeb.ErrorView, accepts: ~w(html json hal)],
-  pubsub_server: MyApp.PubSub,
+  render_errors: [view: CastleWeb.ErrorView, accepts: ~w(html json)],
+  pubsub_server: Castle.PubSub,
   http: [compress: true]
-
-# HAL mime type
-config :mime, :types, %{"application/hal+json" => ["hal"]}
 
 # Configures Elixir's Logger
 config :logger, :console,

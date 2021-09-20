@@ -4,7 +4,7 @@ defmodule Castle.Mixfile do
   def project do
     [
       app: :castle,
-      version: "0.0.2",
+      version: "0.1.0",
       elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -43,6 +43,7 @@ defmodule Castle.Mixfile do
       {:phoenix_html, "~> 3.0"},
       {:phoenix_live_reload, "~> 1.3", only: :dev},
       {:ex_doc, "~> 0.25", only: :dev, runtime: false},
+      {:distillery, "~> 2.1"},
       {:gettext, "~> 0.18"},
       {:plug_cowboy, "~> 2.5"},
       {:plug, "~> 1.12"},
