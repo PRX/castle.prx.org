@@ -1,6 +1,5 @@
 defmodule CastleWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :castle
-  use NewRelic.Phoenix.Transaction
 
   socket "/socket", CastleWeb.UserSocket,
     websocket: true,

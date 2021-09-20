@@ -11,7 +11,6 @@ config :castle, Castle.Repo, adapter: Ecto.Adapters.Postgres, timeout: 30_000
 
 # Configures the endpoint
 config :castle, CastleWeb.Endpoint,
-  instrumenters: [NewRelic.Phoenix.Instrumenter],
   url: [host: "localhost"],
   secret_key_base: "+DVZXtoG6yRaQrhCNCPNjdyhioRgRlrKMUDDlZkPLXCghP4NCJ+JafxydZD/QnOq",
   render_errors: [view: CastleWeb.ErrorView, accepts: ~w(html json hal)],
