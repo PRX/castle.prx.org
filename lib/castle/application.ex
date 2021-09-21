@@ -8,6 +8,7 @@ defmodule Castle.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
+      CastleWeb.Telemetry,
       {Phoenix.PubSub, name: Castle.PubSub},
       Castle.Repo,
       CastleWeb.Endpoint,

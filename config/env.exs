@@ -41,6 +41,11 @@ config :castle, CastleWeb.Endpoint,
   http: [port: port],
   secret_key_base: RuntimeEnv.get("SECRET_KEY_BASE")
 
+  # optional new relic
+  config :new_relic_agent,
+    app_name: RuntimeEnv.get("NEW_RELIC_NAME"),
+    license_key: RuntimeEnv.get("NEW_RELIC_KEY")
+
 # env values (the Env module itself will de-quote these)
 config :castle, Env,
   bq_client_email: System.get_env("BQ_CLIENT_EMAIL"),
@@ -51,8 +56,6 @@ config :castle, Env,
   client_secret: System.get_env("CLIENT_SECRET"),
   feeder_host: System.get_env("FEEDER_HOST"),
   id_host: System.get_env("ID_HOST"),
-  new_relic_key: System.get_env("NEW_RELIC_KEY"),
-  new_relic_name: System.get_env("NEW_RELIC_NAME"),
   redis_host: System.get_env("REDIS_HOST"),
   redis_port: System.get_env("REDIS_PORT"),
   redis_pool_size: System.get_env("REDIS_POOL_SIZE"),

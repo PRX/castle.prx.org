@@ -55,8 +55,10 @@ defmodule BigQuery.Base.Auth do
 end
 
 defmodule BigQuery.Base.AuthRequest do
+  @httpoison NewRelic.Instrumented.HTTPoison
+
   def post_form(form, url) do
     headers = %{"Content-type" => "application/x-www-form-urlencoded"}
-    HTTPoison.post(url, form, headers)
+    @httpoison.post(url, form, headers)
   end
 end
