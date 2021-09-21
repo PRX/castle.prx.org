@@ -60,9 +60,7 @@ end
 release :castle do
   set(version: current_version(:castle))
 
-  set(
-    applications: [
-      :runtime_tools
-    ]
-  )
+  set(applications: [:runtime_tools])
+
+  set(commands: [migrate: "rel/commands/migrate.sh"])
 end

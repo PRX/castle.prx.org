@@ -76,6 +76,7 @@ BuiltRun () {
     exit
   elif [ "$PROCESS" = "web" ] ; then
     UpdateEnvironment
+    /opt/app/bin/castle migrate
     trap 'exit' INT; /opt/app/bin/castle foreground
   elif [ "$PROCESS" = "console" ] ; then
     UpdateEnvironment
