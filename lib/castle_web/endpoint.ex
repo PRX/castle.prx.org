@@ -5,6 +5,9 @@ defmodule CastleWeb.Endpoint do
     websocket: true,
     longpoll: true
 
+  # Non-logging health check
+  plug CastleWeb.Plugs.HealthCheck
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phoenix.digest
