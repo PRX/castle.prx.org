@@ -41,10 +41,10 @@ config :castle, CastleWeb.Endpoint,
   http: [port: port],
   secret_key_base: RuntimeEnv.get("SECRET_KEY_BASE")
 
-  # optional new relic
-  config :new_relic_agent,
-    app_name: RuntimeEnv.get("NEW_RELIC_NAME"),
-    license_key: RuntimeEnv.get("NEW_RELIC_KEY")
+# optional new relic
+config :new_relic_agent,
+  app_name: RuntimeEnv.get("NEW_RELIC_APP_NAME"),
+  license_key: RuntimeEnv.get("NEW_RELIC_LICENSE_KEY")
 
 # env values (the Env module itself will de-quote these)
 config :castle, Env,
