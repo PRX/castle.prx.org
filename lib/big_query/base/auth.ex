@@ -34,8 +34,9 @@ defmodule BigQuery.Base.Auth do
     encoded_claims = JOSE.encode(claims)
     header = %{"alg" => "RS256", "typ" => "JWT"}
     jws = %{"alg" => "RS256"}
+
     JOSE.JWS.sign(jwk, encoded_claims, header, jws)
-    |> JOSE.JWS.compact
+    |> JOSE.JWS.compact()
     |> elem(1)
   end
 
@@ -46,17 +47,21 @@ defmodule BigQuery.Base.Auth do
   def handle_response({:ok, %HTTPoison.Response{status_code: 200, body: json}}, exp) do
     {:ok, JOSE.decode(json)["access_token"], exp}
   end
+
   def handle_response({:ok, %HTTPoison.Response{status_code: _code, body: json}}, _exp) do
     {:error, JOSE.decode(json)["error"] || "Unknown error"}
   end
+
   def handle_response({:error, error}, _exp) do
     {:error, HTTPoison.Error.message(error)}
   end
 end
 
 defmodule BigQuery.Base.AuthRequest do
+  @httpoison NewRelic.Instrumented.HTTPoison
+
   def post_form(form, url) do
-    headers = %{"Content-type" => "application/x-www-form-urlencoded"}
-    HTTPoison.post(url, form, headers)
+    headers = [{"content-type", "application/x-www-form-urlencoded"}]
+    @httpoison.post(url, form, headers)
   end
 end

@@ -3,6 +3,7 @@ defmodule BigQuery.Base.HTTP do
   @timeout 45000
   @bq_base "https://www.googleapis.com/bigquery/v2"
   @options [{:timeout, @timeout}, {:recv_timeout, @timeout}]
+  @httpoison NewRelic.Instrumented.HTTPoison
 
   def get(path) do
     case get_token() do
@@ -55,13 +56,13 @@ defmodule BigQuery.Base.HTTP do
   end
 
   defp request(method, url, token) do
-    apply(HTTPoison, method, [url, get_headers(token), @options])
+    apply(@httpoison, method, [url, get_headers(token), @options])
     |> decode_response()
   end
 
   defp request(method, url, token, body) do
     {:ok, encoded_body} = Poison.encode(body)
-    apply(HTTPoison, method, [url, encoded_body, get_headers(token, true), @options])
+    apply(@httpoison, method, [url, encoded_body, get_headers(token, true), @options])
     |> decode_response()
   end
 

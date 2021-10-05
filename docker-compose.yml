@@ -1,41 +1,49 @@
-castle:
-  tty: true
-  stdin_open: true
-  build: .
-  volumes:
-    - ./_build_docker_compose:/opt/app/_build
-    - ./deps_docker_compose:/opt/app/deps
-    - ./config:/opt/app/config
-    - ./lib:/opt/app/lib
-    - ./priv:/opt/app/priv
-    - ./test:/opt/app/test
-    - ./bin:/opt/app/bin
-  env_file:
-    - .env
-  links:
-    - redis
-    - db
-  ports:
-    - "4000:4000"
-  command: web
-  environment:
-    VIRTUAL_HOST: castle.prx.docker
-    REDIS_HOST: redis
-    REDIS_PORT: 6379
-    PG_DATABASE: castle_development
-    PG_HOST: db
-    PG_USER: castle_user
-    PG_PASSWORD: password
-    MIX_ENV:
-redis:
-  image: redis
-  ports:
-    - "6379:6379"
-db:
-  image: postgres:11-alpine
-  environment:
-    POSTGRES_DB: castle_development
-    POSTGRES_USER: castle_user
-    POSTGRES_PASSWORD: password
-  expose:
-    - "5432"
+version: '3.4'
+services:
+  castle:
+    build:
+      context: .
+      target: builder
+    command: web
+    env_file:
+      - .env
+    environment:
+      VIRTUAL_HOST: castle.prx.docker
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PG_DATABASE: castle_development
+      PG_HOST: db
+      PG_USER: castle_user
+      PG_PASSWORD: password
+    links:
+      - redis
+      - db
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./mix.exs:/opt/app/mix.exs
+      - ./mix.lock:/opt/app/mix.lock
+      - ./bin:/opt/app/bin
+      - ./config:/opt/app/config
+      - ./lib:/opt/app/lib
+      - ./priv:/opt/app/priv
+      - ./test:/opt/app/test
+      # persistent dependencies
+      - build-cache:/opt/app/_build
+      - deps-cache:/opt/app/deps
+  redis:
+    image: redis
+  db:
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_DB: castle_development
+      POSTGRES_USER: castle_user
+      POSTGRES_PASSWORD: password
+  castle-built:
+    build:
+      context: .
+      target: built
+    command: okay
+volumes:
+  build-cache:
+  deps-cache:

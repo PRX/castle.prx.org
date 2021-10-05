@@ -12,7 +12,8 @@ config :logger, level: :warn
 # Configure your database
 config :castle, Castle.Repo,
   adapter: Ecto.Adapters.Postgres,
-  pool: Ecto.Adapters.SQL.Sandbox
+  pool: Ecto.Adapters.SQL.Sandbox,
+  database: "castle_test"
 
 # External clients
 config :castle, :redis, Castle.FakeRedis

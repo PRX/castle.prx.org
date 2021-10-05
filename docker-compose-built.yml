@@ -1,0 +1,15 @@
+version: '3.4'
+services:
+  castle:
+    build:
+      context: .
+      target: built
+    command: web
+    env_file:
+      - .env
+    environment:
+      VIRTUAL_HOST: castle.prx.docker
+      PG_HOST: docker.for.mac.localhost # maybe
+      REDIS_HOST: docker.for.mac.localhost # maybe
+    ports:
+      - "4000:4000"

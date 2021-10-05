@@ -1,5 +1,5 @@
 defmodule Castle.Model.TrimmedString do
-  @behaviour Ecto.Type
+  use Ecto.Type
   def type, do: :trimmed_string
 
   def cast("" <> str), do: {:ok, String.trim(str)}

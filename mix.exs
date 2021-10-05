@@ -4,8 +4,8 @@ defmodule Castle.Mixfile do
   def project do
     [
       app: :castle,
-      version: "0.0.2",
-      elixir: "~> 1.7",
+      version: "0.1.0",
+      elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       build_embedded: Mix.env() == :prod,
@@ -22,14 +22,9 @@ defmodule Castle.Mixfile do
   def application do
     [
       mod: {Castle.Application, []},
-      extra_applications: extras(Mix.env())
+      extra_applications: [:logger, :runtime_tools]
     ]
   end
-
-  defp extras(:dev), do: [:dotenv | extras()]
-  defp extras(:test), do: [:dotenv | extras()]
-  defp extras(_), do: extras()
-  defp extras, do: [:logger, :runtime_tools]
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
@@ -40,31 +35,34 @@ defmodule Castle.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.2"},
-      {:phoenix_pubsub, "~> 1.1"},
-      {:phoenix_ecto, "~> 4.0"},
-      {:ecto_sql, "~> 3.0"},
-      {:postgrex, ">= 0.0.0"},
-      {:phoenix_html, "~> 2.11"},
-      {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:ex_doc, "~> 0.14", only: :dev, runtime: false},
-      {:gettext, "~> 0.11"},
-      {:plug_cowboy, "~> 2.0"},
-      {:plug, "~> 1.7"},
-      {:jose, "~> 1.8"},
-      {:httpoison, "~> 1.0", override: true},
+      {:phoenix, "~> 1.5"},
+      {:phoenix_pubsub, "~> 2.0"},
+      {:phoenix_ecto, "~> 4.4"},
+      {:ecto_sql, "~> 3.7"},
+      {:postgrex, "~> 0.15"},
+      {:phoenix_html, "~> 3.0"},
+      {:phoenix_live_reload, "~> 1.3", only: :dev},
+      {:ex_doc, "~> 0.25", only: :dev, runtime: false},
+      {:distillery, "~> 2.1"},
+      {:new_relic_agent, "~> 1.27"},
+      {:telemetry_metrics, "~> 0.4"},
+      {:telemetry_poller, "~> 0.4"},
+      {:gettext, "~> 0.18"},
+      {:plug_cowboy, "~> 2.5"},
+      {:plug, "~> 1.12"},
+      {:jose, "~> 1.11"},
+      {:jason, "~> 1.2"},
+      {:httpoison, "~> 1.8", override: true},
       {:uuid, "~> 1.1"},
-      {:timex, "~> 3.0"},
-      {:redix, ">= 0.6.0"},
-      {:corsica, "~> 1.0"},
+      {:timex, "~> 3.7"},
+      {:redix, "~> 1.1"},
+      {:corsica, "~> 1.1"},
       {:prx_auth, "~> 0.3.0"},
       {:prx_access, "~> 0.2.0"},
-      {:memoize, "~> 1.2"},
-      {:quantum, "~> 2.2"},
-      {:new_relic_phoenix, "~> 0.1"},
-      {:dotenv, "~> 3.0", only: [:dev, :test]},
-      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
-      {:mock, "~> 0.3.1", only: :test}
+      {:memoize, "~> 1.4"},
+      {:quantum, "~> 3.4"},
+      {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
+      {:mock, "~> 0.3.7", only: :test}
     ]
   end
 
