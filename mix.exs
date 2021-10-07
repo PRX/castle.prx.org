@@ -55,7 +55,7 @@ defmodule Castle.Mixfile do
       {:httpoison, "~> 1.8", override: true},
       {:uuid, "~> 1.1"},
       {:timex, "~> 3.7"},
-      {:redix, "~> 1.1"},
+      {:redix_clustered, "~> 0.1"},
       {:corsica, "~> 1.1"},
       {:prx_auth, "~> 0.3.0"},
       {:prx_access, "~> 0.2.0"},
