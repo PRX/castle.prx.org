@@ -13,7 +13,7 @@ defmodule Castle.Application do
       Castle.Repo,
       CastleWeb.Endpoint,
       Castle.Scheduler,
-      Castle.Redis.Pool
+      {RedixClustered, host: Env.get(:redis_host), port: Env.get(:redis_port)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

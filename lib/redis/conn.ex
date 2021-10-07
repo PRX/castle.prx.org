@@ -1,19 +1,19 @@
 defmodule Castle.Redis.Conn do
+  @redis Application.get_env(:castle, :redis_library)
+
   def get(keys) when is_list(keys) do
-    keys |> Enum.map(&["GET", &1]) |> pipeline() |> decode()
+    Enum.map(keys, &get/1)
   end
 
   def get(key) do
     command(["GET", key]) |> decode()
   end
 
+  # NOTE: cannot pipeline since keys may be on different cluster nodes
   def hget(keys, field) when is_list(keys) do
-    Enum.map(keys, &[{"EXISTS", &1}, {"HGET", &1, field}])
-    |> List.flatten()
-    |> Enum.map(&Tuple.to_list/1)
-    |> pipeline()
-    |> decode()
-    |> Enum.chunk_every(2)
+    Enum.map(keys, fn key ->
+      pipeline([["EXISTS", key], ["HGET", key, field]]) |> decode()
+    end)
   end
 
   def hget(key, field) do
@@ -32,17 +32,15 @@ defmodule Castle.Redis.Conn do
   end
 
   def set(sets) when is_map(sets) do
-    sets |> Enum.map(fn {key, val} -> ["SET", key, encode(val)] end) |> pipeline()
-    sets
+    Enum.map(sets, fn {key, val} -> set(key, val) end)
   end
 
   def set(sets) when is_list(sets) do
-    sets |> Enum.map(fn {key, ttl, val} -> ["SETEX", key, ttl, encode(val)] end) |> pipeline()
+    Enum.map(sets, fn {key, ttl, val} -> set(key, ttl, val) end)
   end
 
   def set(sets, ttl) when is_map(sets) do
-    sets |> Enum.map(fn {key, val} -> ["SETEX", key, ttl, encode(val)] end) |> pipeline()
-    sets
+    Enum.map(sets, fn {key, val} -> set(key, ttl, val) end)
   end
 
   def set(key, val) do
@@ -121,14 +119,14 @@ defmodule Castle.Redis.Conn do
   end
 
   def command(command) do
-    case Castle.Redis.Pool.command(command) do
+    case @redis.command(command) do
       {:ok, val} -> val
       _ -> nil
     end
   end
 
   def pipeline(commands) do
-    case Castle.Redis.Pool.pipeline(commands) do
+    case @redis.pipeline(commands) do
       {:ok, vals} -> vals
       _ -> Enum.map(commands, fn _ -> nil end)
     end

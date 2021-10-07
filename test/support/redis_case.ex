@@ -3,11 +3,9 @@ defmodule Castle.RedisCase do
 
   using do
     quote do
-      def redis_keys(pattern), do: Castle.Redis.Conn.command(~w(KEYS #{pattern}))
+      @redis Application.get_env(:castle, :redis_library)
 
-      def redis_count(pattern), do: length(redis_keys(pattern))
-
-      def redis_clear(pattern), do: redis_keys(pattern) |> Enum.map(&Castle.Redis.Conn.del/1)
+      def redis_clear(pattern), do: @redis.nuke(pattern)
     end
   end
 end

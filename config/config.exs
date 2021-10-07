@@ -3,6 +3,7 @@ use Mix.Config
 # General application configuration
 config :castle, ecto_repos: [Castle.Repo]
 config :castle, Castle.Repo, adapter: Ecto.Adapters.Postgres, timeout: 30_000, log: false
+config :castle, :redis_library, RedixClustered
 
 # Configures the endpoint
 config :castle, CastleWeb.Endpoint,
