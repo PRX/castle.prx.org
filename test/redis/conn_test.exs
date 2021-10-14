@@ -19,10 +19,12 @@ defmodule Castle.RedisConnTest do
   test "gets and sets multiple keys at a time" do
     keys = ~w(conn_test_key1 conn_test_key2 foobar)
     assert get(keys) == [nil, nil, nil]
+
     set(%{
       conn_test_key1: "someval",
-      conn_test_key2: %{other: "val"},
+      conn_test_key2: %{other: "val"}
     })
+
     assert get(keys) == ["someval", %{other: "val"}, nil]
   end
 
