@@ -67,7 +67,9 @@ defmodule Mix.Tasks.Postgres.Vacuum do
   end
 
   defp bloat_ratio(tbl) do
-    [_tbl, ratio] = Postgres.Bloat.estimate(tbl)
-    ratio
+    case Postgres.Bloat.estimate(tbl) do
+      [_tbl, ratio] -> ratio
+      _ -> 0
+    end
   end
 end
