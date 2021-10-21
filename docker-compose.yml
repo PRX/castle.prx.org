@@ -34,7 +34,7 @@ services:
   redis:
     image: redis
   db:
-    image: postgres:11-alpine
+    image: postgres:13-alpine
     environment:
       POSTGRES_DB: castle_development
       POSTGRES_USER: castle_user
