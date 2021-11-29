@@ -18,7 +18,6 @@ phases:
       - echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
   build:
     commands:
-      - "cd $(ls -d */|head -n 1)"
       - "cp env-example .env"
       - "docker-compose build"
       - "docker-compose run castle test"
