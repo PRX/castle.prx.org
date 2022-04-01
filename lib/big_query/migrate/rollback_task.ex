@@ -22,6 +22,7 @@ defmodule Mix.Tasks.Bigquery.Rollback do
         raise "schema migration #{version} not found locally!"
 
       {_, _} ->
+        confirm("rollback", [file])
         module = eval_migration(file)
         IO.puts("running rollback #{version} #{module}...")
         remove_migration(version, do: module.down())

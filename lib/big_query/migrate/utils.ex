@@ -90,4 +90,21 @@ defmodule BigQuery.Migrate.Utils do
   def remove_migration(version), do: remove_migration(version, do: nil)
 
   def migrations_path, do: "#{:code.priv_dir(:castle)}/big_query/migrations"
+
+  def confirm(verb, migrations) do
+    dataset = "#{Env.get(:bq_project_id)}.#{Env.get(:bq_dataset)}"
+    files = Enum.join(migrations, ", ")
+    IO.puts("  you are about #{verb} your #{dataset} dataset with: #{files}")
+
+    warn1 = color(:light_red, "  are you sure about that?", " (yes/no) ")
+    warn2 = color(:light_red, "  are you entirely in your right mind?", " (irrelevant/no) ")
+    warn3 = color(:red, "  are you inescapably sure about that?", " (you know it/no) ")
+
+    unless String.trim(IO.gets(warn1)) == "yes", do: abort()
+    unless String.trim(IO.gets(warn2)) == "irrelevant", do: abort()
+    unless String.trim(IO.gets(warn3)) == "you know it", do: abort()
+  end
+
+  defp color(color, text, plain_text), do: "#{IO.ANSI.format([color, text])}" <> plain_text
+  defp abort(), do: IO.puts("  aborted") && exit(:shutdown)
 end

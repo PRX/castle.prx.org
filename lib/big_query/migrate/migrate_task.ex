@@ -23,15 +23,20 @@ defmodule Mix.Tasks.Bigquery.Migrate do
     # by default, just run 1 migration
     to_run = if opts[:all], do: pending_migrations, else: Enum.take(pending_migrations, 1)
 
-    # run missing, in order
-    for version <- to_run do
-      file = local_migrations[version]
-      module = eval_migration(file)
+    if Enum.empty?(to_run) do
+      IO.puts("nothing to migrate")
+    else
+      confirm("migrate", to_run)
 
-      IO.puts("running migration #{version} #{module}...")
-      add_migration(version, do: module.up())
+      for version <- to_run do
+        file = local_migrations[version]
+        module = eval_migration(file)
+
+        IO.puts("running migration #{version} #{module}...")
+        add_migration(version, do: module.up())
+      end
+
+      IO.puts("done")
     end
-
-    IO.puts("done")
   end
 end
