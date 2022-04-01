@@ -26,7 +26,7 @@ defmodule Mix.Tasks.Bigquery.Migrate do
     if Enum.empty?(to_run) do
       IO.puts("nothing to migrate")
     else
-      confirm("migrate", to_run)
+      confirm("migrate", Enum.map(to_run, &local_migrations[&1]))
 
       for version <- to_run do
         file = local_migrations[version]
