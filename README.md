@@ -132,6 +132,29 @@ mix castle.rollup.last_week_uniques [--lock,--date [YYYYMMDD],--count [INT]]
 mix castle.rollup.last_28_uniques [--lock,--date [YYYYMMDD],--count [INT]]
 ```
 
+### BigQuery Migrations
+
+Changes to the BigQuery table structures are defined in `priv/migrations/***.exs`. These are
+**NOT** run automatically on deploy, and will need to be run locally.
+
+To run or rollback migrations:
+
+1. Change your local `.env` to have a `BQ_PRIVATE_KEY` that can make schema changes.
+2. Change your local `.env` to have the `BQ_DATASET` you want to change. **ALWAYS** try out
+   your changes in development/staging before production.
+3. Run `mix bigquery.migrate` to run a single migration at a time.
+   - You'll be prompted many times to double-check you know what you're doing.
+   - Watch the output, and double-check the changes it made to your schema.
+   - Alternatively, `mix bigquery.migrate` rolls back a single migration.
+   - Note that BigQuery will eventually throw `was recently deleted` errors if you keep adding
+     and removing the same column names.
+
+To add a new migration, just do something like:
+
+```bash
+touch "priv/big_query/migrations/$(date -u +"%Y%m%d%H%M%S")_make_a_change.exs"
+```
+
 ## Testing
 
 ```
@@ -164,15 +187,6 @@ bundle install
 You'll also need to [set up a Google API key](https://support.google.com/googleapi/answer/6158862).
 Create a Service Account key with write access to the project/tables you want to
 alter, and save it to `/scripts/.credentials.json`.
-
-Changes to the BigQuery table structures are defined in `/scripts/` as well.
-`/scripts/create_tables.rb` will create the tables anew for a new install
-`/scripts/migrations/*.rb` files will update an existing environment with changes to the datasets, tables, or schemas.
-They are meant to be run in order, and while not reversible, are written to be idempotent.
-```
-# execute the migration to add VAST fields to the BQ schema
-bundle exec ruby migrations/0002_add_vast.rb -p prx-metrics -d development
-```
 
 ## License
 
