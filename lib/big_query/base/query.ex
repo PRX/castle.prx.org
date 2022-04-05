@@ -13,6 +13,17 @@ defmodule BigQuery.Base.Query do
     run_query(queryParams, sql, pageLimit)
   end
 
+  # non-memoized runner
+  def run(str, params \\ %{}, pageLimit \\ nil), do: run_query(params, str, pageLimit)
+
+  # also log the sql + metadata
+  def log(str, params \\ %{}, pageLimit \\ nil) do
+    IO.puts("  #{String.replace(str, ~r/\s+/, " ")}")
+    {result, meta} = run_query(params, str, pageLimit)
+    IO.puts("  #{inspect(meta)}")
+    {result, meta}
+  end
+
   def query_each(sql, func), do: query_each(%{}, sql, func)
   def query_each(params, sql, func), do: query_each(params, sql, nil, func)
 
