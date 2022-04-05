@@ -18,7 +18,7 @@ defmodule BigQuery.Base.Query do
 
   # also log the sql + metadata
   def log(str, params \\ %{}, pageLimit \\ nil) do
-    IO.puts("  #{String.replace(str, ~r/\s+/, " ")}")
+    IO.puts("  #{String.trim(String.replace(str, ~r/\s+/, " "))}")
     {result, meta} = run_query(params, str, pageLimit)
     IO.puts("  #{inspect(meta)}")
     {result, meta}
