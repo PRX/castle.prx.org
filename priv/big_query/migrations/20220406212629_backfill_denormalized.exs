@@ -3,7 +3,7 @@ defmodule BigQuery.Migrations.BackfillDenormalized do
   alias BigQuery.Migrate.Utils
 
   def up do
-    Enum.each(Utils.by_month("dt_downloads"), fn {start, stop} ->
+    Enum.each(Utils.by_month("dt_impressions"), fn {start, stop} ->
       Query.log("""
         UPDATE dt_impressions i
         SET i.agent_name_id = d.agent_name_id,
@@ -20,7 +20,7 @@ defmodule BigQuery.Migrations.BackfillDenormalized do
   end
 
   def down do
-    Enum.each(Utils.by_month("dt_downloads"), fn {start, stop} ->
+    Enum.each(Utils.by_month("dt_impressions"), fn {start, stop} ->
       Query.log("""
         UPDATE dt_impressions
         SET agent_name_id = NULL,
