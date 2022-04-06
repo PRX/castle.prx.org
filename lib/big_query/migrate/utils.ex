@@ -18,6 +18,18 @@ defmodule BigQuery.Migrate.Utils do
     Query.run("CREATE TABLE schema_migrations (version STRING NOT NULL)")
   end
 
+  def by_month(table) do
+    sql = """
+      SELECT MIN(partition_id) AS id FROM INFORMATION_SCHEMA.PARTITIONS WHERE table_name = @table
+    """
+
+    {[%{id: id}], _meta} = Query.run(sql, table: table)
+    str = "#{String.slice(id, 0..3)}-#{String.slice(id, 4..5)}-#{String.slice(id, 6..7)}"
+
+    {:ok, date} = Date.from_iso8601(str)
+    month_ranges(date)
+  end
+
   def get_remote_migrations do
     {results, _meta} = Query.run("SELECT * FROM schema_migrations")
     Enum.map(results, & &1[:version])
@@ -107,4 +119,13 @@ defmodule BigQuery.Migrate.Utils do
 
   defp color(color, text, plain_text), do: "#{IO.ANSI.format([color, text])}" <> plain_text
   defp abort(), do: IO.puts("  aborted") && exit(:shutdown)
+
+  defp month_ranges(date) do
+    if Date.compare(date, Date.utc_today()) == :gt do
+      []
+    else
+      next_month = Date.end_of_month(date) |> Date.add(1)
+      [{date, next_month}] ++ month_ranges(next_month)
+    end
+  end
 end
