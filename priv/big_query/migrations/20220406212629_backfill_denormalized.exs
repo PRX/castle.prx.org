@@ -13,6 +13,7 @@ defmodule BigQuery.Migrations.BackfillDenormalized do
             i.listener_id = d.listener_id
         FROM (#{distinct_downloads(start, stop)}) d
         WHERE i.request_uuid = d.request_uuid
+        AND i.listener_id IS NULL
         AND timestamp >= "#{start}"
         AND timestamp < "#{stop}"
       """)
