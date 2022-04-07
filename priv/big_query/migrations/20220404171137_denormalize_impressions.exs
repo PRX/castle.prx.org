@@ -7,7 +7,8 @@ defmodule BigQuery.Migrations.DenormalizeImpressions do
       ADD COLUMN agent_name_id INT64,
       ADD COLUMN agent_type_id INT64,
       ADD COLUMN agent_os_id INT64,
-      ADD COLUMN geoname_id INT64,
+      ADD COLUMN city_geoname_id INT64,
+      ADD COLUMN country_geoname_id INT64,
       ADD COLUMN listener_id STRING;
     """)
   end
@@ -18,7 +19,8 @@ defmodule BigQuery.Migrations.DenormalizeImpressions do
       DROP COLUMN agent_name_id INT64,
       DROP COLUMN agent_type_id INT64,
       DROP COLUMN agent_os_id INT64,
-      DROP COLUMN geoname_id INT64,
+      DROP COLUMN city_geoname_id INT64,
+      DROP COLUMN country_geoname_id INT64,
       DROP COLUMN listener_id STRING;
     """)
   end
