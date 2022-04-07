@@ -18,7 +18,7 @@ defmodule BigQuery.Base.Query do
 
   # also log the sql + metadata
   def log(str, params \\ %{}, pageLimit \\ nil) do
-    IO.puts("  #{String.trim(String.replace(str, ~r/\s+/, " "))}")
+    IO.puts("  #{trim(str)}")
     {result, meta} = run_query(params, str, pageLimit)
     IO.puts("  #{inspect(meta)}")
     {result, meta}
@@ -28,7 +28,7 @@ defmodule BigQuery.Base.Query do
   def query_each(params, sql, func), do: query_each(params, sql, nil, func)
 
   def query_each(params, sql, limit, func) do
-    Logger.debug("BQ: #{sql} #{inspect(params)}")
+    Logger.debug("BQ: #{trim(sql)} #{inspect(params)}")
 
     sql
     |> post_params(params, limit)
@@ -36,6 +36,8 @@ defmodule BigQuery.Base.Query do
     |> page_result(func)
     |> parse_meta()
   end
+
+  defp trim(sql), do: String.replace(sql, ~r/\s+/, " ") |> String.trim()
 
   defp run_query(queryParams, sql, pageLimit) do
     sql
