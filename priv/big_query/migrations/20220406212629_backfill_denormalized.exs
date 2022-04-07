@@ -54,7 +54,7 @@ defmodule BigQuery.Migrations.BackfillDenormalized do
 
   # don't run into the BQ streaming-insert buffer
   defp bounded_stop(stop) do
-    now_minus_buffer = DateTime.utc_now() |> DateTime.add(60 * -10, :second)
+    now_minus_buffer = DateTime.utc_now() |> DateTime.add(60 * -60, :second)
 
     case Date.compare(stop, now_minus_buffer) do
       :lt -> stop
