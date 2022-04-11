@@ -1,6 +1,8 @@
 defmodule BigQuery.Base.HTTP do
   @timeout 45000
-  @bq_base "https://www.googleapis.com/bigquery/v2"
+  @bq_base "https://bigquery.googleapis.com/bigquery/v2"
+  @bq_upload_base "https://bigquery.googleapis.com/upload/bigquery/v2"
+  @bq_upload_type "uploadType=multipart"
   @options [{:timeout, @timeout}, {:recv_timeout, @timeout}]
   @httpoison NewRelic.Instrumented.HTTPoison
 
@@ -27,6 +29,16 @@ defmodule BigQuery.Base.HTTP do
     case get_token() do
       {:ok, token} ->
         request(:post, url_for(path), token, body |> Map.put("timeoutMs", @timeout))
+
+      {:error, error} ->
+        raise error
+    end
+  end
+
+  def upload(path, body, file) do
+    case get_token() do
+      {:ok, token} ->
+        request(:post, upload_url_for(path), token, body |> Map.put("timeoutMs", @timeout), file)
 
       {:error, error} ->
         raise error
@@ -65,6 +77,10 @@ defmodule BigQuery.Base.HTTP do
     "#{@bq_base}/projects/#{Env.get(:bq_project_id)}/#{path}"
   end
 
+  defp upload_url_for(path) do
+    "#{@bq_upload_base}/projects/#{Env.get(:bq_project_id)}/#{path}?#{@bq_upload_type}"
+  end
+
   defp request(method, url, token) do
     apply(@httpoison, method, [url, get_headers(token), @options])
     |> decode_response()
@@ -74,6 +90,20 @@ defmodule BigQuery.Base.HTTP do
     {:ok, encoded_body} = Poison.encode(body)
 
     apply(@httpoison, method, [url, encoded_body, get_headers(token, true), @options])
+    |> decode_response()
+  end
+
+  defp request(method, url, token, body, file_string) do
+    {:ok, encoded_body} = Poison.encode(body)
+
+    parts = [
+      {"json", encoded_body, ["content-type": "application/json"]},
+      {"file", :zlib.gzip(file_string), ["content-type": "application/gzip"]}
+    ]
+
+    headers = [{"Content-type", "multipart/form-data"} | get_headers(token)]
+
+    apply(@httpoison, method, [url, {:multipart, parts}, headers, @options])
     |> decode_response()
   end
 
