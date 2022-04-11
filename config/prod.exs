@@ -3,6 +3,7 @@ use Mix.Config
 alias Mix.Tasks.Feeder, as: Feeder
 alias Mix.Tasks.Postgres, as: Postgres
 alias Mix.Tasks.Castle.Rollup, as: Rollup
+alias Mix.Tasks.Bigquery.Sync, as: BigQuerySync
 
 # For production, we configure the host to read the PORT
 # from the system environment. Therefore, you will need
@@ -27,6 +28,8 @@ config :castle, :redis, Castle.Redis.Api
 config :castle, Castle.Scheduler,
   jobs: [
     {"* * * * *", {Feeder.Sync, :run, [["--lock"]]}},
+    {"1 * * * *", {BigQuerySync.Podcasts, :run, [["--lock"]]}},
+    {"2 * * * *", {BigQuerySync.Episodes, :run, [["--lock"]]}},
     # 8-9 UTC reserved for vacuuming rollup tables
     {"*/5 8 * * *", {Postgres.Vacuum, :run, [["--lock"]]}},
     {"15,45 0-7,9-23 * * *", {Rollup.Hourly, :run, [["--lock"]]}},

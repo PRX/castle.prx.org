@@ -3,6 +3,7 @@ use Mix.Config
 alias Mix.Tasks.Feeder, as: Feeder
 alias Mix.Tasks.Postgres, as: Postgres
 alias Mix.Tasks.Castle.Rollup, as: Rollup
+alias Mix.Tasks.Bigquery.Sync, as: BigQuerySync
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
@@ -39,6 +40,8 @@ config :castle, :redis, Castle.Redis.Api
 config :castle, Castle.Scheduler,
   jobs: [
     # {"* * * * *", {Feeder.Sync,            :run, [["--lock"]]}},
+    # {"* * * * *", {BigQuerySync.Podcasts, :run, [["--lock"]]}},
+    # {"* * * * *", {BigQuerySync.Episodes, :run, [["--lock"]]}},
     # {"* * * * *", {Postgres.Vacuum,        :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.Hourly,          :run, [["--lock"]]}},
     # {"* * * * *", {Rollup.Monthly,         :run, [["--lock"]]}},
