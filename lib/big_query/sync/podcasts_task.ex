@@ -1,12 +1,26 @@
 defmodule Mix.Tasks.Bigquery.Sync.Podcasts do
   use Mix.Task
   require Logger
+  import Castle.Redis.Lock
 
   @shortdoc "Sync feeder podcasts to BigQuery"
+  @lock "lock.bigquery.sync.podcasts"
+  @lock_ttl 60
+  @success_ttl 30
 
-  def run(_args) do
+  def run(args) do
     {:ok, _started} = Application.ensure_all_started(:castle)
 
+    lock = Enum.member?(args, "--lock") || Enum.member?(args, "-l")
+
+    if lock do
+      lock(@lock, @lock_ttl, @success_ttl, do: sync_podcasts())
+    else
+      sync_podcasts()
+    end
+  end
+
+  defp sync_podcasts do
     fields = ~w(
       id account_id title subtitle image_url
       created_at updated_at published_at deleted_at
