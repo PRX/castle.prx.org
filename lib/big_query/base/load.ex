@@ -2,7 +2,7 @@ defmodule BigQuery.Base.Load do
   require Logger
   import BigQuery.Base.HTTP
 
-  @max_job_wait_seconds 15
+  @max_job_wait_seconds 30
 
   def reload(table, csv_data) do
     upload("jobs", post_params(table), csv_data) |> wait_for_job()
