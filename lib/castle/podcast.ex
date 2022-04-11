@@ -30,6 +30,10 @@ defmodule Castle.Podcast do
     ])
   end
 
+  def all do
+    Castle.Repo.all(Castle.Podcast, order_by: [asc: :id])
+  end
+
   def recent_query(accounts) do
     from(p in Castle.Podcast, where: p.account_id in ^accounts, order_by: [asc: :title])
   end
