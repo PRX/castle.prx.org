@@ -5,7 +5,15 @@ defmodule BigQuery.Base.Load do
   @max_job_wait_seconds 30
 
   def reload(table, csv_data) do
-    upload("jobs", post_params(table), csv_data) |> wait_for_job()
+    try do
+      upload("jobs", post_params(table), csv_data) |> wait_for_job()
+    rescue
+      e in RuntimeError ->
+        case e do
+          %{message: m} -> {:error, m}
+          _ -> {:error, inspect(e)}
+        end
+    end
   end
 
   defp post_params(table_name) do
