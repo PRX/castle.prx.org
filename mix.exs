@@ -40,7 +40,7 @@ defmodule Castle.Mixfile do
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.7"},
       {:postgrex, "~> 0.15"},
-      {:phoenix_html, "~> 3.0"},
+      {:phoenix_html, "~> 3.0.4"},
       {:phoenix_live_reload, "~> 1.3", only: :dev},
       {:ex_doc, "~> 0.25", only: :dev, runtime: false},
       {:distillery, "~> 2.1"},

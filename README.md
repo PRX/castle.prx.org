@@ -101,6 +101,17 @@ podcasts/episodes since the beginning of time, and can take a long time.
 mix feeder.sync [--lock,--all,--force]
 ```
 
+### BigQuery Sync
+
+Sync all podcasts/episodes from your local Postgres database back to BigQuery.
+Currently, this replaces the entire table in BigQuery, but someday we may want
+a more progressive sync process.
+
+```
+mix bigquery.sync.podcasts [--lock]
+mix bigquery.sync.episodes [--lock]
+```
+
 ### Downloads Rollup
 
 These tasks query BigQuery for `dt_downloads` on a single day, and inserts that

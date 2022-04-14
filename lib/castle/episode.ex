@@ -41,6 +41,10 @@ defmodule Castle.Episode do
     |> validate_required([:podcast_id])
   end
 
+  def all do
+    Castle.Repo.all(Castle.Episode, order_by: [asc: :id])
+  end
+
   def recent_query(pid) when is_integer(pid) do
     from(e in Castle.Episode,
       where: e.podcast_id == ^pid and e.published_at <= ^Timex.now(),
