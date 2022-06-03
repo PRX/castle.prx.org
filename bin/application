@@ -17,32 +17,18 @@ CheckDependencies () {
   mix deps.get > /dev/null
 }
 
-UpdateEnvironment () {
-  if [ -z "$LOCAL_ENV" ]; then
-    IFS=$'\n'
-    for item in `aws-secrets-get`; do
-      export "$item"
-    done
-    unset IFS
-  fi
-}
-
 ApplicationRun () {
   CMD=
   if [ "$PROCESS" = "help" ] ; then
     ApplicationUsage
     exit
   elif [ "$PROCESS" = "web" ] ; then
-    UpdateEnvironment
     mix do ecto.migrate, phx.server
   elif [ "$PROCESS" = "web-built" ] ; then
-    UpdateEnvironment
     trap 'exit' INT; /opt/built/bin/castle foreground
   elif [ "$PROCESS" = "console" ] ; then
-    UpdateEnvironment
     iex -S mix
   elif [ "$PROCESS" = "console-built" ] ; then
-    UpdateEnvironment
     trap 'exit' INT; /opt/built/bin/castle remote_console
   elif [ "$PROCESS" = "test" ] ; then
     CheckDependencies
@@ -53,7 +39,6 @@ ApplicationRun () {
   elif [ "$PROCESS" = "mix" ] ; then
     mix $CMD_ARGS
   elif [ "$PROCESS" = "--" ] ; then
-    UpdateEnvironment
     exec $CMD_ARGS
   else
     echo "ERROR: $PROCESS is not a valid command."
@@ -75,14 +60,11 @@ BuiltRun () {
     echo "okay"
     exit
   elif [ "$PROCESS" = "web" ] ; then
-    UpdateEnvironment
     /opt/app/bin/castle migrate
     trap 'exit' INT; /opt/app/bin/castle foreground
   elif [ "$PROCESS" = "console" ] ; then
-    UpdateEnvironment
     trap 'exit' INT; /opt/app/bin/castle remote_console
   elif [ "$PROCESS" = "--" ] ; then
-    UpdateEnvironment
     trap 'exit' INT; /opt/app/bin/castle $CMD_ARGS
   else
     echo "ERROR: $PROCESS is not a valid command."
