@@ -24,7 +24,7 @@ RUN mkdir -p /opt/built && \
 
 # NOTE: alpine version here must match the above elixir image
 # you can find with "grep VERSION_ID /etc/os-release | cut -d "=" -f2"
-FROM alpine:3.14.2 AS built
+FROM alpine:3.16.0 AS built
 LABEL maintainer="PRX <sysadmin@prx.org>"
 LABEL org.prx.app="yes"
 RUN apk add --no-cache bash openssl-dev python3 py3-pip && ln -s /usr/bin/python3 /usr/bin/python
