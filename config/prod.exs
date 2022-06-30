@@ -32,7 +32,7 @@ config :castle, Castle.Scheduler,
     {"2 * * * *", {BigQuerySync.Episodes, :run, [["--lock"]]}},
     # 8-9 UTC reserved for vacuuming rollup tables
     {"*/5 8 * * *", {Postgres.Vacuum, :run, [["--lock"]]}},
-    {"15,45 0-7,9-23 * * *", {Rollup.Hourly, :run, [["--lock"]]}},
+    {"0,15,30,45 0-7,9-23 * * *", {Rollup.Hourly, :run, [["--lock"]]}},
     {"15 6 * * *", {Rollup.Monthly, :run, [["--lock"]]}},
     {"20,50 0-7,9-23 * * *", {Rollup.Geocountries, :run, [["--lock"]]}},
     {"25,55 0-7,9-23 * * *", {Rollup.Geometros, :run, [["--lock"]]}},
