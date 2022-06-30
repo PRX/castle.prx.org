@@ -133,13 +133,10 @@ defmodule Castle.EpisodeTest do
     insert_published!(id: @id3, podcast_id: 1)
     insert_unpublished!(id: @id4, podcast_id: 1)
 
-    episodes =
-      recent_query(1)
-      |> Castle.Repo.all()
-
-    assert length(episodes) == 2
-    assert Enum.at(episodes, 0).id == @id1
-    assert Enum.at(episodes, 1).id == @id3
+    assert recent_query(1)
+           |> Castle.Repo.all()
+           |> Enum.map(fn e -> e.id end)
+           |> Enum.sort() == Enum.sort([@id1, @id3])
   end
 
   test "gets recent episodes for accounts" do
@@ -150,13 +147,10 @@ defmodule Castle.EpisodeTest do
     insert_published!(id: @id3, podcast_id: 1)
     insert_unpublished!(id: @id4, podcast_id: 1)
 
-    episodes =
-      recent_query([123])
-      |> Castle.Repo.all()
-
-    assert length(episodes) == 2
-    assert Enum.at(episodes, 0).id == @id1
-    assert Enum.at(episodes, 1).id == @id3
+    assert recent_query([123])
+           |> Castle.Repo.all()
+           |> Enum.map(fn e -> e.id end)
+           |> Enum.sort() == Enum.sort([@id1, @id3])
   end
 
   test "gets total episodes for podcast" do
