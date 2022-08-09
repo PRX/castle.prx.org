@@ -27,6 +27,7 @@ RUN mkdir -p /opt/built && \
 FROM alpine:3.16.0 AS built
 LABEL maintainer="PRX <sysadmin@prx.org>"
 LABEL org.prx.app="yes"
+LABEL org.prx.spire.publish.ecr="ELIXIR_APP"
 RUN apk add --no-cache bash openssl-dev python3 py3-pip && ln -s /usr/bin/python3 /usr/bin/python
 RUN pip3 --disable-pip-version-check --no-cache-dir install awscli
 ENV MIX_ENV=prod
