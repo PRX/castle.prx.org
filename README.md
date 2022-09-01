@@ -110,6 +110,7 @@ a more progressive sync process.
 ```
 mix bigquery.sync.podcasts [--lock]
 mix bigquery.sync.episodes [--lock]
+mix bigquery.sync.agentnames [--lock]
 ```
 
 ### Downloads Rollup
@@ -156,7 +157,7 @@ To run or rollback migrations:
 3. Run `mix bigquery.migrate` to run a single migration at a time.
    - You'll be prompted many times to double-check you know what you're doing.
    - Watch the output, and double-check the changes it made to your schema.
-   - Alternatively, `mix bigquery.migrate` rolls back a single migration.
+   - Alternatively, `mix bigquery.rollback` rolls back a single migration.
    - Note that BigQuery will eventually throw `was recently deleted` errors if you keep adding
      and removing the same column names.
 
