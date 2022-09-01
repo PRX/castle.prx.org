@@ -7,6 +7,7 @@ defmodule Mix.Tasks.Bigquery.Sync.Agentnames do
   @lock "lock.bigquery.sync.agentnames"
   @lock_ttl 120
   @success_ttl 30
+  @url "https://raw.githubusercontent.com/PRX/prx-podagent/master/db/agents.lock.json"
 
   def run(args) do
     {:ok, _started} = Application.ensure_all_started(:castle)
@@ -38,16 +39,12 @@ defmodule Mix.Tasks.Bigquery.Sync.Agentnames do
   end
 
   defp get_podagent_tags do
-    case Env.get(:podagents_url) do
-      nil -> {:error, "PODAGENTS_URL not set"}
-      "" -> {:error, "PODAGENTS_URL not set"}
-      url -> HTTPoison.get(url) |> parse_podagents() |> format_tags()
+    case HTTPoison.get(@url) do
+      {:ok, %{status_code: 200, body: body}} -> Jason.decode(body) |> format_tags()
+      {:ok, %{status_code: code}} -> {:error, "got #{code} from podagents"}
+      err -> {:error, inspect(err)}
     end
   end
-
-  defp parse_podagents({:ok, %{status_code: 200, body: body}}), do: Jason.decode(body)
-  defp parse_podagents({:ok, %{status_code: code}}), do: {:error, "got #{code} from podagents"}
-  defp parse_podagents(err), do: {:error, inspect(err)}
 
   defp format_tags({:ok, json}) do
     tags = Map.get(json, "tags", [])
