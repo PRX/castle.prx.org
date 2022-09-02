@@ -75,10 +75,12 @@ defmodule BigQuery.Migrations.CreateCampaignMetadataTables do
         podcast_id INT64,
         name STRING,
         original_count INT64,
-        zone_id STRING,
+        zone_index INT64,
         zone_type STRING,
         zone_name STRING,
-        zone_section STRING,
+        zone_label STRING,
+        section_name STRING,
+        section_label STRING,
         created_at TIMESTAMP,
         updated_at TIMESTAMP
       )
