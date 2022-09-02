@@ -61,6 +61,7 @@ defmodule Castle.Mixfile do
       {:prx_access, "~> 0.2.0"},
       {:memoize, "~> 1.4"},
       {:quantum, "~> 3.4"},
+      {:nimble_csv, "~> 1.1"},
       {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
       {:mock, "~> 0.3.7", only: :test}
     ]
