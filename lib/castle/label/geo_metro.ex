@@ -1,5 +1,4 @@
 defmodule Castle.Label.GeoMetro do
-
   @default "Unknown"
 
   @labels %{
@@ -212,12 +211,14 @@ defmodule Castle.Label.GeoMetro do
     862 => "Sacramnto-Stkton-Modesto",
     866 => "Fresno-Visalia",
     868 => "Chico-Redding",
-    881 => "Spokane",
+    881 => "Spokane"
   }
 
+  def all(), do: @labels
+
   def find(nil), do: "Other"
+
   def find(code) when is_integer(code) do
     @labels[code] || @default
   end
-
 end
