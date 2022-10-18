@@ -29,14 +29,18 @@ defmodule Mix.Tasks.Bigquery.Sync.Geonames do
         dest = "#{Env.get(:bq_dataset)}.geonames_tmp"
         Logger.info("BigQuery.Sync.Geonames reload: #{dest} with #{count} rows from #{folder}")
 
-      # TODO: is there some way to check the _latest version_ we've loadedd into geonames?
-      # maybe the description of the table? or what?
-      # TODO: load into a temporary table
-      # TODO: then run a MERGE on it https://cloud.google.com/bigquery/docs/reference/standard-sql/dml-syntax#merge_statement
-      # case BigQuery.Base.Load.reload("geonames_tmp", data) do
-      #   {:ok, msg} -> Logger.info("BigQuery.Sync.Geonames success: #{msg}")
-      #   {:error, msg} -> Logger.error("BigQuery.Sync.Geonames error: #{msg}")
-      # end
+        # create tmp table and load data into it
+        BigQuery.Base.Query.run(create_table_sql("geonames_tmp"))
+        {:ok, _msg} = BigQuery.Base.Load.reload("geonames_tmp", data)
+
+        # merge tmp table into real geonames table
+        {_, %{changed: changed}} =
+          BigQuery.Base.Query.run(merge_table_sql("geonames_tmp", "geonames"))
+
+        Logger.info("BigQuery.Sync.Geonames success: merged #{changed} new/updated rows")
+
+        # cleanup
+        BigQuery.Base.Query.run("DROP TABLE geonames_tmp")
 
       {:error, msg} ->
         Logger.error("BigQuery.Sync.Geonames error: #{msg}")
@@ -79,11 +83,43 @@ defmodule Mix.Tasks.Bigquery.Sync.Geonames do
   defp parse_csv({:ok, %{status_code: code}}), do: {:error, "got #{code} from maxmind"}
   defp parse_csv(err), do: {:error, inspect(err)}
 
-  defp format_tags({:ok, json}) do
-    tags = Map.get(json, "tags", [])
-    formatted = Enum.map(tags, fn {id, tag} -> %{agentname_id: id, tag: tag} end)
-    {:ok, formatted}
+  defp create_table_sql(table_name) do
+    """
+    CREATE TABLE IF NOT EXISTS #{table_name}
+    (
+      geoname_id INT64 NOT NULL,
+      locale_code STRING,
+      continent_code STRING,
+      continent_name STRING,
+      country_iso_code STRING,
+      country_name STRING,
+      subdivision_1_iso_code STRING,
+      subdivision_1_name STRING,
+      subdivision_2_iso_code STRING,
+      subdivision_2_name STRING,
+      city_name STRING,
+      metro_code INT64,
+      time_zone STRING,
+      is_in_european_union BOOL
+    );
+    """
   end
 
-  defp format_tags(err), do: err
+  defp merge_table_sql(tmp_table_name, dest_table_name) do
+    flds = ~w(locale_code continent_code continent_name country_iso_code country_name
+      subdivision_1_iso_code subdivision_1_name subdivision_2_iso_code subdivision_2_name
+      city_name metro_code time_zone is_in_european_union)
+
+    changed = Enum.map(flds, &"dest.#{&1} != tmp.#{&1}") |> Enum.join(" OR ")
+    sets = Enum.map(flds, &"#{&1} = tmp.#{&1}") |> Enum.join(", ")
+    inserts = (["geoname_id"] ++ flds) |> Enum.join(", ")
+
+    """
+    MERGE #{dest_table_name} dest
+    USING #{tmp_table_name} tmp
+    ON dest.geoname_id = tmp.geoname_id
+    WHEN MATCHED AND (#{changed}) THEN UPDATE SET #{sets}
+    WHEN NOT MATCHED THEN INSERT(#{inserts}) VALUES(#{inserts})
+    """
+  end
 end
