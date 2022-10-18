@@ -1,6 +1,9 @@
 defmodule BigQuery.Migrations.CreateGeonames do
   alias BigQuery.Base.Query
 
+  # NOTE for pre-existing tables run:
+  # ALTER TABLE development.geonames ADD COLUMN is_in_european_union BOOL;
+  # INSERT INTO development.schema_migrations VALUES ('20220901194325');
   def up do
     Query.log("""
       CREATE TABLE geonames
