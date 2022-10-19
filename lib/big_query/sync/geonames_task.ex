@@ -29,8 +29,7 @@ defmodule Mix.Tasks.Bigquery.Sync.Geonames do
         dest = "#{Env.get(:bq_dataset)}.geonames_tmp"
         Logger.info("BigQuery.Sync.Geonames reload: #{dest} with #{count} rows from #{folder}")
 
-        # create tmp table and load data into it
-        BigQuery.Base.Query.run(create_table_sql("geonames_tmp"))
+        # load data into "temporary" table
         {:ok, _msg} = BigQuery.Base.Load.reload("geonames_tmp", data)
 
         # merge tmp table into real geonames table
@@ -38,9 +37,6 @@ defmodule Mix.Tasks.Bigquery.Sync.Geonames do
           BigQuery.Base.Query.run(merge_table_sql("geonames_tmp", "geonames"))
 
         Logger.info("BigQuery.Sync.Geonames success: merged #{changed} new/updated rows")
-
-        # cleanup
-        BigQuery.Base.Query.run("DROP TABLE geonames_tmp")
 
       {:error, msg} ->
         Logger.error("BigQuery.Sync.Geonames error: #{msg}")
@@ -82,28 +78,6 @@ defmodule Mix.Tasks.Bigquery.Sync.Geonames do
 
   defp parse_csv({:ok, %{status_code: code}}), do: {:error, "got #{code} from maxmind"}
   defp parse_csv(err), do: {:error, inspect(err)}
-
-  defp create_table_sql(table_name) do
-    """
-    CREATE TABLE IF NOT EXISTS #{table_name}
-    (
-      geoname_id INT64 NOT NULL,
-      locale_code STRING,
-      continent_code STRING,
-      continent_name STRING,
-      country_iso_code STRING,
-      country_name STRING,
-      subdivision_1_iso_code STRING,
-      subdivision_1_name STRING,
-      subdivision_2_iso_code STRING,
-      subdivision_2_name STRING,
-      city_name STRING,
-      metro_code INT64,
-      time_zone STRING,
-      is_in_european_union BOOL
-    );
-    """
-  end
 
   defp merge_table_sql(tmp_table_name, dest_table_name) do
     flds = ~w(locale_code continent_code continent_name country_iso_code country_name
