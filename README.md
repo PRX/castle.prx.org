@@ -111,6 +111,7 @@ a more progressive sync process.
 mix bigquery.sync.podcasts [--lock]
 mix bigquery.sync.episodes [--lock]
 mix bigquery.sync.agentnames [--lock]
+mix bigquery.sync.geonames [--lock]
 ```
 
 ### Downloads Rollup
