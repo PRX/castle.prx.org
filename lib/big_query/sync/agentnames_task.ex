@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Bigquery.Sync.Agentnames do
   @lock "lock.bigquery.sync.agentnames"
   @lock_ttl 120
   @success_ttl 30
-  @url "https://raw.githubusercontent.com/PRX/prx-podagent/master/db/agents.lock.json"
+  @url "https://raw.githubusercontent.com/PRX/prx-podagent/main/db/agents.lock.json"
 
   def run(args) do
     {:ok, _started} = Application.ensure_all_started(:castle)
