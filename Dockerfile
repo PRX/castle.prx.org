@@ -27,6 +27,7 @@ FROM alpine:3.17.2 AS built
 LABEL maintainer="PRX <sysadmin@prx.org>"
 LABEL org.prx.app="yes"
 LABEL org.prx.spire.publish.ecr="ELIXIR_APP"
+RUN apk add --no-cache bash
 ENV MIX_ENV=prod
 ENV USE_BUILT=true
 WORKDIR /opt/app
