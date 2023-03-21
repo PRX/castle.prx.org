@@ -1,4 +1,4 @@
-FROM elixir:1.12.3-alpine AS builder
+FROM elixir:1.13.4-alpine AS builder
 
 WORKDIR /opt/app
 ENTRYPOINT [ "./bin/application" ]
