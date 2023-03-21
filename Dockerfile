@@ -3,7 +3,7 @@ FROM elixir:1.13.4-alpine AS builder
 WORKDIR /opt/app
 ENTRYPOINT [ "./bin/application" ]
 
-RUN apk add --no-cache git
+RUN apk add --no-cache bash git
 RUN mix local.rebar --force && mix local.hex --force
 
 ADD mix.exs mix.lock ./
