@@ -3,7 +3,6 @@ env:
   variables:
     PRX_ECR_CONFIG_PARAMETERS: "CastleEcrImageTag"
     PRX_SPIRE_ECR_PKG_PARAMETERS: ELIXIR_APP=/prx/stag/Spire/Dovetail-Castle/pkg/docker-image-tag
-    PRX_CI_PRERELEASE: "true"
   parameter-store:
     DOCKERHUB_USERNAME: /prx/DOCKERHUB_USERNAME
     DOCKERHUB_PASSWORD: /prx/DOCKERHUB_PASSWORD
