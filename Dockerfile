@@ -3,8 +3,7 @@ FROM elixir:1.13.4-alpine AS builder
 WORKDIR /opt/app
 ENTRYPOINT [ "./bin/application" ]
 
-RUN apk add --no-cache bash build-base inotify-tools git python3 py3-pip
-RUN git clone https://github.com/PRX/aws-secrets /opt/aws-secrets
+RUN apk add --no-cache git
 RUN mix local.rebar --force && mix local.hex --force
 
 ADD mix.exs mix.lock ./
@@ -28,13 +27,10 @@ FROM alpine:3.17.2 AS built
 LABEL maintainer="PRX <sysadmin@prx.org>"
 LABEL org.prx.app="yes"
 LABEL org.prx.spire.publish.ecr="ELIXIR_APP"
-RUN apk add --no-cache bash openssl-dev python3 py3-pip && ln -s /usr/bin/python3 /usr/bin/python
-RUN pip3 --disable-pip-version-check --no-cache-dir install awscli
 ENV MIX_ENV=prod
 ENV USE_BUILT=true
 WORKDIR /opt/app
 COPY --from=builder /opt/built .
 COPY --from=builder /opt/app/bin/* bin/
-COPY --from=builder /opt/aws-secrets/bin/aws-secrets-get* /usr/local/bin/
 ENTRYPOINT [ "./bin/application" ]
 CMD web

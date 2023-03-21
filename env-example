@@ -1,7 +1,6 @@
 #
 # Environment configs
 #
-LOCAL_ENV=true
 BQ_CLIENT_EMAIL=someone@your-project-id.iam.gserviceaccount.com
 BQ_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----"
 BQ_PROJECT_ID=
