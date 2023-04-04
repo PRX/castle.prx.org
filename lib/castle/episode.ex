@@ -104,7 +104,7 @@ defmodule Castle.Episode do
       podcast_id: podcast_id(doc["_links"]),
       title: doc["title"],
       subtitle: doc["subtitle"],
-      image_url: image_url(doc["images"]),
+      image_url: image_url(doc),
       created_at: parse_dtim(doc["createdAt"]),
       updated_at: parse_dtim(doc["updatedAt"]),
       deleted_at: parse_dtim(doc["deletedAt"]),
@@ -126,7 +126,7 @@ defmodule Castle.Episode do
 
   defp podcast_id(_any), do: nil
 
-  defp image_url([img | _rest]), do: img["url"]
+  defp image_url(%{"image" => %{"href" => href}}), do: href
   defp image_url(_any), do: nil
 
   defp parse_dtim(nil), do: nil

@@ -79,8 +79,8 @@ defmodule Castle.Podcast do
   defp account_id("/api/v1/accounts/" <> id), do: String.to_integer(id)
   defp account_id(_any), do: nil
 
-  defp image_url(%{"feedImage" => %{"url" => url}}), do: url
-  defp image_url(%{"itunesImage" => %{"url" => url}}), do: url
+  defp image_url(%{"feedImage" => %{"href" => href}}), do: href
+  defp image_url(%{"itunesImage" => %{"href" => href}}), do: href
   defp image_url(_any), do: nil
 
   defp parse_dtim(nil), do: nil

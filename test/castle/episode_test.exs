@@ -41,10 +41,7 @@ defmodule Castle.EpisodeTest do
       "releasedAt" => "2018-04-25T04:30:01Z",
       "segmentCount" => 2,
       "audioVersion" => "my-version",
-      "images" => [
-        %{"url" => "http://foo.bar/image1.jpg"},
-        %{"url" => "http://foo.bar/image2.jpg"}
-      ],
+      "image" => %{"href" => "http://foo.bar/image1.jpg"},
       "_links" => %{
         "prx:podcast" => %{"href" => "/api/v1/podcasts/123"}
       },

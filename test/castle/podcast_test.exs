@@ -25,8 +25,8 @@ defmodule Castle.PodcastTest do
       "updatedAt" => "2018-04-25T05:00:00Z",
       "deletedAt" => "2018-04-25T05:00:01Z",
       "publishedAt" => "2018-04-25T04:30:00Z",
-      "itunesImage" => %{"url" => "http://foo.bar/itunes.jpg"},
-      "feedImage" => %{"url" => "http://foo.bar/feed.jpg"}
+      "itunesImage" => %{"href" => "http://foo.bar/itunes.jpg"},
+      "feedImage" => %{"href" => "http://foo.bar/feed.jpg"}
     })
 
     assert podcast = get(Castle.Podcast, 123)
@@ -85,7 +85,7 @@ defmodule Castle.PodcastTest do
   end
 
   test "falls back to the itunes image" do
-    from_feeder(%{"id" => 123, "itunesImage" => %{"url" => "http://foo.bar/itunes.jpg"}})
+    from_feeder(%{"id" => 123, "itunesImage" => %{"href" => "http://foo.bar/itunes.jpg"}})
     assert podcast = get(Castle.Podcast, 123)
     assert podcast.image_url == "http://foo.bar/itunes.jpg"
   end
