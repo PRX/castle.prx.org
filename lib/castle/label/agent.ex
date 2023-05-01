@@ -142,7 +142,8 @@ defmodule Castle.Label.Agent do
     138 => "castget",
     139 => "Newsboat",
     140 => "Anghami",
-    141 => "VLC"
+    141 => "VLC",
+    142 => "PRX Play"
   }
 
   def find(nil), do: "Other"
