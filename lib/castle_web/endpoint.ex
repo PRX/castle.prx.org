@@ -47,7 +47,7 @@ defmodule CastleWeb.Endpoint do
 
   # CORS support
   plug Corsica,
-    origins: ~r/.*\.prx\.(?:org|dev|tech|docker)$/,
+    origins: ~r/.*\.prx\.(?:org|dev|test|tech|docker)$/,
     allow_headers: ~w(Authorization),
     allow_methods: ~w(HEAD GET),
     allow_credentials: true
