@@ -9,7 +9,10 @@ config :castle, :redis_library, RedixClustered
 config :castle, CastleWeb.Endpoint,
   render_errors: [view: CastleWeb.ErrorView, accepts: ~w(html json)],
   pubsub_server: Castle.PubSub,
-  http: [compress: true]
+  http: [
+    compress: true,
+    protocol_options: [max_header_value_length: 16000]
+  ]
 
 # Configures Elixir's Logger
 config :logger, :console,
