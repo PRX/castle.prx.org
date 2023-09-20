@@ -22,7 +22,7 @@ defmodule Mix.Tasks.Bigquery.Sync.Episodes do
 
   defp sync_episodes do
     fields = ~w(
-      id podcast_id title subtitle image_url
+      id podcast_id guid title subtitle image_url
       created_at updated_at published_at released_at deleted_at
       segment_count audio_version keywords
     )
