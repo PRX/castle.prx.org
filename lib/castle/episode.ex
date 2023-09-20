@@ -8,6 +8,7 @@ defmodule Castle.Episode do
 
   schema "episodes" do
     field(:podcast_id, :integer)
+    field(:guid, :string)
     field(:title, :string)
     field(:subtitle, :string)
     field(:image_url, :string)
@@ -26,6 +27,7 @@ defmodule Castle.Episode do
     episode
     |> cast(attrs, [
       :podcast_id,
+      :guid,
       :title,
       :subtitle,
       :image_url,
@@ -102,6 +104,7 @@ defmodule Castle.Episode do
     %{
       id: doc["id"],
       podcast_id: podcast_id(doc["_links"]),
+      guid: doc["guid"],
       title: doc["title"],
       subtitle: doc["subtitle"],
       image_url: image_url(doc),

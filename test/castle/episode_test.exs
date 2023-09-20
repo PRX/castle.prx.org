@@ -32,6 +32,7 @@ defmodule Castle.EpisodeTest do
   test "creates from a feeder doc" do
     from_feeder(%{
       "id" => @id1,
+      "guid" => "some-guid",
       "title" => "hello",
       "subtitle" => "world",
       "createdAt" => "2018-04-25T04:00:00.129Z",
@@ -53,6 +54,7 @@ defmodule Castle.EpisodeTest do
 
     assert episode = get(Castle.Episode, @id1)
     assert episode.podcast_id == 123
+    assert episode.guid == "some-guid"
     assert episode.title == "hello"
     assert episode.subtitle == "world"
     assert episode.image_url == "http://foo.bar/image1.jpg"
