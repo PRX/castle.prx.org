@@ -144,7 +144,11 @@ defmodule Castle.Label.Agent do
     140 => "Anghami",
     141 => "VLC",
     142 => "PRX Play",
-    143 => "mowPod"
+    143 => "mowPod",
+    144 => "Sony Playstation",
+    145 => "Yandex Music",
+    146 => "The New Yorker",
+    147 => "YouTube Music"
   }
 
   def find(nil), do: "Other"
