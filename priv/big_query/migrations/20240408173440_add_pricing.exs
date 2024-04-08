@@ -15,13 +15,13 @@ defmodule BigQuery.Migrations.AddPricing do
 
   def down do
     Query.log("""
-      ALTER TABLE campaigns DROP COLUMN budget_model STRING;
-      ALTER TABLE campaigns DROP COLUMN budget_cents INT64;
-      ALTER TABLE campaigns DROP COLUMN budget_currency STRING;
+      ALTER TABLE campaigns DROP COLUMN budget_model;
+      ALTER TABLE campaigns DROP COLUMN budget_cents;
+      ALTER TABLE campaigns DROP COLUMN budget_currency;
 
-      ALTER TABLE flights DROP COLUMN price_model STRING;
-      ALTER TABLE flights DROP COLUMN price_cents INT64;
-      ALTER TABLE flights DROP COLUMN price_currency STRING;
+      ALTER TABLE flights DROP COLUMN price_model;
+      ALTER TABLE flights DROP COLUMN price_cents;
+      ALTER TABLE flights DROP COLUMN price_currency;
     """)
   end
 end
