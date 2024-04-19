@@ -8,8 +8,9 @@ defmodule Mix.Tasks.Bigquery.Sync.Geonames do
   @lock "lock.bigquery.sync.geonames"
   @lock_ttl 120
   @success_ttl 30
-  @url "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City-CSV&suffix=zip&license_key="
+  @url "https://download.maxmind.com/geoip/databases/GeoLite2-City-CSV/download?suffix=zip"
   @filename "GeoLite2-City-Locations-en.csv"
+  @max_redirects 3
 
   def run(args) do
     {:ok, _started} = Application.ensure_all_started(:castle)
@@ -46,14 +47,39 @@ defmodule Mix.Tasks.Bigquery.Sync.Geonames do
   defp get_maxmind_geonames do
     Logger.info("BigQuery.Sync.Geonames loading maxmind csv...")
 
-    case Env.get(:maxmind_license_key) do
-      nil -> {:error, "MAXMIND_LICENSE_KEY not set"}
-      "" -> {:error, "MAXMIND_LICENSE_KEY not set"}
-      key -> HTTPoison.get(@url <> key) |> parse_csv()
+    case {Env.get(:maxmind_account_id), Env.get(:maxmind_license_key)} do
+      {nil, _} -> {:error, "MAXMIND_ACCOUNT_ID not set"}
+      {"", _} -> {:error, "MAXMIND_ACCOUNT_ID not set"}
+      {_, nil} -> {:error, "MAXMIND_LICENSE_KEY not set"}
+      {_, ""} -> {:error, "MAXMIND_LICENSE_KEY not set"}
+      {user, pass} -> get_csv(@url, follow_redirect: false, hackney: [basic_auth: {user, pass}])
     end
   end
 
-  defp parse_csv({:ok, %{status_code: 200, body: body}}) do
+  defp get_csv(url, opts, followed_redirects \\ 0) do
+    if followed_redirects >= @max_redirects do
+      {:error, "hit max redirects on #{url}"}
+    else
+      case HTTPoison.get(url, [], opts) do
+        {:ok, %{status_code: 200, body: body}} ->
+          parse_csv(body)
+
+        # NOTE: follow_redirects: true includes basic auth in subsequent requests, which
+        # results in 400s on the signed redirect urls
+        {:ok, %{status_code: 302, headers: headers}} ->
+          {_, location} = List.keyfind(headers, "Location", 0)
+          get_csv(location, [follow_redirect: false], followed_redirects + 1)
+
+        {:ok, %{status_code: code}} ->
+          {:error, "got #{code} from maxmind"}
+
+        err ->
+          {:error, inspect(err)}
+      end
+    end
+  end
+
+  defp parse_csv(body) do
     {:ok, files} = :zip.list_dir(body)
 
     [folder, filename] =
@@ -75,9 +101,6 @@ defmodule Mix.Tasks.Bigquery.Sync.Geonames do
 
     {:ok, folder, Enum.count(rows), Enum.join(rows, "\n")}
   end
-
-  defp parse_csv({:ok, %{status_code: code}}), do: {:error, "got #{code} from maxmind"}
-  defp parse_csv(err), do: {:error, inspect(err)}
 
   defp merge_table_sql(tmp_table_name, dest_table_name) do
     flds = ~w(locale_code continent_code continent_name country_iso_code country_name
