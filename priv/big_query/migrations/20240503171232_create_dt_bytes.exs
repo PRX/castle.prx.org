@@ -1,4 +1,4 @@
-defmodule BigQuery.Migrations.CreateDtDownloads do
+defmodule BigQuery.Migrations.CreateDtBytes do
   alias BigQuery.Base.Query
 
   def up do
