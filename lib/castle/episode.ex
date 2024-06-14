@@ -19,7 +19,8 @@ defmodule Castle.Episode do
     field(:released_at, :utc_datetime)
     field(:segment_count, :integer)
     field(:audio_version, :string)
-    field(:keywords, {:array, :string})
+    field(:categories, {:array, :string})
+    field(:feed_slugs, {:array, :string})
   end
 
   @doc false
@@ -38,7 +39,8 @@ defmodule Castle.Episode do
       :released_at,
       :segment_count,
       :audio_version,
-      :keywords
+      :categories,
+      :feed_slugs
     ])
     |> validate_required([:podcast_id])
   end
@@ -115,7 +117,8 @@ defmodule Castle.Episode do
       released_at: parse_dtim(doc["releasedAt"]),
       segment_count: doc["segmentCount"],
       audio_version: doc["audioVersion"],
-      keywords: doc["categories"]
+      categories: doc["categories"],
+      feed_slugs: doc["feedSlugs"]
     }
   end
 
