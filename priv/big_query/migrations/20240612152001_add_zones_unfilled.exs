@@ -3,23 +3,19 @@ defmodule BigQuery.Migrations.AddPricing do
 
   def up do
     Query.log("""
-      ALTER TABLE dt_downloads ADD COLUMN zones_filled STRUCT<
-        pre INT64,
-        mid INT64,
-        post INT64,
-        house_pre INT64,
-        house_mid INT64,
-        house_post INT64
-      >;
+      ALTER TABLE dt_downloads ADD COLUMN zones_filled_pre INT64;
+      ALTER TABLE dt_downloads ADD COLUMN zones_filled_mid INT64;
+      ALTER TABLE dt_downloads ADD COLUMN zones_filled_post INT64;
+      ALTER TABLE dt_downloads ADD COLUMN zones_filled_house_pre INT64;
+      ALTER TABLE dt_downloads ADD COLUMN zones_filled_house_mid INT64;
+      ALTER TABLE dt_downloads ADD COLUMN zones_filled_house_post INT64;
 
-      ALTER TABLE dt_downloads ADD COLUMN zones_unfilled STRUCT<
-        pre INT64,
-        mid INT64,
-        post INT64,
-        house_pre INT64,
-        house_mid INT64,
-        house_post INT64
-      >;
+      ALTER TABLE dt_downloads ADD COLUMN zones_unfilled_pre INT64;
+      ALTER TABLE dt_downloads ADD COLUMN zones_unfilled_mid INT64;
+      ALTER TABLE dt_downloads ADD COLUMN zones_unfilled_post INT64;
+      ALTER TABLE dt_downloads ADD COLUMN zones_unfilled_house_pre INT64;
+      ALTER TABLE dt_downloads ADD COLUMN zones_unfilled_house_mid INT64;
+      ALTER TABLE dt_downloads ADD COLUMN zones_unfilled_house_post INT64;
     """)
   end
 
