@@ -21,8 +21,20 @@ defmodule BigQuery.Migrations.AddPricing do
 
   def down do
     Query.log("""
-      ALTER TABLE dt_downloads DROP COLUMN zones_filled;
-      ALTER TABLE dt_downloads DROP COLUMN zones_unfilled;
+      ALTER TABLE dt_downloads DROP COLUMN zones_filled_pre;
+      ALTER TABLE dt_downloads DROP COLUMN zones_filled_mid;
+      ALTER TABLE dt_downloads DROP COLUMN zones_filled_post;
+      ALTER TABLE dt_downloads DROP COLUMN zones_filled_house_pre;
+      ALTER TABLE dt_downloads DROP COLUMN zones_filled_house_mid;
+      ALTER TABLE dt_downloads DROP COLUMN zones_filled_house_post;
+
+      ALTER TABLE dt_downloads DROP COLUMN zones_unfilled_pre;
+      ALTER TABLE dt_downloads DROP COLUMN zones_unfilled_mid;
+      ALTER TABLE dt_downloads DROP COLUMN zones_unfilled_post;
+      ALTER TABLE dt_downloads DROP COLUMN zones_unfilled_house_pre;
+      ALTER TABLE dt_downloads DROP COLUMN zones_unfilled_house_mid;
+      ALTER TABLE dt_downloads DROP COLUMN zones_unfilled_house_post;
+
     """)
   end
 end
