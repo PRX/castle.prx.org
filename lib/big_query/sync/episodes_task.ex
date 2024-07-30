@@ -24,7 +24,7 @@ defmodule Mix.Tasks.Bigquery.Sync.Episodes do
     fields = ~w(
       id podcast_id guid title subtitle image_url
       created_at updated_at published_at released_at deleted_at
-      segment_count audio_version keywords
+      segment_count audio_version categories
     )
 
     rows = Enum.map(Castle.Episode.all(), &episode_row(&1, fields))
