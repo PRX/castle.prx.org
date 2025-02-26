@@ -41,6 +41,8 @@ defmodule Castle.EpisodeTest do
       "publishedAt" => "2018-04-25T04:30:00Z",
       "releasedAt" => "2018-04-25T04:30:01Z",
       "segmentCount" => 2,
+      "seasonNumber" => 3,
+      "episodeNumber" => 4,
       "audioVersion" => "my-version",
       "image" => %{"href" => "http://foo.bar/image1.jpg"},
       "_links" => %{
@@ -68,6 +70,8 @@ defmodule Castle.EpisodeTest do
     assert_time(episode.published_at, "2018-04-25T04:30:00Z")
     assert_time(episode.released_at, "2018-04-25T04:30:01Z")
     assert episode.segment_count == 2
+    assert episode.season_number == 3
+    assert episode.episode_number == 4
     assert episode.audio_version == "my-version"
     assert episode.categories == ["some", "tag"]
     assert episode.feed_slugs == ["default", "bonus-feed"]
