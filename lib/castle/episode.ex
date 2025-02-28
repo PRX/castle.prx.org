@@ -21,6 +21,8 @@ defmodule Castle.Episode do
     field(:audio_version, :string)
     field(:categories, {:array, :string})
     field(:feed_slugs, {:array, :string})
+    field(:season_number, :integer)
+    field(:episode_number, :integer)
   end
 
   @doc false
@@ -40,7 +42,9 @@ defmodule Castle.Episode do
       :segment_count,
       :audio_version,
       :categories,
-      :feed_slugs
+      :feed_slugs,
+      :season_number,
+      :episode_number
     ])
     |> validate_required([:podcast_id])
   end
@@ -118,7 +122,9 @@ defmodule Castle.Episode do
       segment_count: doc["segmentCount"],
       audio_version: doc["audioVersion"],
       categories: doc["categories"],
-      feed_slugs: doc["feedSlugs"]
+      feed_slugs: doc["feedSlugs"],
+      season_number: doc["seasonNumber"],
+      episode_number: doc["episodeNumber"]
     }
   end
 
