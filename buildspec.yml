@@ -1,14 +1,13 @@
 version: 0.2
 env:
   variables:
-    PRX_ECR_CONFIG_PARAMETERS: "CastleEcrImageTag"
     PRX_SPIRE_ECR_PKG_PARAMETERS: ELIXIR_APP=/prx/stag/Spire/Dovetail-Castle/pkg/docker-image-tag
+    PRX_CI_PRERELEASE: "true"
+    PRX_BUILD_AARCH64: "true"
   parameter-store:
     DOCKERHUB_USERNAME: /prx/DOCKERHUB_USERNAME
     DOCKERHUB_PASSWORD: /prx/DOCKERHUB_PASSWORD
   exported-variables:
-    - PRX_ECR_CONFIG_PARAMETERS
-    - PRX_ECR_IMAGE
     - PRX_SPIRE_ECR_PKG_PARAMETERS
     - ELIXIR_APP
 phases:
