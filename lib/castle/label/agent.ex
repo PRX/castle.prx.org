@@ -156,7 +156,12 @@ defmodule Castle.Label.Agent do
     152 => "Storybutton",
     153 => "WPR App",
     154 => "WUNC App",
-    155 => "Listen Network"
+    155 => "Listen Network",
+    156 => "Alexa iHeartRadio",
+    157 => "Alexa NPR One",
+    158 => "poddl",
+    159 => "PodMe",
+    160 => "Yoto"
   }
 
   def find(nil), do: "Other"
