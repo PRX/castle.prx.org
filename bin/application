@@ -23,13 +23,13 @@ ApplicationRun () {
     ApplicationUsage
     exit
   elif [ "$PROCESS" = "web" ] ; then
-    mix do ecto.migrate, phx.server
+    exec mix do ecto.migrate, phx.server
   elif [ "$PROCESS" = "web-built" ] ; then
-    trap 'exit' INT; /opt/built/bin/castle foreground
+    exec /opt/built/bin/castle foreground
   elif [ "$PROCESS" = "console" ] ; then
-    iex -S mix
+    exec iex -S mix
   elif [ "$PROCESS" = "console-built" ] ; then
-    trap 'exit' INT; /opt/built/bin/castle remote_console
+    exec /opt/built/bin/castle remote_console
   elif [ "$PROCESS" = "test" ] ; then
     CheckDependencies
     mix test
@@ -61,11 +61,11 @@ BuiltRun () {
     exit
   elif [ "$PROCESS" = "web" ] ; then
     /opt/app/bin/castle migrate
-    trap 'exit' INT; /opt/app/bin/castle foreground
+    exec /opt/app/bin/castle foreground
   elif [ "$PROCESS" = "console" ] ; then
-    trap 'exit' INT; /opt/app/bin/castle remote_console
+    exec /opt/app/bin/castle remote_console
   elif [ "$PROCESS" = "--" ] ; then
-    trap 'exit' INT; /opt/app/bin/castle $CMD_ARGS
+    exec /opt/app/bin/castle $CMD_ARGS
   else
     echo "ERROR: $PROCESS is not a valid command."
     BuiltUsage
