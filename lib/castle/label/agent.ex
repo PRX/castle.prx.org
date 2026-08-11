@@ -161,7 +161,13 @@ defmodule Castle.Label.Agent do
     157 => "Alexa NPR One",
     158 => "poddl",
     159 => "PodMe",
-    160 => "Yoto"
+    160 => "Yoto",
+    161 => "Swinsian",
+    162 => "Podverse",
+    163 => "Turtlecast",
+    164 => "WGBH App",
+    165 => "WRKF App",
+    166 => "VPR App"
   }
 
   def find(nil), do: "Other"
